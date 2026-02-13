@@ -59,6 +59,22 @@ a.app-card:hover {
   color: #888;
   line-height: 1.4;
 }
+
+.app-card.coming-soon {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.badge {
+  display: inline-block;
+  font-size: 0.7rem;
+  background: #e94560;
+  color: #fff;
+  padding: 2px 8px;
+  border-radius: 8px;
+  margin-left: 8px;
+  vertical-align: middle;
+}
 </style>
 </head>
 <body>
@@ -70,6 +86,10 @@ a.app-card:hover {
     <h2>Calendar Puzzle</h2>
     <p>Daily puzzle — place pieces to reveal today's date. Based on the DragonFjord A-Puzzle-A-Day.</p>
   </a>
+  <div class="app-card coming-soon">
+    <h2>Lineup Guesser <span class="badge">Coming Soon</span></h2>
+    <p>Guess the starting lineup before the match. Test your football knowledge.</p>
+  </div>
 </div>
 
 </body>
