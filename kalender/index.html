@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Calendar Puzzle</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: #1a1a2e;
+  color: #eee;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  user-select: none;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+h1 {
+  font-size: 1.8rem;
+  color: #e94560;
+  margin-bottom: 4px;
+}
+
+.subtitle {
+  color: #888;
+  font-size: 0.95rem;
+  margin-bottom: 8px;
+}
+
+.target-info {
+  color: #ccc;
+  font-size: 1.05rem;
+}
+
+.target-info strong {
+  color: #e94560;
+  font-size: 1.2rem;
+}
+
+.game-container {
+  display: flex;
+  gap: 32px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* ===== GRID ===== */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(7, 60px);
+  grid-template-rows: repeat(7, 60px);
+  gap: 3px;
+  background: #0d1b2a;
+  padding: 3px;
+  border-radius: 10px;
+  border: 2px solid #1b2838;
+}
+
+.cell {
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  font-weight: 700;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.15s, transform 0.1s;
+  position: relative;
+  overflow: hidden;
+}
+
+.cell.blocked {
+  background: #0d1b2a;
+  cursor: default;
+}
+
+.cell.open {
+  background: #162447;
+  color: #ccc;
+}
+
+.cell.open:hover {
+  background: #1f3460;
+}
+
+.cell.target {
+  background: #1e1a3a;
+  color: #fff;
+  box-shadow: inset 0 0 0 2px #e94560;
+}
+
+.cell.target:hover {
+  background: #2a2248;
+}
+
+.cell.covered {
+  cursor: pointer;
+  color: transparent;
+}
+
+.cell.covered:hover {
+  filter: brightness(1.15);
+  transform: scale(1.03);
+}
+
+.ghost-overlay {
+  position: absolute;
+  inset: 0;
+  border-radius: 6px;
+  pointer-events: none;
+}
+
+/* ===== SIDE PANEL ===== */
+.side-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 200px;
+}
+
+.controls {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.controls button {
+  padding: 10px 16px;
+  border: 2px solid #1b2838;
+  border-radius: 8px;
+  background: #162447;
+  color: #ccc;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.controls button:hover {
+  background: #1f3460;
+  border-color: #e94560;
+  color: #fff;
+}
+
+.instructions {
+  font-size: 0.8rem;
+  color: #666;
+  line-height: 1.6;
+}
+
+.instructions kbd {
+  background: #162447;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-family: inherit;
+  color: #aaa;
+}
+
+/* ===== PIECE TRAY ===== */
+.piece-tray {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.piece-card {
+  background: #162447;
+  border: 2px solid #1b2838;
+  border-radius: 10px;
+  padding: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  min-height: 70px;
+}
+
+.piece-card:hover:not(.placed) {
+  border-color: #e94560;
+  background: #1a2a50;
+}
+
+.piece-card.selected {
+  border-color: #e94560;
+  background: #1a1a3e;
+  box-shadow: 0 0 20px rgba(233, 69, 96, 0.25);
+}
+
+.piece-card.placed {
+  opacity: 0.25;
+  cursor: default;
+  filter: grayscale(0.5);
+}
+
+.piece-mini-grid {
+  display: grid;
+  gap: 2px;
+}
+
+.mini-cell {
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+}
+
+.mini-cell.filled {
+  /* color set via inline style */
+}
+
+.mini-cell.empty {
+  background: transparent;
+}
+
+/* ===== WIN OVERLAY ===== */
+.win-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 10, 20, 0.92);
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.win-overlay.show {
+  display: flex;
+}
+
+.win-overlay h2 {
+  font-size: 3rem;
+  color: #e94560;
+}
+
+.win-overlay p {
+  font-size: 1.4rem;
+  color: #ccc;
+}
+
+.win-overlay button {
+  padding: 12px 28px;
+  border: none;
+  border-radius: 8px;
+  background: #e94560;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background 0.2s;
+}
+
+.win-overlay button:hover {
+  background: #c73650;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 600px) {
+  .grid {
+    grid-template-columns: repeat(7, 44px);
+    grid-template-rows: repeat(7, 44px);
+    gap: 2px;
+    padding: 2px;
+  }
+  .cell {
+    width: 44px;
+    height: 44px;
+    font-size: 0.85rem;
+  }
+  h1 { font-size: 1.4rem; }
+  .game-container { gap: 20px; }
+  .piece-card { padding: 8px; min-height: 60px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Daily Calendar Puzzle</h1>
+  <p class="subtitle">Place all pieces to cover everything except today's date</p>
+  <p class="target-info" id="target-info"></p>
+</header>
+
+<div class="game-container">
+  <div class="grid" id="grid"></div>
+
+  <div class="side-panel">
+    <div class="controls">
+      <button onclick="rotatePiece()">&#8635; Rotate</button>
+      <button onclick="flipPiece()">&#8596; Flip</button>
+      <button onclick="resetGame()">Reset</button>
+    </div>
+    <div class="instructions">
+      <kbd>R</kbd> Rotate &nbsp; <kbd>F</kbd> Flip &nbsp; <kbd>Esc</kbd> Deselect<br>
+      Click a piece, then click the grid to place it.<br>
+      Click a placed piece to pick it back up.
+    </div>
+    <div class="piece-tray" id="piece-tray"></div>
+  </div>
+</div>
+
+<div class="win-overlay" id="win-overlay">
+  <h2>Solved!</h2>
+  <p id="win-message"></p>
+  <button onclick="closeWin()">Nice!</button>
+</div>
+
+<script>
+// ==================== CONSTANTS ====================
+const ROWS = 7;
+const COLS = 7;
+
+const MONTH_NAMES = [
+  'January','February','March','April','May','June',
+  'July','August','September','October','November','December'
+];
+const MONTH_LETTERS = ['J','F','M','A','M','J','J','A','S','O','N','D'];
+
+// Grid data: each cell is { type, label, monthIndex?, day? }
+const GRID_DATA = [];
+
+(function buildGrid() {
+  // Row 0: Jan-Jun + blocked
+  GRID_DATA[0] = [];
+  for (let c = 0; c < 6; c++) {
+    GRID_DATA[0][c] = { type: 'month', monthIndex: c, label: MONTH_LETTERS[c] };
+  }
+  GRID_DATA[0][6] = { type: 'blocked' };
+
+  // Row 1: Jul-Dec + blocked
+  GRID_DATA[1] = [];
+  for (let c = 0; c < 6; c++) {
+    GRID_DATA[1][c] = { type: 'month', monthIndex: c + 6, label: MONTH_LETTERS[c + 6] };
+  }
+  GRID_DATA[1][6] = { type: 'blocked' };
+
+  // Rows 2-5: days 1-28
+  for (let r = 2; r <= 5; r++) {
+    GRID_DATA[r] = [];
+    for (let c = 0; c < 7; c++) {
+      const day = (r - 2) * 7 + c + 1;
+      GRID_DATA[r][c] = { type: 'day', day, label: String(day) };
+    }
+  }
+
+  // Row 6: 29-31 + 4 blocked
+  GRID_DATA[6] = [];
+  for (let c = 0; c < 3; c++) {
+    GRID_DATA[6][c] = { type: 'day', day: 29 + c, label: String(29 + c) };
+  }
+  for (let c = 3; c < 7; c++) {
+    GRID_DATA[6][c] = { type: 'blocked' };
+  }
+})();
+
+// Piece definitions: DragonFjord A-Puzzle-A-Day verified set
+// [row, col] offsets from top-left of bounding box
+const PIECES = [
+  { color: '#FF6B6B', cells: [[0,0],[1,0],[2,0],[3,0],[3,1]] },           // L (5)
+  { color: '#4ECDC4', cells: [[0,0],[0,2],[1,0],[1,1],[1,2]] },           // U (5)
+  { color: '#45B7D1', cells: [[0,1],[0,2],[1,1],[2,0],[2,1]] },           // S (5)
+  { color: '#96CEB4', cells: [[0,1],[1,0],[1,1],[2,0],[2,1]] },           // D (5)
+  { color: '#DDA0DD', cells: [[0,0],[0,1],[0,2],[1,0],[2,0]] },           // R (5)
+  { color: '#F7DC6F', cells: [[0,0],[0,1],[1,0],[1,1],[2,0],[2,1]] },     // B - 2x3 rect (6)
+  { color: '#F0A500', cells: [[0,1],[1,0],[1,1],[2,0],[3,0]] },           // F (5)
+  { color: '#BB86FC', cells: [[0,0],[1,0],[1,1],[2,0],[3,0]] },           // T (5)
+];
+
+// ==================== STATE ====================
+let gridState;        // [r][c] = piece index or -1
+let selectedPiece;    // index of selected piece, or -1
+let placedPieces;     // Set of placed piece indices
+let pieceShapes;      // Current transformed shapes per piece
+let ghostIdxs;        // Cell indices with ghost overlays
+let lastHover;        // { row, col } or null
+
+// Today
+const today = new Date();
+const TARGET_MONTH = today.getMonth();
+const TARGET_DAY = today.getDate();
+
+function getMonthPos(m) {
+  return { row: Math.floor(m / 6), col: m % 6 };
+}
+
+function getDayPos(d) {
+  return { row: Math.floor((d - 1) / 7) + 2, col: (d - 1) % 7 };
+}
+
+const TARGET_MONTH_POS = getMonthPos(TARGET_MONTH);
+const TARGET_DAY_POS = getDayPos(TARGET_DAY);
+
+function isTargetCell(r, c) {
+  return (r === TARGET_MONTH_POS.row && c === TARGET_MONTH_POS.col) ||
+         (r === TARGET_DAY_POS.row && c === TARGET_DAY_POS.col);
+}
+
+// ==================== INIT ====================
+let listenersAttached = false;
+
+function init() {
+  document.getElementById('target-info').innerHTML =
+    'Show: <strong>' + MONTH_LETTERS[TARGET_MONTH] + '</strong> (' +
+    MONTH_NAMES[TARGET_MONTH] + ') + <strong>' + TARGET_DAY + '</strong>';
+
+  gridState = Array.from({ length: ROWS }, () => Array(COLS).fill(-1));
+  pieceShapes = PIECES.map(p => p.cells.map(c => [...c]));
+  placedPieces = new Set();
+  selectedPiece = -1;
+  ghostIdxs = [];
+  lastHover = null;
+
+  renderGrid();
+  renderTray();
+
+  if (!listenersAttached) {
+    listenersAttached = true;
+    attachListeners();
+  }
+}
+
+function attachListeners() {
+  const gridEl = document.getElementById('grid');
+
+  gridEl.addEventListener('mouseover', (e) => {
+    const cell = e.target.closest('.cell');
+    if (!cell) return;
+    const r = +cell.dataset.row;
+    const c = +cell.dataset.col;
+    if (lastHover && lastHover.row === r && lastHover.col === c) return;
+    lastHover = { row: r, col: c };
+    updateGhost();
+  });
+
+  gridEl.addEventListener('mouseleave', () => {
+    lastHover = null;
+    clearGhost();
+  });
+
+  gridEl.addEventListener('click', (e) => {
+    const cell = e.target.closest('.cell');
+    if (!cell) return;
+    const r = +cell.dataset.row;
+    const c = +cell.dataset.col;
+    if (GRID_DATA[r][c].type === 'blocked') return;
+
+    if (gridState[r][c] >= 0) {
+      pickUpPiece(gridState[r][c]);
+    } else {
+      handleGridClick(r, c);
+    }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'r' || e.key === 'R') { e.preventDefault(); rotatePiece(); }
+    if (e.key === 'f' || e.key === 'F') { e.preventDefault(); flipPiece(); }
+    if (e.key === 'Escape') {
+      selectedPiece = -1;
+      clearGhost();
+      renderTray();
+    }
+  });
+}
+
+// ==================== RENDER GRID ====================
+function renderGrid() {
+  ghostIdxs = [];
+  const el = document.getElementById('grid');
+  el.innerHTML = '';
+
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      const cell = document.createElement('div');
+      cell.className = 'cell';
+      cell.dataset.row = r;
+      cell.dataset.col = c;
+
+      const data = GRID_DATA[r][c];
+
+      if (data.type === 'blocked') {
+        cell.classList.add('blocked');
+      } else if (gridState[r][c] >= 0) {
+        const pi = gridState[r][c];
+        cell.classList.add('covered');
+        cell.style.backgroundColor = PIECES[pi].color;
+      } else {
+        cell.classList.add('open');
+        cell.textContent = data.label;
+        if (isTargetCell(r, c)) {
+          cell.classList.add('target');
+        }
+      }
+
+      // Tooltips
+      if (data.type === 'month') {
+        cell.title = MONTH_NAMES[data.monthIndex];
+      } else if (data.type === 'day') {
+        cell.title = 'Day ' + data.day;
+      }
+
+      el.appendChild(cell);
+    }
+  }
+}
+
+// ==================== RENDER TRAY ====================
+function renderTray() {
+  const tray = document.getElementById('piece-tray');
+  tray.innerHTML = '';
+
+  for (let i = 0; i < PIECES.length; i++) {
+    const card = document.createElement('div');
+    card.className = 'piece-card';
+    if (i === selectedPiece) card.classList.add('selected');
+    if (placedPieces.has(i)) card.classList.add('placed');
+
+    const shape = pieceShapes[i];
+    const maxR = Math.max(...shape.map(c => c[0]));
+    const maxC = Math.max(...shape.map(c => c[1]));
+
+    const miniGrid = document.createElement('div');
+    miniGrid.className = 'piece-mini-grid';
+    miniGrid.style.gridTemplateColumns = 'repeat(' + (maxC + 1) + ', 16px)';
+
+    const filled = new Set(shape.map(c => c[0] + ',' + c[1]));
+
+    for (let r = 0; r <= maxR; r++) {
+      for (let c = 0; c <= maxC; c++) {
+        const mc = document.createElement('div');
+        mc.className = 'mini-cell';
+        if (filled.has(r + ',' + c)) {
+          mc.classList.add('filled');
+          mc.style.backgroundColor = PIECES[i].color;
+        } else {
+          mc.classList.add('empty');
+        }
+        miniGrid.appendChild(mc);
+      }
+    }
+
+    card.appendChild(miniGrid);
+
+    if (!placedPieces.has(i)) {
+      card.addEventListener('click', () => {
+        selectedPiece = selectedPiece === i ? -1 : i;
+        renderTray();
+        updateGhost();
+      });
+    }
+
+    tray.appendChild(card);
+  }
+}
+
+// ==================== GHOST PREVIEW ====================
+function updateGhost() {
+  clearGhost();
+  if (selectedPiece < 0 || placedPieces.has(selectedPiece) || !lastHover) return;
+
+  const { row, col } = lastHover;
+  const shape = pieceShapes[selectedPiece];
+  const positions = shape.map(c => [row + c[0], col + c[1]]);
+  const valid = isValidPlacement(positions);
+
+  const gridEl = document.getElementById('grid');
+
+  for (const [r, c] of positions) {
+    if (r < 0 || r >= ROWS || c < 0 || c >= COLS) continue;
+    const idx = r * COLS + c;
+    const cellEl = gridEl.children[idx];
+
+    const overlay = document.createElement('div');
+    overlay.className = 'ghost-overlay';
+    if (valid) {
+      overlay.style.backgroundColor = PIECES[selectedPiece].color;
+      overlay.style.opacity = '0.45';
+    } else {
+      overlay.style.backgroundColor = '#ff2222';
+      overlay.style.opacity = '0.25';
+    }
+    cellEl.appendChild(overlay);
+    ghostIdxs.push(idx);
+  }
+}
+
+function clearGhost() {
+  const gridEl = document.getElementById('grid');
+  for (const idx of ghostIdxs) {
+    const cellEl = gridEl.children[idx];
+    if (cellEl) {
+      const overlay = cellEl.querySelector('.ghost-overlay');
+      if (overlay) overlay.remove();
+    }
+  }
+  ghostIdxs = [];
+}
+
+// ==================== PLACEMENT LOGIC ====================
+function isValidPlacement(positions) {
+  for (const [r, c] of positions) {
+    if (r < 0 || r >= ROWS || c < 0 || c >= COLS) return false;
+    if (GRID_DATA[r][c].type === 'blocked') return false;
+    if (gridState[r][c] >= 0) return false;
+  }
+  return true;
+}
+
+function handleGridClick(row, col) {
+  if (selectedPiece < 0 || placedPieces.has(selectedPiece)) return;
+
+  const shape = pieceShapes[selectedPiece];
+  const positions = shape.map(c => [row + c[0], col + c[1]]);
+
+  if (!isValidPlacement(positions)) return;
+
+  for (const [r, c] of positions) {
+    gridState[r][c] = selectedPiece;
+  }
+
+  placedPieces.add(selectedPiece);
+  selectedPiece = -1;
+  lastHover = null;
+
+  renderGrid();
+  renderTray();
+  checkWin();
+}
+
+function pickUpPiece(pieceIdx) {
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      if (gridState[r][c] === pieceIdx) gridState[r][c] = -1;
+    }
+  }
+  placedPieces.delete(pieceIdx);
+  selectedPiece = pieceIdx;
+
+  renderGrid();
+  renderTray();
+}
+
+// ==================== TRANSFORMS ====================
+function normalize(cells) {
+  const minR = Math.min(...cells.map(c => c[0]));
+  const minC = Math.min(...cells.map(c => c[1]));
+  return cells.map(c => [c[0] - minR, c[1] - minC]);
+}
+
+function rotatePiece() {
+  if (selectedPiece < 0 || placedPieces.has(selectedPiece)) return;
+  pieceShapes[selectedPiece] = normalize(
+    pieceShapes[selectedPiece].map(([r, c]) => [c, -r])
+  );
+  renderTray();
+  updateGhost();
+}
+
+function flipPiece() {
+  if (selectedPiece < 0 || placedPieces.has(selectedPiece)) return;
+  pieceShapes[selectedPiece] = normalize(
+    pieceShapes[selectedPiece].map(([r, c]) => [r, -c])
+  );
+  renderTray();
+  updateGhost();
+}
+
+// ==================== WIN CHECK ====================
+function checkWin() {
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      if (GRID_DATA[r][c].type === 'blocked') continue;
+      const target = isTargetCell(r, c);
+      const covered = gridState[r][c] >= 0;
+      if (target && covered) return;
+      if (!target && !covered) return;
+    }
+  }
+
+  document.getElementById('win-message').textContent =
+    MONTH_NAMES[TARGET_MONTH] + ' ' + TARGET_DAY + ' — You did it!';
+  document.getElementById('win-overlay').classList.add('show');
+}
+
+function closeWin() {
+  document.getElementById('win-overlay').classList.remove('show');
+}
+
+// ==================== RESET ====================
+function resetGame() {
+  init();
+}
+
+// ==================== GO ====================
+init();
+</script>
+</body>
+</html>

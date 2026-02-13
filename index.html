@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Apps</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: #1a1a2e;
+  color: #eee;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 20px;
+}
+
+h1 {
+  font-size: 2rem;
+  color: #e94560;
+  margin-bottom: 32px;
+}
+
+.apps-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 20px;
+  max-width: 800px;
+  width: 100%;
+}
+
+a.app-card {
+  background: #162447;
+  border: 2px solid #1b2838;
+  border-radius: 12px;
+  padding: 28px 24px;
+  text-decoration: none;
+  color: #eee;
+  transition: all 0.2s;
+}
+
+a.app-card:hover {
+  border-color: #e94560;
+  background: #1a2a50;
+  transform: translateY(-2px);
+}
+
+.app-card h2 {
+  font-size: 1.3rem;
+  margin-bottom: 8px;
+  color: #fff;
+}
+
+.app-card p {
+  font-size: 0.9rem;
+  color: #888;
+  line-height: 1.4;
+}
+</style>
+</head>
+<body>
+
+<h1>Apps</h1>
+
+<div class="apps-grid">
+  <a class="app-card" href="kalender/">
+    <h2>Calendar Puzzle</h2>
+    <p>Daily puzzle — place pieces to reveal today's date. Based on the DragonFjord A-Puzzle-A-Day.</p>
+  </a>
+</div>
+
+</body>
+</html>
