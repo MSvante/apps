@@ -1,29 +1,28 @@
-"""FBref HTTP client with rate limiting and caching via soccerdata."""
+"""PulseLive Premier League API client with rate limiting and caching."""
 
+import json
 import time
 import logging
+import hashlib
 from pathlib import Path
 
 import requests
-from bs4 import BeautifulSoup
 
 logger = logging.getLogger(__name__)
 
-FBREF_BASE = "https://fbref.com"
-REQUEST_DELAY = 5  # seconds between requests
+API_BASE = "https://footballapi.pulselive.com/football"
+REQUEST_DELAY = 0.5  # seconds between requests (API is generous but be polite)
 
 
-class FBrefClient:
-    """HTTP client for FBref with rate limiting."""
+class PLClient:
+    """HTTP client for the PulseLive PL API."""
 
     def __init__(self, cache_dir: Path | None = None):
         self.session = requests.Session()
         self.session.headers.update(
             {
-                "User-Agent": (
-                    "Mozilla/5.0 (compatible; lineup-guesser-scraper/1.0; "
-                    "educational project)"
-                ),
+                "Origin": "https://www.premierleague.com",
+                "Referer": "https://www.premierleague.com/",
             }
         )
         self.last_request_time = 0.0
@@ -33,39 +32,71 @@ class FBrefClient:
     def _rate_limit(self):
         elapsed = time.time() - self.last_request_time
         if elapsed < REQUEST_DELAY:
-            sleep_time = REQUEST_DELAY - elapsed
-            logger.debug(f"Rate limiting: sleeping {sleep_time:.1f}s")
-            time.sleep(sleep_time)
+            time.sleep(REQUEST_DELAY - elapsed)
 
-    def _cache_path(self, url: str) -> Path:
-        """Generate a cache file path for a URL."""
-        import hashlib
+    def _cache_path(self, url: str, params: dict | None = None) -> Path:
+        key = url + (json.dumps(params, sort_keys=True) if params else "")
+        url_hash = hashlib.md5(key.encode()).hexdigest()
+        return self.cache_dir / f"{url_hash}.json"
 
-        url_hash = hashlib.md5(url.encode()).hexdigest()
-        return self.cache_dir / f"{url_hash}.html"
-
-    def get(self, url: str, use_cache: bool = True) -> str:
-        """Fetch a URL with caching and rate limiting."""
-        cache_file = self._cache_path(url)
+    def get_json(self, url: str, params: dict | None = None, use_cache: bool = True) -> dict:
+        cache_file = self._cache_path(url, params)
 
         if use_cache and cache_file.exists():
-            logger.debug(f"Cache hit: {url}")
-            return cache_file.read_text(encoding="utf-8")
+            return json.loads(cache_file.read_text(encoding="utf-8"))
 
         self._rate_limit()
-        logger.info(f"Fetching: {url}")
+        logger.debug(f"Fetching: {url}")
 
-        response = self.session.get(url, timeout=30)
+        response = self.session.get(url, params=params, timeout=30)
         response.raise_for_status()
         self.last_request_time = time.time()
 
-        html = response.text
+        data = response.json()
         if use_cache:
-            cache_file.write_text(html, encoding="utf-8")
+            cache_file.write_text(json.dumps(data), encoding="utf-8")
 
-        return html
+        return data
 
-    def get_soup(self, url: str, use_cache: bool = True) -> BeautifulSoup:
-        """Fetch a URL and return a BeautifulSoup object."""
-        html = self.get(url, use_cache=use_cache)
-        return BeautifulSoup(html, "lxml")
+    def get_seasons(self) -> list[dict]:
+        """Get all PL season IDs."""
+        data = self.get_json(
+            f"{API_BASE}/competitions/1/compseasons",
+            params={"page": "0", "pageSize": "100"},
+        )
+        return data.get("content", [])
+
+    def get_fixtures(self, season_id: int, page: int = 0, page_size: int = 40) -> dict:
+        """Get fixtures for a season (paginated)."""
+        return self.get_json(
+            f"{API_BASE}/fixtures",
+            params={
+                "comps": "1",
+                "compSeasons": str(season_id),
+                "pageSize": str(page_size),
+                "page": str(page),
+                "sort": "asc",
+            },
+        )
+
+    def get_all_fixture_ids(self, season_id: int) -> list[int]:
+        """Get all fixture IDs for a season."""
+        fixture_ids = []
+        page = 0
+        while True:
+            data = self.get_fixtures(season_id, page=page)
+            content = data.get("content", [])
+            if not content:
+                break
+            for match in content:
+                fixture_ids.append(int(match["id"]))
+            # Check if there are more pages
+            page_info = data.get("pageInfo", {})
+            if page >= page_info.get("numPages", 1) - 1:
+                break
+            page += 1
+        return fixture_ids
+
+    def get_match_detail(self, fixture_id: int) -> dict:
+        """Get full match detail including lineups."""
+        return self.get_json(f"{API_BASE}/fixtures/{fixture_id}")

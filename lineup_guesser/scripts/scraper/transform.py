@@ -94,12 +94,68 @@ NATIONALITY_FLAGS: dict[str, str] = {
     "Burkina Faso": "\U0001f1e7\U0001f1eb",
     "Sierra Leone": "\U0001f1f8\U0001f1f1",
     "Mozambique": "\U0001f1f2\U0001f1ff",
+    "Bosnia & Herzegovina": "\U0001f1e7\U0001f1e6",
+    "Bosnia and Herzegovina": "\U0001f1e7\U0001f1e6",
+    "Cote D'Ivoire": "\U0001f1e8\U0001f1ee",
+    "Côte d'Ivoire": "\U0001f1e8\U0001f1ee",
+    "Uzbekistan": "\U0001f1fa\U0001f1ff",
+    "Antigua & Barbuda": "\U0001f1e6\U0001f1ec",
+    "Antigua and Barbuda": "\U0001f1e6\U0001f1ec",
+    "Trinidad & Tobago": "\U0001f1f9\U0001f1f9",
+    "Trinidad and Tobago": "\U0001f1f9\U0001f1f9",
+    "Korea Republic": "\U0001f1f0\U0001f1f7",
+    "Grenada": "\U0001f1ec\U0001f1e9",
+    "Congo": "\U0001f1e8\U0001f1ec",
+    "Montserrat": "\U0001f1f2\U0001f1f8",
+    "Curacao": "\U0001f1e8\U0001f1fc",
+    "Curaçao": "\U0001f1e8\U0001f1fc",
+    "St Kitts & Nevis": "\U0001f1f0\U0001f1f3",
+    "Saint Kitts and Nevis": "\U0001f1f0\U0001f1f3",
+    "Angola": "\U0001f1e6\U0001f1f4",
+    "China PR": "\U0001f1e8\U0001f1f3",
+    "Philippines": "\U0001f1f5\U0001f1ed",
+    "Tanzania": "\U0001f1f9\U0001f1ff",
+    "Mauritania": "\U0001f1f2\U0001f1f7",
+    "Cape Verde": "\U0001f1e8\U0001f1fb",
+    "North Macedonia": "\U0001f1f2\U0001f1f0",
+    "Montenegro": "\U0001f1f2\U0001f1ea",
+    "Latvia": "\U0001f1f1\U0001f1fb",
+    "Lithuania": "\U0001f1f1\U0001f1f9",
+    "Luxembourg": "\U0001f1f1\U0001f1fa",
+    "Estonia": "\U0001f1ea\U0001f1ea",
+    "Madagascar": "\U0001f1f2\U0001f1ec",
+    "Armenia": "\U0001f1e6\U0001f1f2",
+    "Bangladesh": "\U0001f1e7\U0001f1e9",
+    "Barbados": "\U0001f1e7\U0001f1e7",
+    "Dominican Republic": "\U0001f1e9\U0001f1f4",
+    "Equatorial Guinea": "\U0001f1ec\U0001f1f6",
+    "Guatemala": "\U0001f1ec\U0001f1f9",
+    "Haiti": "\U0001f1ed\U0001f1f9",
+    "Indonesia": "\U0001f1ee\U0001f1e9",
+    "Oman": "\U0001f1f4\U0001f1f2",
+    "Turkiye": "\U0001f1f9\U0001f1f7",
+    "St. Kitts & Nevis": "\U0001f1f0\U0001f1f3",
+    "Burundi": "\U0001f1e7\U0001f1ee",
+    "Cote D\u2019Ivoire": "\U0001f1e8\U0001f1ee",
+    "Cuba": "\U0001f1e8\U0001f1fa",
 }
 
 
 def get_flag(nationality: str) -> str:
     """Get flag emoji for a nationality. Returns empty string if unknown."""
-    return NATIONALITY_FLAGS.get(nationality, "")
+    flag = NATIONALITY_FLAGS.get(nationality)
+    if flag:
+        return flag
+    # Try normalizing curly quotes and special chars
+    normalized = nationality.replace("\u2019", "'").replace("\u2018", "'")
+    flag = NATIONALITY_FLAGS.get(normalized)
+    if flag:
+        return flag
+    # Try case variations
+    for key, value in NATIONALITY_FLAGS.items():
+        if key.lower() == nationality.lower():
+            return value
+    return ""
 
 
 def calculate_age(birth_date: str, match_date: str) -> int:
@@ -155,6 +211,11 @@ def transform_match(raw_match: dict) -> dict | None:
         "score": raw_match["score"],
     }
 
+    # Map API position codes to our categories
+    api_pos_map = {"G": "GK", "D": "DEF", "M": "MID", "F": "FWD"}
+    # Sort order for positions: GK first, then DEF, MID, FWD
+    pos_sort_order = {"G": 0, "D": 1, "M": 2, "F": 3}
+
     for side in ["home", "away"]:
         raw_lineup = raw_match.get(f"{side}_lineup")
         if not raw_lineup or not raw_lineup.get("formation"):
@@ -167,13 +228,22 @@ def transform_match(raw_match: dict) -> dict | None:
             print(f"  Skipping match {raw_match['id']}: {e}")
             return None
 
-        players = []
         raw_players = raw_lineup.get("players", [])
         if len(raw_players) != 11:
             return None
 
-        for i, raw_player in enumerate(raw_players):
-            player = transform_player(raw_player, match_date, positions[i])
+        # Sort players by position group (GK → DEF → MID → FWD)
+        # so they align with formation_to_positions output
+        sorted_players = sorted(
+            raw_players,
+            key=lambda p: pos_sort_order.get(p.get("api_position", "M"), 2),
+        )
+
+        players = []
+        for i, raw_player in enumerate(sorted_players):
+            # Use the API's actual position (most reliable)
+            pos = api_pos_map.get(raw_player.get("api_position", ""), "MID")
+            player = transform_player(raw_player, match_date, pos)
             players.append(player)
 
         result[f"{side}Lineup"] = {

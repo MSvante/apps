@@ -12,6 +12,11 @@ dist
 dist-ssr
 *.local
 
+# Scraper cache and Python venv (regenerable)
+scripts/scraper/.cache/
+scripts/scraper/__pycache__/
+scripts/scraper/.venv/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

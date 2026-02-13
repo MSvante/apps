@@ -1,21 +1,19 @@
 #!/usr/bin/env python3
 """
-Main orchestrator for scraping Premier League match lineups from FBref.
+Scrape Premier League match lineups from the PulseLive API.
 
 Usage:
-    python scrape_matches.py [--seasons 2023-2024 2022-2023] [--per-season 25] [--output ../../src/data/matches.json]
+    python scrape_matches.py [--per-season 30] [--output ../../src/data/matches.json]
+    python scrape_matches.py --min-season-id 21 --per-season 30  # Only 2012/13+ (has formations)
 """
 
 import argparse
-import json
 import logging
 import random
-import re
-import sys
 from pathlib import Path
 
-from fbref_client import FBrefClient
-from parsers import parse_match_lineups, parse_player_page
+from fbref_client import PLClient
+from parsers import parse_match
 from transform import transform_all
 
 logging.basicConfig(
@@ -24,117 +22,22 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-FBREF_PL_SEASONS_URL = "https://fbref.com/en/comps/9/history/Premier-League-Seasons"
 DEFAULT_OUTPUT = Path(__file__).parent / "../../src/data/matches.json"
-
-# Seasons to scrape (FBref format)
-DEFAULT_SEASONS = [
-    f"{y}-{y+1}" for y in range(2005, 2025)
-]
-
-
-def get_season_match_urls(client: FBrefClient, season: str) -> list[dict]:
-    """Get match URLs for a season from FBref."""
-    url = f"https://fbref.com/en/comps/9/{season}/schedule/{season}-Premier-League-Scores-and-Fixtures"
-    soup = client.get_soup(url)
-
-    matches = []
-    table = soup.select_one("table.stats_table")
-    if not table:
-        logger.warning(f"No schedule table found for {season}")
-        return matches
-
-    for row in table.select("tbody tr:not(.thead)"):
-        # Skip spacer rows
-        if "spacer" in row.get("class", []):
-            continue
-
-        date_cell = row.select_one('td[data-stat="date"]')
-        home_cell = row.select_one('td[data-stat="home_team"]')
-        away_cell = row.select_one('td[data-stat="away_team"]')
-        score_cell = row.select_one('td[data-stat="score"]')
-
-        if not all([date_cell, home_cell, away_cell, score_cell]):
-            continue
-
-        score_link = score_cell.find("a") if score_cell else None
-        if not score_link:
-            continue
-
-        match_date = date_cell.get_text(strip=True)
-        home_team = home_cell.get_text(strip=True)
-        away_team = away_cell.get_text(strip=True)
-        score_text = score_link.get_text(strip=True)
-        match_href = score_link.get("href", "")
-
-        # Convert score format "2–1" → "2-1"
-        score_text = score_text.replace("\u2013", "-")
-
-        if match_href and re.match(r"\d{4}-\d{2}-\d{2}", match_date):
-            matches.append({
-                "date": match_date,
-                "home_team": home_team,
-                "away_team": away_team,
-                "score": score_text,
-                "href": match_href,
-                "season": season.replace("-", "/"),
-            })
-
-    logger.info(f"Found {len(matches)} matches for {season}")
-    return matches
-
-
-def scrape_match_details(client: FBrefClient, match: dict) -> dict | None:
-    """Scrape lineup details for a single match."""
-    match_url = f"https://fbref.com{match['href']}"
-    soup = client.get_soup(match_url)
-
-    lineups = parse_match_lineups(soup)
-    if not lineups["home"] or not lineups["away"]:
-        logger.warning(f"Missing lineup data for {match['date']} {match['home_team']} vs {match['away_team']}")
-        return None
-
-    match_id = match["href"].split("/")[-2] if "/" in match["href"] else match["date"]
-
-    result = {
-        "id": match_id,
-        "date": match["date"],
-        "season": match["season"],
-        "home_team": match["home_team"],
-        "away_team": match["away_team"],
-        "score": match["score"],
-        "home_lineup": lineups["home"],
-        "away_lineup": lineups["away"],
-    }
-
-    # Enrich player data with nationality/age from player pages
-    for side in ["home", "away"]:
-        for player in result[f"{side}_lineup"]["players"]:
-            if player.get("href"):
-                try:
-                    player_url = f"https://fbref.com{player['href']}"
-                    player_soup = client.get_soup(player_url)
-                    player_info = parse_player_page(player_soup)
-                    player.update(player_info)
-                except Exception as e:
-                    logger.warning(f"Failed to fetch player {player['name']}: {e}")
-
-    return result
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Scrape PL lineups from FBref")
-    parser.add_argument(
-        "--seasons",
-        nargs="*",
-        default=DEFAULT_SEASONS,
-        help="Seasons to scrape (e.g., 2023-2024)",
-    )
+    parser = argparse.ArgumentParser(description="Scrape PL lineups from PulseLive API")
     parser.add_argument(
         "--per-season",
         type=int,
-        default=25,
-        help="Number of matches to sample per season",
+        default=100,
+        help="Number of matches to sample per season (default: 100)",
+    )
+    parser.add_argument(
+        "--min-season-id",
+        type=int,
+        default=14,
+        help="Minimum season ID to scrape (14=2005/06). Use 21 for 2012/13+ only (has explicit formations).",
     )
     parser.add_argument(
         "--output",
@@ -144,34 +47,61 @@ def main():
     )
     args = parser.parse_args()
 
-    client = FBrefClient()
+    client = PLClient()
+
+    # Get all seasons
+    logger.info("Fetching season list...")
+    seasons = client.get_seasons()
+    seasons.sort(key=lambda s: int(s.get("id", 0)))
+
+    # Filter to desired range
+    seasons = [s for s in seasons if int(s.get("id", 0)) >= args.min_season_id]
+    logger.info(f"Will process {len(seasons)} seasons (IDs {seasons[0]['id']}–{seasons[-1]['id']})")
+
     all_raw_matches: list[dict] = []
 
-    for season in args.seasons:
-        logger.info(f"Processing season {season}...")
-        match_list = get_season_match_urls(client, season)
+    for season in seasons:
+        season_id = int(season["id"])
+        season_label = season.get("label", str(season_id))
+        logger.info(f"Processing season {season_label} (ID {season_id})...")
 
-        if not match_list:
+        # Get all fixture IDs for this season
+        fixture_ids = client.get_all_fixture_ids(season_id)
+        logger.info(f"  Found {len(fixture_ids)} fixtures")
+
+        if not fixture_ids:
             continue
 
-        # Sample matches
-        sample_size = min(args.per_season, len(match_list))
-        sampled = random.sample(match_list, sample_size)
-        logger.info(f"Sampling {sample_size} matches from {season}")
+        # Sample
+        sample_size = min(args.per_season, len(fixture_ids))
+        sampled_ids = random.sample(fixture_ids, sample_size)
+        logger.info(f"  Sampling {sample_size} matches")
 
-        for i, match in enumerate(sampled):
-            logger.info(
-                f"  [{i+1}/{sample_size}] {match['date']} "
-                f"{match['home_team']} vs {match['away_team']}"
-            )
+        success = 0
+        for i, fid in enumerate(sampled_ids):
             try:
-                details = scrape_match_details(client, match)
-                if details:
-                    all_raw_matches.append(details)
+                detail = client.get_match_detail(fid)
+                parsed = parse_match(detail)
+                if parsed:
+                    # Check that we have formations (crucial for the game)
+                    home_formation = parsed["home_lineup"].get("formation", "")
+                    away_formation = parsed["away_lineup"].get("formation", "")
+                    if not home_formation or not away_formation:
+                        logger.debug(f"  Skipping {fid}: missing formation")
+                        continue
+                    all_raw_matches.append(parsed)
+                    success += 1
+                else:
+                    logger.debug(f"  Skipping {fid}: incomplete data")
             except Exception as e:
-                logger.error(f"  Failed: {e}")
+                logger.warning(f"  Failed fixture {fid}: {e}")
 
-    logger.info(f"Total raw matches collected: {len(all_raw_matches)}")
+            if (i + 1) % 10 == 0:
+                logger.info(f"  Progress: {i+1}/{sample_size} ({success} valid)")
+
+        logger.info(f"  Got {success} valid matches from {season_label}")
+
+    logger.info(f"Total raw matches: {len(all_raw_matches)}")
 
     # Transform and write
     count = transform_all(all_raw_matches, args.output)
