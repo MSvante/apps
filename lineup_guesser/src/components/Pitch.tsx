@@ -1,7 +1,8 @@
 import type { Player } from "../types/match";
-import type { SlotState, GamePhase } from "../types/game";
+import type { SlotState, GamePhase, GuessResult } from "../types/game";
 import type { SlotPosition } from "../utils/formations";
 import { PlayerSlot } from "./PlayerSlot";
+import { GuessPopup } from "./GuessPopup";
 
 interface PitchProps {
   players: Player[];
@@ -9,8 +10,12 @@ interface PitchProps {
   positions: SlotPosition[];
   selectedSlotIndex: number | null;
   lastGuessedSlotIndex: number | null;
+  lastGuessResult: GuessResult;
   phase: GamePhase;
   onSelectSlot: (index: number) => void;
+  onSubmitGuess: (name: string) => void;
+  onRequestHint: () => void;
+  onClosePopup: () => void;
 }
 
 export function Pitch({
@@ -19,12 +24,23 @@ export function Pitch({
   positions,
   selectedSlotIndex,
   lastGuessedSlotIndex,
+  lastGuessResult,
   phase,
   onSelectSlot,
+  onSubmitGuess,
+  onRequestHint,
+  onClosePopup,
 }: PitchProps) {
+  const selectedPlayer =
+    selectedSlotIndex !== null ? players[selectedSlotIndex] : null;
+  const selectedSlot =
+    selectedSlotIndex !== null ? slots[selectedSlotIndex] : null;
+  const selectedPosition =
+    selectedSlotIndex !== null ? positions[selectedSlotIndex] : null;
+
   return (
     <div className="w-full max-w-lg mx-auto">
-      <div className="pitch rounded-lg overflow-hidden" style={{ aspectRatio: "3 / 4" }}>
+      <div className="pitch rounded-lg overflow-hidden relative" style={{ aspectRatio: "3 / 4" }}>
         {/* Penalty boxes */}
         <div className="pitch-penalty-top" />
         <div className="pitch-penalty-bottom" />
@@ -43,6 +59,22 @@ export function Pitch({
             onSelect={onSelectSlot}
           />
         ))}
+
+        {/* Guess popup overlay */}
+        {phase === "PLAYING" &&
+          selectedPlayer &&
+          selectedSlot &&
+          selectedPosition && (
+            <GuessPopup
+              player={selectedPlayer}
+              slot={selectedSlot}
+              position={selectedPosition}
+              lastGuessResult={lastGuessResult}
+              onSubmit={onSubmitGuess}
+              onRequestHint={onRequestHint}
+              onClose={onClosePopup}
+            />
+          )}
       </div>
     </div>
   );

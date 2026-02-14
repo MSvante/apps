@@ -4,8 +4,6 @@ import { getFormationPositions } from "../utils/formations";
 import { MatchHeader } from "./MatchHeader";
 import { ScoreBoard } from "./ScoreBoard";
 import { Pitch } from "./Pitch";
-import { GuessInput } from "./GuessInput";
-import { HintPanel } from "./HintPanel";
 import { GameSummary } from "./GameSummary";
 
 export function GameContainer() {
@@ -35,14 +33,9 @@ export function GameContainer() {
     setTimeout(() => submitGuess(name), 0);
   };
 
-  const selectedPlayer =
-    state.selectedSlotIndex !== null
-      ? state.lineup.players[state.selectedSlotIndex]
-      : null;
-  const selectedSlot =
-    state.selectedSlotIndex !== null
-      ? state.slots[state.selectedSlotIndex]
-      : null;
+  const handleClosePopup = () => {
+    selectSlot(null);
+  };
 
   return (
     <div className="max-w-lg mx-auto px-4 py-4 space-y-3">
@@ -56,35 +49,23 @@ export function GameContainer() {
         positions={positions}
         selectedSlotIndex={state.selectedSlotIndex}
         lastGuessedSlotIndex={state.lastGuessedSlotIndex}
+        lastGuessResult={state.lastGuessResult}
         phase={state.phase}
         onSelectSlot={handleSelectSlot}
+        onSubmitGuess={handleSubmitGuess}
+        onRequestHint={requestHint}
+        onClosePopup={handleClosePopup}
       />
 
       {state.phase === "PLAYING" && (
-        <>
-          <GuessInput
-            onSubmit={handleSubmitGuess}
-            lastGuessResult={state.lastGuessResult}
-            disabled={false}
-          />
-
-          {selectedPlayer && selectedSlot && (
-            <HintPanel
-              player={selectedPlayer}
-              slot={selectedSlot}
-              onRequestHint={requestHint}
-            />
-          )}
-
-          <div className="text-center">
-            <button
-              onClick={giveUp}
-              className="text-gray-600 hover:text-gray-400 text-xs transition-colors"
-            >
-              Give Up
-            </button>
-          </div>
-        </>
+        <div className="text-center">
+          <button
+            onClick={giveUp}
+            className="text-gray-600 hover:text-gray-400 text-xs transition-colors"
+          >
+            Give Up
+          </button>
+        </div>
       )}
 
       {state.phase === "COMPLETE" && (
