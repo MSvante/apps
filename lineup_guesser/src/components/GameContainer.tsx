@@ -1,12 +1,16 @@
-import { useMemo } from "react";
-import { useGame } from "../hooks/useGame";
+import { useMemo, useState, useEffect, useRef } from "react";
+import { useGame, getTeams } from "../hooks/useGame";
 import { getFormationPositions } from "../utils/formations";
 import { MatchHeader } from "./MatchHeader";
 import { ScoreBoard } from "./ScoreBoard";
 import { Pitch } from "./Pitch";
 import { GameSummary } from "./GameSummary";
+import { TeamFilter } from "./TeamFilter";
+
+const teams = getTeams();
 
 export function GameContainer() {
+  const [teamFilter, setTeamFilter] = useState<string | null>(null);
   const {
     state,
     newGame,
@@ -15,7 +19,16 @@ export function GameContainer() {
     requestHint,
     giveUp,
     clearFeedback,
-  } = useGame();
+  } = useGame(teamFilter);
+
+  const isFirstRender = useRef(true);
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    newGame();
+  }, [teamFilter]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const positions = useMemo(
     () => getFormationPositions(state.lineup.formation),
@@ -39,6 +52,8 @@ export function GameContainer() {
 
   return (
     <div className="max-w-lg mx-auto px-3 sm:px-4 py-2 sm:py-4 space-y-2 sm:space-y-3">
+      <TeamFilter teams={teams} selected={teamFilter} onChange={setTeamFilter} />
+
       <MatchHeader match={state.match} team={state.team} />
 
       <ScoreBoard score={state.score} slots={state.slots} />

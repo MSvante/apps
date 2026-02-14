@@ -1,14 +1,12 @@
 import { useState, useRef, useEffect } from "react";
 import type { Player } from "../types/match";
 import type { SlotState, GuessResult } from "../types/game";
-import type { SlotPosition } from "../utils/formations";
 import { getNextHintCost, getHintLabel } from "../utils/scoring";
 import { MAX_HINTS } from "../constants/scoring";
 
 interface GuessPopupProps {
   player: Player;
   slot: SlotState;
-  position: SlotPosition;
   lastGuessResult: GuessResult;
   onSubmit: (name: string) => void;
   onRequestHint: () => void;
@@ -18,7 +16,6 @@ interface GuessPopupProps {
 export function GuessPopup({
   player,
   slot,
-  position,
   lastGuessResult,
   onSubmit,
   onRequestHint,
@@ -91,11 +88,7 @@ export function GuessPopup({
     return (
       <div
         ref={popupRef}
-        className="absolute z-20 left-1/2 -translate-x-1/2 animate-slide-in w-[90%] max-w-[260px] sm:w-auto sm:max-w-none sm:-translate-x-1/2"
-        style={{
-          top: `${Math.min(position.top + 8, 70)}%`,
-          left: window.innerWidth < 640 ? '50%' : `${Math.max(Math.min(position.left, 80), 20)}%`,
-        }}
+        className="absolute z-20 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-slide-in w-[90%] max-w-[260px] sm:max-w-[280px]"
       >
         <div className="bg-gray-800 border border-gray-600 rounded-lg p-3 shadow-xl min-w-[200px]">
           <div className="text-green-400 font-medium text-sm">
@@ -133,11 +126,7 @@ export function GuessPopup({
   return (
     <div
       ref={popupRef}
-      className="absolute z-20 left-1/2 -translate-x-1/2 animate-slide-in w-[90%] max-w-[280px] sm:w-auto sm:max-w-none"
-      style={{
-        top: `${Math.min(position.top + 8, 70)}%`,
-        left: window.innerWidth < 640 ? '50%' : `${Math.max(Math.min(position.left, 80), 20)}%`,
-      }}
+      className="absolute z-20 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-slide-in w-[90%] max-w-[280px] sm:max-w-[300px]"
     >
       <div className="bg-gray-800 border border-gray-600 rounded-lg p-3 shadow-xl sm:min-w-[220px]">
         {/* Position label */}

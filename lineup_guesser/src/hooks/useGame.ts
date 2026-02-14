@@ -26,16 +26,40 @@ function addPlayedId(id: string) {
   localStorage.setItem(PLAYED_KEY, JSON.stringify(trimmed));
 }
 
-function pickRandomMatch(): Match {
-  const played = getPlayedIds();
-  const unplayed = matches.filter((m) => !played.includes(m.id));
-  const pool = unplayed.length > 0 ? unplayed : matches;
-  return pool[Math.floor(Math.random() * pool.length)];
+export function getTeams(): string[] {
+  const teams = new Set<string>();
+  matches.forEach((m) => {
+    teams.add(m.homeTeam);
+    teams.add(m.awayTeam);
+  });
+  return [...teams].sort();
 }
 
-function createInitialState(): GameState {
-  const match = pickRandomMatch();
-  const team = Math.random() < 0.5 ? "home" : "away";
+function pickRandomMatch(teamFilter: string | null): Match {
+  const played = getPlayedIds();
+  let pool = matches;
+
+  if (teamFilter) {
+    pool = pool.filter(
+      (m) => m.homeTeam === teamFilter || m.awayTeam === teamFilter
+    );
+  }
+
+  const unplayed = pool.filter((m) => !played.includes(m.id));
+  const finalPool = unplayed.length > 0 ? unplayed : pool;
+  return finalPool[Math.floor(Math.random() * finalPool.length)];
+}
+
+function createInitialState(teamFilter: string | null = null): GameState {
+  const match = pickRandomMatch(teamFilter);
+  let team: "home" | "away";
+
+  if (teamFilter) {
+    team = match.homeTeam === teamFilter ? "home" : "away";
+  } else {
+    team = Math.random() < 0.5 ? "home" : "away";
+  }
+
   const lineup: Lineup =
     team === "home" ? match.homeLineup : match.awayLineup;
 
@@ -57,7 +81,7 @@ function createInitialState(): GameState {
 }
 
 type GameAction =
-  | { type: "NEW_GAME" }
+  | { type: "NEW_GAME"; teamFilter: string | null }
   | { type: "SELECT_SLOT"; index: number | null }
   | { type: "SUBMIT_GUESS"; name: string }
   | { type: "REQUEST_HINT" }
@@ -67,7 +91,7 @@ type GameAction =
 function gameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
     case "NEW_GAME":
-      return createInitialState();
+      return createInitialState(action.teamFilter);
 
     case "SELECT_SLOT": {
       return {
@@ -210,10 +234,17 @@ function gameReducer(state: GameState, action: GameAction): GameState {
   }
 }
 
-export function useGame() {
-  const [state, dispatch] = useReducer(gameReducer, null, createInitialState);
+export function useGame(teamFilter: string | null) {
+  const [state, dispatch] = useReducer(
+    gameReducer,
+    teamFilter,
+    (filter) => createInitialState(filter)
+  );
 
-  const newGame = useCallback(() => dispatch({ type: "NEW_GAME" }), []);
+  const newGame = useCallback(
+    () => dispatch({ type: "NEW_GAME", teamFilter }),
+    [teamFilter]
+  );
   const selectSlot = useCallback(
     (index: number | null) => dispatch({ type: "SELECT_SLOT", index }),
     []
