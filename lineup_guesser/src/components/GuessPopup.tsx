@@ -188,6 +188,7 @@ export function GuessPopup({
               autoCorrect="off"
               autoCapitalize="off"
               spellCheck={false}
+              data-1p-ignore
             />
             <button
               type="submit"
