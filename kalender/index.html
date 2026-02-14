@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Daily Calendar Puzzle</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -268,22 +268,93 @@ h1 {
   background: #c73650;
 }
 
+/* ===== TOUCH STYLES ===== */
+@media (pointer: coarse) {
+  .cell.open:hover {
+    background: #162447; /* disable hover effect on touch */
+  }
+  .cell.covered:hover {
+    filter: none;
+    transform: none;
+  }
+}
+
 /* ===== RESPONSIVE ===== */
 @media (max-width: 600px) {
+  body {
+    padding: 12px 8px;
+  }
+  header {
+    margin-bottom: 16px;
+  }
+  h1 { font-size: 1.4rem; }
+  .subtitle { font-size: 0.85rem; }
+  .target-info { font-size: 0.95rem; }
+  .game-container {
+    gap: 16px;
+    flex-direction: column;
+    align-items: center;
+  }
   .grid {
-    grid-template-columns: repeat(7, 44px);
-    grid-template-rows: repeat(7, 44px);
+    grid-template-columns: repeat(7, calc((100vw - 32px) / 7.3));
+    grid-template-rows: repeat(7, calc((100vw - 32px) / 7.3));
     gap: 2px;
     padding: 2px;
   }
   .cell {
-    width: 44px;
-    height: 44px;
-    font-size: 0.85rem;
+    width: auto;
+    height: auto;
+    font-size: clamp(0.75rem, 3vw, 1rem);
+    -webkit-tap-highlight-color: transparent;
   }
-  h1 { font-size: 1.4rem; }
-  .game-container { gap: 20px; }
-  .piece-card { padding: 8px; min-height: 60px; }
+  .side-panel {
+    min-width: unset;
+    width: 100%;
+  }
+  .controls {
+    justify-content: center;
+  }
+  .controls button {
+    padding: 12px 20px;
+    font-size: 1rem;
+    flex: 1;
+    min-height: 44px;
+  }
+  .piece-tray {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+  }
+  .piece-card {
+    padding: 10px;
+    min-height: 56px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .mini-cell {
+    width: 12px;
+    height: 12px;
+  }
+  .instructions {
+    text-align: center;
+  }
+  .desktop-only {
+    display: none;
+  }
+  .mobile-only {
+    display: block;
+  }
+  .win-overlay h2 { font-size: 2.4rem; }
+  .win-overlay p { font-size: 1.1rem; }
+  .win-overlay button {
+    padding: 14px 36px;
+    font-size: 1.1rem;
+    min-height: 48px;
+  }
+}
+
+@media (min-width: 601px) {
+  .mobile-only {
+    display: none;
+  }
 }
 </style>
 </head>
@@ -300,14 +371,18 @@ h1 {
 
   <div class="side-panel">
     <div class="controls">
-      <button onclick="rotatePiece()">&#8635; Rotate</button>
-      <button onclick="flipPiece()">&#8596; Flip</button>
-      <button onclick="resetGame()">Reset</button>
+      <button ontouchend="event.preventDefault();rotatePiece()" onclick="rotatePiece()">&#8635; Rotate</button>
+      <button ontouchend="event.preventDefault();flipPiece()" onclick="flipPiece()">&#8596; Flip</button>
+      <button ontouchend="event.preventDefault();resetGame()" onclick="resetGame()">Reset</button>
     </div>
-    <div class="instructions">
+    <div class="instructions desktop-only">
       <kbd>R</kbd> Rotate &nbsp; <kbd>F</kbd> Flip &nbsp; <kbd>Esc</kbd> Deselect<br>
       Click a piece, then click the grid to place it.<br>
       Click a placed piece to pick it back up.
+    </div>
+    <div class="instructions mobile-only">
+      Tap a piece, then tap the grid to place it.<br>
+      Tap a placed piece to pick it back up.
     </div>
     <div class="piece-tray" id="piece-tray"></div>
   </div>
@@ -433,37 +508,59 @@ function init() {
   }
 }
 
+const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+
 function attachListeners() {
   const gridEl = document.getElementById('grid');
 
-  gridEl.addEventListener('mouseover', (e) => {
-    const cell = e.target.closest('.cell');
-    if (!cell) return;
-    const r = +cell.dataset.row;
-    const c = +cell.dataset.col;
-    if (lastHover && lastHover.row === r && lastHover.col === c) return;
-    lastHover = { row: r, col: c };
-    updateGhost();
-  });
+  if (!isTouchDevice) {
+    gridEl.addEventListener('mouseover', (e) => {
+      const cell = e.target.closest('.cell');
+      if (!cell) return;
+      const r = +cell.dataset.row;
+      const c = +cell.dataset.col;
+      if (lastHover && lastHover.row === r && lastHover.col === c) return;
+      lastHover = { row: r, col: c };
+      updateGhost();
+    });
 
-  gridEl.addEventListener('mouseleave', () => {
-    lastHover = null;
-    clearGhost();
-  });
+    gridEl.addEventListener('mouseleave', () => {
+      lastHover = null;
+      clearGhost();
+    });
+  }
 
-  gridEl.addEventListener('click', (e) => {
-    const cell = e.target.closest('.cell');
-    if (!cell) return;
-    const r = +cell.dataset.row;
-    const c = +cell.dataset.col;
-    if (GRID_DATA[r][c].type === 'blocked') return;
+  // Use touchend on mobile to prevent ghost click issues
+  if (isTouchDevice) {
+    gridEl.addEventListener('touchend', (e) => {
+      const cell = e.target.closest('.cell');
+      if (!cell) return;
+      e.preventDefault();
+      const r = +cell.dataset.row;
+      const c = +cell.dataset.col;
+      if (GRID_DATA[r][c].type === 'blocked') return;
 
-    if (gridState[r][c] >= 0) {
-      pickUpPiece(gridState[r][c]);
-    } else {
-      handleGridClick(r, c);
-    }
-  });
+      if (gridState[r][c] >= 0) {
+        pickUpPiece(gridState[r][c]);
+      } else {
+        handleGridClick(r, c);
+      }
+    });
+  } else {
+    gridEl.addEventListener('click', (e) => {
+      const cell = e.target.closest('.cell');
+      if (!cell) return;
+      const r = +cell.dataset.row;
+      const c = +cell.dataset.col;
+      if (GRID_DATA[r][c].type === 'blocked') return;
+
+      if (gridState[r][c] >= 0) {
+        pickUpPiece(gridState[r][c]);
+      } else {
+        handleGridClick(r, c);
+      }
+    });
+  }
 
   document.addEventListener('keydown', (e) => {
     if (e.key === 'r' || e.key === 'R') { e.preventDefault(); rotatePiece(); }
@@ -555,11 +652,17 @@ function renderTray() {
     card.appendChild(miniGrid);
 
     if (!placedPieces.has(i)) {
-      card.addEventListener('click', () => {
+      const handler = (e) => {
+        if (e.type === 'touchend') e.preventDefault();
         selectedPiece = selectedPiece === i ? -1 : i;
         renderTray();
         updateGhost();
-      });
+      };
+      if (isTouchDevice) {
+        card.addEventListener('touchend', handler);
+      } else {
+        card.addEventListener('click', handler);
+      }
     }
 
     tray.appendChild(card);

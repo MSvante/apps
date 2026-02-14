@@ -117,3 +117,17 @@
 .animate-slide-in {
   animation: slide-in 0.3s ease-out;
 }
+
+/* Mobile touch optimizations */
+@media (pointer: coarse) {
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+@media (max-width: 640px) {
+  .pitch::after {
+    width: 60px;
+    height: 60px;
+  }
+}
