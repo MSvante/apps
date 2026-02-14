@@ -1,7 +1,7 @@
 import { useReducer, useCallback } from "react";
 import type { Match, Lineup } from "../types/match";
 import type { GameState, SlotState, HintLevel, GuessResult } from "../types/game";
-import { normalizeForComparison } from "../utils/normalize";
+import { normalizeForComparison, levenshtein, fuzzyThreshold } from "../utils/normalize";
 import { calculateSlotScore, getNextHintCost } from "../utils/scoring";
 import { MAX_HINTS } from "../constants/scoring";
 import matchesData from "../data/matches.json";
@@ -82,37 +82,57 @@ function gameReducer(state: GameState, action: GameAction): GameState {
       const normalized = normalizeForComparison(action.name);
       if (!normalized) return state;
 
-      // Find matching unguessed player
-      let matchedIndex = -1;
-      for (let i = 0; i < state.lineup.players.length; i++) {
-        if (state.slots[i].guessed) continue;
-        const player = state.lineup.players[i];
+      /** All normalized accepted names for a player. */
+      function playerNames(playerIndex: number): string[] {
+        const player = state.lineup.players[playerIndex];
         const names = [player.lastNameNormalized];
         if (player.alternateNames) {
           names.push(
             ...player.alternateNames.map((n) => normalizeForComparison(n))
           );
         }
-        if (names.some((n) => n === normalized)) {
+        return names;
+      }
+
+      /** Check if guess matches any of a player's names exactly. */
+      function exactMatch(names: string[]): boolean {
+        return names.some((n) => n === normalized);
+      }
+
+      /** Check if guess fuzzy-matches any of a player's names. */
+      function fuzzyMatch(names: string[]): boolean {
+        return names.some((n) => {
+          const threshold = fuzzyThreshold(n.length);
+          return levenshtein(n, normalized) <= threshold;
+        });
+      }
+
+      // Find matching unguessed player — exact first, then fuzzy
+      let matchedIndex = -1;
+      for (let i = 0; i < state.lineup.players.length; i++) {
+        if (state.slots[i].guessed) continue;
+        if (exactMatch(playerNames(i))) {
           matchedIndex = i;
           break;
         }
       }
+      if (matchedIndex === -1) {
+        for (let i = 0; i < state.lineup.players.length; i++) {
+          if (state.slots[i].guessed) continue;
+          if (fuzzyMatch(playerNames(i))) {
+            matchedIndex = i;
+            break;
+          }
+        }
+      }
 
       if (matchedIndex === -1) {
-        // Check if it's a duplicate (already guessed)
-        const isDuplicate = state.lineup.players.some(
-          (player, i) => {
-            if (!state.slots[i].guessed) return false;
-            const names = [player.lastNameNormalized];
-            if (player.alternateNames) {
-              names.push(
-                ...player.alternateNames.map((n) => normalizeForComparison(n))
-              );
-            }
-            return names.some((n) => n === normalized);
-          }
-        );
+        // Check if it's a duplicate (already guessed) — exact or fuzzy
+        const isDuplicate = state.lineup.players.some((_, i) => {
+          if (!state.slots[i].guessed) return false;
+          const names = playerNames(i);
+          return exactMatch(names) || fuzzyMatch(names);
+        });
 
         return {
           ...state,
