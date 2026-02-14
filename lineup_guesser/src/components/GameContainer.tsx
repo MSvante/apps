@@ -38,7 +38,7 @@ export function GameContainer() {
   };
 
   return (
-    <div className="max-w-lg mx-auto px-4 py-4 space-y-3">
+    <div className="max-w-lg mx-auto px-3 sm:px-4 py-2 sm:py-4 space-y-2 sm:space-y-3">
       <MatchHeader match={state.match} team={state.team} />
 
       <ScoreBoard score={state.score} slots={state.slots} />

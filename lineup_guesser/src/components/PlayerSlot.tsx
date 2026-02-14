@@ -61,19 +61,19 @@ export function PlayerSlot({
     >
       <div
         className={`
-          w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 flex items-center justify-center
-          text-[10px] sm:text-xs font-bold transition-all duration-200
+          w-11 h-11 sm:w-12 sm:h-12 rounded-full border-2 flex items-center justify-center
+          text-[11px] sm:text-xs font-bold transition-all duration-200
           ${bgClass} ${flashClass}
         `}
       >
         {showName ? (
-          <span className="text-center leading-tight px-0.5 truncate max-w-[3rem] sm:max-w-[3.5rem]">
+          <span className="text-center leading-tight px-0.5 truncate max-w-[3.2rem] sm:max-w-[3.5rem]">
             {player.lastName.length > 8
               ? player.lastName.slice(0, 7) + "."
               : player.lastName}
           </span>
         ) : (
-          <span className="text-gray-400 text-[9px] sm:text-[10px]">
+          <span className="text-gray-400 text-[10px] sm:text-[10px]">
             {player.position}
           </span>
         )}
@@ -85,7 +85,7 @@ export function PlayerSlot({
           {hints.map((hint, i) => (
             <span
               key={i}
-              className="text-[8px] sm:text-[9px] bg-gray-800/90 px-1 rounded text-gray-300"
+              className="text-[9px] sm:text-[9px] bg-gray-800/90 px-1 rounded text-gray-300"
             >
               {hint}
             </span>
@@ -96,7 +96,7 @@ export function PlayerSlot({
       {/* Show full name below when guessed/revealed */}
       {showName && (
         <div
-          className={`text-[8px] sm:text-[10px] mt-0.5 font-medium text-center whitespace-nowrap ${
+          className={`text-[9px] sm:text-[10px] mt-0.5 font-medium text-center whitespace-nowrap ${
             slot.guessed ? "text-green-300" : "text-red-300"
           }`}
         >

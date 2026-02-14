@@ -40,7 +40,7 @@ export function Pitch({
 
   return (
     <div className="w-full max-w-lg mx-auto">
-      <div className="pitch rounded-lg overflow-hidden relative" style={{ aspectRatio: "3 / 4" }}>
+      <div className="pitch rounded-lg overflow-hidden relative aspect-[3/4.3] sm:aspect-[3/4]">
         {/* Penalty boxes */}
         <div className="pitch-penalty-top" />
         <div className="pitch-penalty-bottom" />

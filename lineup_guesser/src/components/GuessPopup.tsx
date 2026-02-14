@@ -91,10 +91,10 @@ export function GuessPopup({
     return (
       <div
         ref={popupRef}
-        className="absolute z-20 -translate-x-1/2 animate-slide-in"
+        className="absolute z-20 left-1/2 -translate-x-1/2 animate-slide-in w-[90%] max-w-[260px] sm:w-auto sm:max-w-none sm:-translate-x-1/2"
         style={{
-          top: `${Math.min(position.top + 8, 75)}%`,
-          left: `${Math.max(Math.min(position.left, 80), 20)}%`,
+          top: `${Math.min(position.top + 8, 70)}%`,
+          left: window.innerWidth < 640 ? '50%' : `${Math.max(Math.min(position.left, 80), 20)}%`,
         }}
       >
         <div className="bg-gray-800 border border-gray-600 rounded-lg p-3 shadow-xl min-w-[200px]">
@@ -133,13 +133,13 @@ export function GuessPopup({
   return (
     <div
       ref={popupRef}
-      className="absolute z-20 -translate-x-1/2 animate-slide-in"
+      className="absolute z-20 left-1/2 -translate-x-1/2 animate-slide-in w-[90%] max-w-[280px] sm:w-auto sm:max-w-none"
       style={{
-        top: `${Math.min(position.top + 8, 75)}%`,
-        left: `${Math.max(Math.min(position.left, 80), 20)}%`,
+        top: `${Math.min(position.top + 8, 70)}%`,
+        left: window.innerWidth < 640 ? '50%' : `${Math.max(Math.min(position.left, 80), 20)}%`,
       }}
     >
-      <div className="bg-gray-800 border border-gray-600 rounded-lg p-3 shadow-xl min-w-[220px]">
+      <div className="bg-gray-800 border border-gray-600 rounded-lg p-3 shadow-xl sm:min-w-[220px]">
         {/* Position label */}
         <div className="text-gray-400 text-xs mb-2 uppercase tracking-wide">
           {player.position}
@@ -161,8 +161,8 @@ export function GuessPopup({
         {slot.hintsRevealed < MAX_HINTS ? (
           <button
             onClick={onRequestHint}
-            className="w-full bg-gray-700 hover:bg-gray-600 text-white py-1 rounded
-              text-xs font-medium transition-colors mb-2"
+            className="w-full bg-gray-700 hover:bg-gray-600 active:bg-gray-500 text-white py-2 sm:py-1 rounded
+              text-sm sm:text-xs font-medium transition-colors mb-2"
           >
             Reveal {nextLabel} (-{nextCost} pts)
           </button>
@@ -181,7 +181,7 @@ export function GuessPopup({
               value={value}
               onChange={(e) => setValue(e.target.value)}
               placeholder="Last name..."
-              className="flex-1 bg-gray-900 border border-gray-600 rounded px-2 py-1.5 text-xs
+              className="flex-1 bg-gray-900 border border-gray-600 rounded px-2 py-2 sm:py-1.5 text-base sm:text-xs
                 text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400
                 min-w-0"
               autoComplete="off"
@@ -193,8 +193,8 @@ export function GuessPopup({
             <button
               type="submit"
               disabled={!value.trim()}
-              className="bg-yellow-600 hover:bg-yellow-500 disabled:bg-gray-700 disabled:text-gray-500
-                text-white px-3 py-1.5 rounded text-xs font-medium transition-colors
+              className="bg-yellow-600 hover:bg-yellow-500 active:bg-yellow-400 disabled:bg-gray-700 disabled:text-gray-500
+                text-white px-3 py-2 sm:py-1.5 rounded text-sm sm:text-xs font-medium transition-colors
                 disabled:cursor-not-allowed shrink-0"
             >
               Guess
