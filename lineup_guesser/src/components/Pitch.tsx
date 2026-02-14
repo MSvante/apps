@@ -35,8 +35,6 @@ export function Pitch({
     selectedSlotIndex !== null ? players[selectedSlotIndex] : null;
   const selectedSlot =
     selectedSlotIndex !== null ? slots[selectedSlotIndex] : null;
-  const selectedPosition =
-    selectedSlotIndex !== null ? positions[selectedSlotIndex] : null;
 
   return (
     <div className="w-full max-w-lg mx-auto">
@@ -63,12 +61,10 @@ export function Pitch({
         {/* Guess popup overlay */}
         {phase === "PLAYING" &&
           selectedPlayer &&
-          selectedSlot &&
-          selectedPosition && (
+          selectedSlot && (
             <GuessPopup
               player={selectedPlayer}
               slot={selectedSlot}
-              position={selectedPosition}
               lastGuessResult={lastGuessResult}
               onSubmit={onSubmitGuess}
               onRequestHint={onRequestHint}

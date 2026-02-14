@@ -55,7 +55,7 @@ export function PlayerSlot({
 
   return (
     <div
-      className={`absolute flex flex-col items-center -translate-x-1/2 -translate-y-1/2 cursor-pointer select-none`}
+      className={`absolute flex flex-col items-center -translate-x-1/2 -translate-y-1/2 cursor-pointer select-none touch-manipulation`}
       style={{ top: `${position.top}%`, left: `${position.left}%` }}
       onClick={() => onSelect(index)}
     >
