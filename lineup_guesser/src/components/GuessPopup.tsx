@@ -127,14 +127,11 @@ export function GuessPopup({
   const nextCost = getNextHintCost(slot.hintsRevealed);
   const nextLabel = getHintLabel(slot.hintsRevealed + 1);
 
-  // Letter reveal display
+  // Letter reveal display — only show revealed letters, no placeholders for remaining
   const nameLength = player.lastName.length;
   const canRevealMoreLetters = slot.lettersRevealed < nameLength;
   const letterDisplay = slot.lettersRevealed > 0
-    ? player.lastName
-        .split("")
-        .map((ch, i) => (i < slot.lettersRevealed ? ch : "_"))
-        .join(" ")
+    ? player.lastName.slice(0, slot.lettersRevealed) + "…"
     : null;
 
   return (
@@ -187,7 +184,7 @@ export function GuessPopup({
             className="w-full bg-gray-700 hover:bg-gray-600 active:bg-gray-500 text-yellow-300 py-2 sm:py-1 rounded
               text-sm sm:text-xs font-medium transition-colors mb-2"
           >
-            Reveal letter ({slot.lettersRevealed}/{nameLength}) (-{LETTER_REVEAL_COST} pt)
+            Reveal letter (-{LETTER_REVEAL_COST} pt)
           </button>
         ) : (
           <div className="text-gray-500 text-xs text-center mb-2">
