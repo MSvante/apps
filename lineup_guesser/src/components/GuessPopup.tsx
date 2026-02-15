@@ -10,7 +10,6 @@ interface GuessPopupProps {
   lastGuessResult: GuessResult;
   onSubmit: (name: string) => void;
   onRequestHint: () => void;
-  onRevealLetter: () => void;
   onGiveUpSlot: () => void;
   onClose: () => void;
 }
@@ -21,7 +20,6 @@ export function GuessPopup({
   lastGuessResult,
   onSubmit,
   onRequestHint,
-  onRevealLetter,
   onGiveUpSlot,
   onClose,
 }: GuessPopupProps) {
@@ -107,7 +105,7 @@ export function GuessPopup({
     );
   }
 
-  // Hint content
+  // Hint content — nationality, age, then letters
   const revealedHints: { label: string; value: string }[] = [];
   if (slot.hintsRevealed >= 1)
     revealedHints.push({
@@ -116,23 +114,29 @@ export function GuessPopup({
     });
   if (slot.hintsRevealed >= 2)
     revealedHints.push({ label: "Age", value: `${player.age}` });
-  if (slot.hintsRevealed >= 3)
-    revealedHints.push({ label: "Shirt #", value: `${player.shirtNumber}` });
-  if (slot.hintsRevealed >= 4)
-    revealedHints.push({
-      label: "Starts with",
-      value: `${player.lastName[0].toUpperCase()}`,
-    });
 
-  const nextCost = getNextHintCost(slot.hintsRevealed);
-  const nextLabel = getHintLabel(slot.hintsRevealed + 1);
-
-  // Letter reveal display — only show revealed letters, no placeholders for remaining
+  // Letter reveal display
   const nameLength = player.lastName.length;
-  const canRevealMoreLetters = slot.lettersRevealed < nameLength;
   const letterDisplay = slot.lettersRevealed > 0
     ? player.lastName.slice(0, slot.lettersRevealed) + "…"
     : null;
+
+  // Unified hint button: standard hints first, then letters
+  const hasMoreStandardHints = slot.hintsRevealed < MAX_HINTS;
+  const canRevealMoreLetters = slot.lettersRevealed < nameLength;
+  const canRevealMore = hasMoreStandardHints || canRevealMoreLetters;
+
+  let hintButtonLabel: string;
+  let hintButtonCost: number;
+  if (hasMoreStandardHints) {
+    const nextCost = getNextHintCost(slot.hintsRevealed)!;
+    const nextLabel = getHintLabel(slot.hintsRevealed + 1);
+    hintButtonLabel = `Reveal ${nextLabel}`;
+    hintButtonCost = nextCost;
+  } else {
+    hintButtonLabel = "Reveal letter";
+    hintButtonCost = LETTER_REVEAL_COST;
+  }
 
   return (
     <div
@@ -166,29 +170,20 @@ export function GuessPopup({
           </div>
         )}
 
-        {/* Hint button */}
-        {slot.hintsRevealed < MAX_HINTS ? (
+        {/* Unified hint button: nationality → age → letters */}
+        {canRevealMore ? (
           <button
             onClick={onRequestHint}
-            className="w-full bg-gray-700 hover:bg-gray-600 active:bg-gray-500 text-white py-2 sm:py-1 rounded
-              text-sm sm:text-xs font-medium transition-colors mb-1.5"
+            className={`w-full bg-gray-700 hover:bg-gray-600 active:bg-gray-500 py-2 sm:py-1 rounded
+              text-sm sm:text-xs font-medium transition-colors mb-2 ${
+                hasMoreStandardHints ? "text-white" : "text-yellow-300"
+              }`}
           >
-            Reveal {nextLabel} (-{nextCost} pts)
-          </button>
-        ) : null}
-
-        {/* Reveal letter button */}
-        {canRevealMoreLetters ? (
-          <button
-            onClick={onRevealLetter}
-            className="w-full bg-gray-700 hover:bg-gray-600 active:bg-gray-500 text-yellow-300 py-2 sm:py-1 rounded
-              text-sm sm:text-xs font-medium transition-colors mb-2"
-          >
-            Reveal letter (-{LETTER_REVEAL_COST} pt)
+            {hintButtonLabel} (-{hintButtonCost} pt{hintButtonCost > 1 ? "s" : ""})
           </button>
         ) : (
           <div className="text-gray-500 text-xs text-center mb-2">
-            All letters revealed
+            All hints revealed
           </div>
         )}
 

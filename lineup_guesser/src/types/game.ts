@@ -1,7 +1,7 @@
 import type { Match, Lineup } from "./match";
 
 export type GamePhase = "PLAYING" | "COMPLETE";
-export type HintLevel = 0 | 1 | 2 | 3 | 4;
+export type HintLevel = 0 | 1 | 2;
 export type GuessResult = "correct" | "incorrect" | "duplicate" | null;
 
 export interface SlotState {

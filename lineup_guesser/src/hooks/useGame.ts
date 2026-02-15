@@ -85,7 +85,6 @@ type GameAction =
   | { type: "SELECT_SLOT"; index: number | null }
   | { type: "SUBMIT_GUESS"; name: string }
   | { type: "REQUEST_HINT" }
-  | { type: "REVEAL_LETTER" }
   | { type: "GIVE_UP" }
   | { type: "GIVE_UP_SLOT" }
   | { type: "CLEAR_FEEDBACK" };
@@ -197,37 +196,27 @@ function gameReducer(state: GameState, action: GameAction): GameState {
     case "REQUEST_HINT": {
       if (state.selectedSlotIndex === null) return state;
       const slot = state.slots[state.selectedSlotIndex];
-      if (slot.guessed || slot.hintsRevealed >= MAX_HINTS) return state;
-
-      const cost = getNextHintCost(slot.hintsRevealed);
-      if (cost === null) return state;
-
-      const newSlots = [...state.slots];
-      newSlots[state.selectedSlotIndex] = {
-        ...slot,
-        hintsRevealed: (slot.hintsRevealed + 1) as HintLevel,
-      };
-
-      return {
-        ...state,
-        slots: newSlots,
-        lastGuessResult: null,
-        lastGuessedSlotIndex: null,
-      };
-    }
-
-    case "REVEAL_LETTER": {
-      if (state.selectedSlotIndex === null) return state;
-      const slot = state.slots[state.selectedSlotIndex];
       if (slot.guessed || slot.givenUp) return state;
-      const nameLength = state.lineup.players[state.selectedSlotIndex].lastName.length;
-      if (slot.lettersRevealed >= nameLength) return state;
 
       const newSlots = [...state.slots];
-      newSlots[state.selectedSlotIndex] = {
-        ...slot,
-        lettersRevealed: slot.lettersRevealed + 1,
-      };
+
+      if (slot.hintsRevealed < MAX_HINTS) {
+        // Standard hints first (nationality, age)
+        const cost = getNextHintCost(slot.hintsRevealed);
+        if (cost === null) return state;
+        newSlots[state.selectedSlotIndex] = {
+          ...slot,
+          hintsRevealed: (slot.hintsRevealed + 1) as HintLevel,
+        };
+      } else {
+        // Then reveal letters one at a time
+        const nameLength = state.lineup.players[state.selectedSlotIndex].lastName.length;
+        if (slot.lettersRevealed >= nameLength) return state;
+        newSlots[state.selectedSlotIndex] = {
+          ...slot,
+          lettersRevealed: slot.lettersRevealed + 1,
+        };
+      }
 
       return {
         ...state,
@@ -300,10 +289,6 @@ export function useGame(teamFilter: string | null) {
     () => dispatch({ type: "REQUEST_HINT" }),
     []
   );
-  const revealLetter = useCallback(
-    () => dispatch({ type: "REVEAL_LETTER" }),
-    []
-  );
   const giveUp = useCallback(() => dispatch({ type: "GIVE_UP" }), []);
   const giveUpSlot = useCallback(
     () => dispatch({ type: "GIVE_UP_SLOT" }),
@@ -320,7 +305,6 @@ export function useGame(teamFilter: string | null) {
     selectSlot,
     submitGuess,
     requestHint,
-    revealLetter,
     giveUp,
     giveUpSlot,
     clearFeedback,

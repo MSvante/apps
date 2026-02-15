@@ -15,7 +15,6 @@ interface PitchProps {
   onSelectSlot: (index: number) => void;
   onSubmitGuess: (name: string) => void;
   onRequestHint: () => void;
-  onRevealLetter: () => void;
   onGiveUpSlot: () => void;
   onClosePopup: () => void;
 }
@@ -31,7 +30,6 @@ export function Pitch({
   onSelectSlot,
   onSubmitGuess,
   onRequestHint,
-  onRevealLetter,
   onGiveUpSlot,
   onClosePopup,
 }: PitchProps) {
@@ -73,7 +71,6 @@ export function Pitch({
               lastGuessResult={lastGuessResult}
               onSubmit={onSubmitGuess}
               onRequestHint={onRequestHint}
-              onRevealLetter={onRevealLetter}
               onGiveUpSlot={onGiveUpSlot}
               onClose={onClosePopup}
             />

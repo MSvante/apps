@@ -49,12 +49,8 @@ export function PlayerSlot({
   const hints: string[] = [];
   if (slot.hintsRevealed >= 1) hints.push(player.nationalityFlag);
   if (slot.hintsRevealed >= 2) hints.push(`${player.age}y`);
-  if (slot.hintsRevealed >= 3) hints.push(`#${player.shirtNumber}`);
   if (slot.lettersRevealed > 0) {
-    const partial = player.lastName.slice(0, slot.lettersRevealed) + "…";
-    hints.push(partial);
-  } else if (slot.hintsRevealed >= 4) {
-    hints.push(`${player.lastName[0].toUpperCase()}...`);
+    hints.push(player.lastName.slice(0, slot.lettersRevealed) + "…");
   }
 
   return (
