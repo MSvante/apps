@@ -8,4 +8,5 @@ export const HINT_COSTS: Record<number, number> = {
 };
 
 export const MAX_HINTS = 4;
+export const LETTER_REVEAL_COST = 1;
 export const MAX_SCORE = 110; // 11 players * 10 pts

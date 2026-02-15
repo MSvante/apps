@@ -71,7 +71,7 @@ function createInitialState(teamFilter: string | null = null): GameState {
     team,
     lineup,
     slots: lineup.players.map(
-      (): SlotState => ({ guessed: false, hintsRevealed: 0 as HintLevel })
+      (): SlotState => ({ guessed: false, givenUp: false, hintsRevealed: 0 as HintLevel, lettersRevealed: 0 })
     ),
     selectedSlotIndex: null,
     score: 0,
@@ -85,7 +85,9 @@ type GameAction =
   | { type: "SELECT_SLOT"; index: number | null }
   | { type: "SUBMIT_GUESS"; name: string }
   | { type: "REQUEST_HINT" }
+  | { type: "REVEAL_LETTER" }
   | { type: "GIVE_UP" }
+  | { type: "GIVE_UP_SLOT" }
   | { type: "CLEAR_FEEDBACK" };
 
 function gameReducer(state: GameState, action: GameAction): GameState {
@@ -134,7 +136,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
       // Find matching unguessed player — exact first, then fuzzy
       let matchedIndex = -1;
       for (let i = 0; i < state.lineup.players.length; i++) {
-        if (state.slots[i].guessed) continue;
+        if (state.slots[i].guessed || state.slots[i].givenUp) continue;
         if (exactMatch(playerNames(i))) {
           matchedIndex = i;
           break;
@@ -142,7 +144,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
       }
       if (matchedIndex === -1) {
         for (let i = 0; i < state.lineup.players.length; i++) {
-          if (state.slots[i].guessed) continue;
+          if (state.slots[i].guessed || state.slots[i].givenUp) continue;
           if (fuzzyMatch(playerNames(i))) {
             matchedIndex = i;
             break;
@@ -151,9 +153,9 @@ function gameReducer(state: GameState, action: GameAction): GameState {
       }
 
       if (matchedIndex === -1) {
-        // Check if it's a duplicate (already guessed) — exact or fuzzy
+        // Check if it's a duplicate (already guessed or given up) — exact or fuzzy
         const isDuplicate = state.lineup.players.some((_, i) => {
-          if (!state.slots[i].guessed) return false;
+          if (!state.slots[i].guessed && !state.slots[i].givenUp) return false;
           const names = playerNames(i);
           return exactMatch(names) || fuzzyMatch(names);
         });
@@ -172,10 +174,11 @@ function gameReducer(state: GameState, action: GameAction): GameState {
       newSlots[matchedIndex] = { ...newSlots[matchedIndex], guessed: true };
 
       const pointsEarned = calculateSlotScore(
-        newSlots[matchedIndex].hintsRevealed
+        newSlots[matchedIndex].hintsRevealed,
+        newSlots[matchedIndex].lettersRevealed
       );
       const newScore = state.score + pointsEarned;
-      const allGuessed = newSlots.every((s) => s.guessed);
+      const allDone = newSlots.every((s) => s.guessed || s.givenUp);
 
       return {
         ...state,
@@ -187,7 +190,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
           state.selectedSlotIndex === matchedIndex
             ? null
             : state.selectedSlotIndex,
-        phase: allGuessed ? "COMPLETE" : state.phase,
+        phase: allDone ? "COMPLETE" : state.phase,
       };
     }
 
@@ -210,6 +213,46 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         slots: newSlots,
         lastGuessResult: null,
         lastGuessedSlotIndex: null,
+      };
+    }
+
+    case "REVEAL_LETTER": {
+      if (state.selectedSlotIndex === null) return state;
+      const slot = state.slots[state.selectedSlotIndex];
+      if (slot.guessed || slot.givenUp) return state;
+      const nameLength = state.lineup.players[state.selectedSlotIndex].lastName.length;
+      if (slot.lettersRevealed >= nameLength) return state;
+
+      const newSlots = [...state.slots];
+      newSlots[state.selectedSlotIndex] = {
+        ...slot,
+        lettersRevealed: slot.lettersRevealed + 1,
+      };
+
+      return {
+        ...state,
+        slots: newSlots,
+        lastGuessResult: null,
+        lastGuessedSlotIndex: null,
+      };
+    }
+
+    case "GIVE_UP_SLOT": {
+      if (state.selectedSlotIndex === null) return state;
+      const slot = state.slots[state.selectedSlotIndex];
+      if (slot.guessed || slot.givenUp) return state;
+
+      const newSlots = [...state.slots];
+      newSlots[state.selectedSlotIndex] = { ...slot, givenUp: true };
+      const allDone = newSlots.every((s) => s.guessed || s.givenUp);
+
+      return {
+        ...state,
+        slots: newSlots,
+        selectedSlotIndex: null,
+        lastGuessResult: null,
+        lastGuessedSlotIndex: null,
+        phase: allDone ? "COMPLETE" : state.phase,
       };
     }
 
@@ -257,7 +300,15 @@ export function useGame(teamFilter: string | null) {
     () => dispatch({ type: "REQUEST_HINT" }),
     []
   );
+  const revealLetter = useCallback(
+    () => dispatch({ type: "REVEAL_LETTER" }),
+    []
+  );
   const giveUp = useCallback(() => dispatch({ type: "GIVE_UP" }), []);
+  const giveUpSlot = useCallback(
+    () => dispatch({ type: "GIVE_UP_SLOT" }),
+    []
+  );
   const clearFeedback = useCallback(
     () => dispatch({ type: "CLEAR_FEEDBACK" }),
     []
@@ -269,7 +320,9 @@ export function useGame(teamFilter: string | null) {
     selectSlot,
     submitGuess,
     requestHint,
+    revealLetter,
     giveUp,
+    giveUpSlot,
     clearFeedback,
   };
 }

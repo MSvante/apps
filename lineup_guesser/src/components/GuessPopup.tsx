@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import type { Player } from "../types/match";
 import type { SlotState, GuessResult } from "../types/game";
 import { getNextHintCost, getHintLabel } from "../utils/scoring";
-import { MAX_HINTS } from "../constants/scoring";
+import { MAX_HINTS, LETTER_REVEAL_COST } from "../constants/scoring";
 
 interface GuessPopupProps {
   player: Player;
@@ -10,6 +10,8 @@ interface GuessPopupProps {
   lastGuessResult: GuessResult;
   onSubmit: (name: string) => void;
   onRequestHint: () => void;
+  onRevealLetter: () => void;
+  onGiveUpSlot: () => void;
   onClose: () => void;
 }
 
@@ -19,6 +21,8 @@ export function GuessPopup({
   lastGuessResult,
   onSubmit,
   onRequestHint,
+  onRevealLetter,
+  onGiveUpSlot,
   onClose,
 }: GuessPopupProps) {
   const [value, setValue] = useState("");
@@ -123,6 +127,16 @@ export function GuessPopup({
   const nextCost = getNextHintCost(slot.hintsRevealed);
   const nextLabel = getHintLabel(slot.hintsRevealed + 1);
 
+  // Letter reveal display
+  const nameLength = player.lastName.length;
+  const canRevealMoreLetters = slot.lettersRevealed < nameLength;
+  const letterDisplay = slot.lettersRevealed > 0
+    ? player.lastName
+        .split("")
+        .map((ch, i) => (i < slot.lettersRevealed ? ch : "_"))
+        .join(" ")
+    : null;
+
   return (
     <div
       ref={popupRef}
@@ -146,18 +160,38 @@ export function GuessPopup({
           </div>
         )}
 
+        {/* Letter reveal display */}
+        {letterDisplay && (
+          <div className="bg-gray-900/80 rounded px-2 py-1.5 mb-2 text-center">
+            <span className="text-yellow-300 font-mono text-sm tracking-widest">
+              {letterDisplay}
+            </span>
+          </div>
+        )}
+
         {/* Hint button */}
         {slot.hintsRevealed < MAX_HINTS ? (
           <button
             onClick={onRequestHint}
             className="w-full bg-gray-700 hover:bg-gray-600 active:bg-gray-500 text-white py-2 sm:py-1 rounded
-              text-sm sm:text-xs font-medium transition-colors mb-2"
+              text-sm sm:text-xs font-medium transition-colors mb-1.5"
           >
             Reveal {nextLabel} (-{nextCost} pts)
           </button>
+        ) : null}
+
+        {/* Reveal letter button */}
+        {canRevealMoreLetters ? (
+          <button
+            onClick={onRevealLetter}
+            className="w-full bg-gray-700 hover:bg-gray-600 active:bg-gray-500 text-yellow-300 py-2 sm:py-1 rounded
+              text-sm sm:text-xs font-medium transition-colors mb-2"
+          >
+            Reveal letter ({slot.lettersRevealed}/{nameLength}) (-{LETTER_REVEAL_COST} pt)
+          </button>
         ) : (
           <div className="text-gray-500 text-xs text-center mb-2">
-            All hints revealed
+            All letters revealed
           </div>
         )}
 
@@ -195,6 +229,14 @@ export function GuessPopup({
             </div>
           )}
         </div>
+
+        {/* Per-player give up */}
+        <button
+          onClick={onGiveUpSlot}
+          className="w-full text-gray-600 hover:text-gray-400 text-xs transition-colors mt-2 py-1"
+        >
+          Give up this player
+        </button>
       </div>
     </div>
   );

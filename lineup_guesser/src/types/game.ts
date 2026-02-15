@@ -6,7 +6,9 @@ export type GuessResult = "correct" | "incorrect" | "duplicate" | null;
 
 export interface SlotState {
   guessed: boolean;
+  givenUp: boolean;
   hintsRevealed: HintLevel;
+  lettersRevealed: number;
 }
 
 export interface GameState {
