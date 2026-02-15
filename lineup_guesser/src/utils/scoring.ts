@@ -1,15 +1,16 @@
-import { POINTS_PER_CORRECT_GUESS, HINT_COSTS } from "../constants/scoring";
+import { POINTS_PER_CORRECT_GUESS, HINT_COSTS, LETTER_REVEAL_COST } from "../constants/scoring";
 import type { HintLevel } from "../types/game";
 
 /**
- * Calculate the points earned for guessing a player given the number of hints revealed.
- * Floor at 0.
+ * Calculate the points earned for guessing a player given the number of hints
+ * and letters revealed. Floor at 0.
  */
-export function calculateSlotScore(hintsRevealed: HintLevel): number {
+export function calculateSlotScore(hintsRevealed: HintLevel, lettersRevealed: number = 0): number {
   let score = POINTS_PER_CORRECT_GUESS;
   for (let i = 1; i <= hintsRevealed; i++) {
     score -= HINT_COSTS[i] ?? 0;
   }
+  score -= lettersRevealed * LETTER_REVEAL_COST;
   return Math.max(0, score);
 }
 

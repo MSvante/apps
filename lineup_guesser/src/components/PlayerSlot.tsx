@@ -34,12 +34,12 @@ export function PlayerSlot({
     }
   }, [wasJustGuessed]);
 
-  const showName = slot.guessed || isRevealed;
+  const showName = slot.guessed || slot.givenUp || isRevealed;
 
   let bgClass = "bg-gray-700/80 border-gray-600";
   if (slot.guessed) {
     bgClass = "bg-green-900/80 border-green-500";
-  } else if (isRevealed) {
+  } else if (slot.givenUp || isRevealed) {
     bgClass = "bg-red-900/60 border-red-500/50";
   } else if (isSelected) {
     bgClass = "bg-yellow-900/80 border-yellow-400";
@@ -50,8 +50,12 @@ export function PlayerSlot({
   if (slot.hintsRevealed >= 1) hints.push(player.nationalityFlag);
   if (slot.hintsRevealed >= 2) hints.push(`${player.age}y`);
   if (slot.hintsRevealed >= 3) hints.push(`#${player.shirtNumber}`);
-  if (slot.hintsRevealed >= 4)
+  if (slot.lettersRevealed > 0) {
+    const partial = player.lastName.slice(0, slot.lettersRevealed) + "…";
+    hints.push(partial);
+  } else if (slot.hintsRevealed >= 4) {
     hints.push(`${player.lastName[0].toUpperCase()}...`);
+  }
 
   return (
     <div
@@ -93,7 +97,7 @@ export function PlayerSlot({
         </div>
       )}
 
-      {/* Show full name below when guessed/revealed */}
+      {/* Show full name below when guessed/revealed/given up */}
       {showName && (
         <div
           className={`text-[9px] sm:text-[10px] mt-0.5 font-medium text-center whitespace-nowrap ${

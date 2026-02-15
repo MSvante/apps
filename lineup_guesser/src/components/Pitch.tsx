@@ -15,6 +15,8 @@ interface PitchProps {
   onSelectSlot: (index: number) => void;
   onSubmitGuess: (name: string) => void;
   onRequestHint: () => void;
+  onRevealLetter: () => void;
+  onGiveUpSlot: () => void;
   onClosePopup: () => void;
 }
 
@@ -29,6 +31,8 @@ export function Pitch({
   onSelectSlot,
   onSubmitGuess,
   onRequestHint,
+  onRevealLetter,
+  onGiveUpSlot,
   onClosePopup,
 }: PitchProps) {
   const selectedPlayer =
@@ -52,7 +56,7 @@ export function Pitch({
             position={positions[i]}
             index={i}
             isSelected={selectedSlotIndex === i}
-            isRevealed={phase === "COMPLETE" && !slots[i].guessed}
+            isRevealed={phase === "COMPLETE" && !slots[i].guessed && !slots[i].givenUp}
             wasJustGuessed={lastGuessedSlotIndex === i}
             onSelect={onSelectSlot}
           />
@@ -61,13 +65,16 @@ export function Pitch({
         {/* Guess popup overlay */}
         {phase === "PLAYING" &&
           selectedPlayer &&
-          selectedSlot && (
+          selectedSlot &&
+          !selectedSlot.givenUp && (
             <GuessPopup
               player={selectedPlayer}
               slot={selectedSlot}
               lastGuessResult={lastGuessResult}
               onSubmit={onSubmitGuess}
               onRequestHint={onRequestHint}
+              onRevealLetter={onRevealLetter}
+              onGiveUpSlot={onGiveUpSlot}
               onClose={onClosePopup}
             />
           )}

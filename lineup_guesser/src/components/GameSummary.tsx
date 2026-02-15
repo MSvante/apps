@@ -17,6 +17,7 @@ export function GameSummary({
   onPlayAgain,
 }: GameSummaryProps) {
   const guessedCount = slots.filter((s) => s.guessed).length;
+  const givenUpCount = slots.filter((s) => s.givenUp).length;
   const percentage = Math.round((score / MAX_SCORE) * 100);
 
   let message = "Better luck next time!";
@@ -30,7 +31,7 @@ export function GameSummary({
       <div className="text-center">
         <div className="text-2xl font-bold text-white">{score}<span className="text-gray-500 text-lg">/{MAX_SCORE}</span></div>
         <div className="text-sm text-gray-400">
-          {guessedCount}/11 guessed &middot; {percentage}%
+          {guessedCount}/11 guessed{givenUpCount > 0 && ` · ${givenUpCount} given up`} &middot; {percentage}%
         </div>
         <div className="text-yellow-400 font-medium mt-1">{message}</div>
       </div>
@@ -38,7 +39,7 @@ export function GameSummary({
       <div className="space-y-1 max-h-64 overflow-y-auto">
         {players.map((player, i) => {
           const slot = slots[i];
-          const pts = slot.guessed ? calculateSlotScore(slot.hintsRevealed) : 0;
+          const pts = slot.guessed ? calculateSlotScore(slot.hintsRevealed, slot.lettersRevealed) : 0;
 
           return (
             <div
@@ -56,11 +57,16 @@ export function GameSummary({
                 >
                   {player.name}
                 </span>
+                {slot.givenUp && (
+                  <span className="text-gray-600 text-[10px]">gave up</span>
+                )}
               </div>
               <div className="flex items-center gap-2">
-                {slot.hintsRevealed > 0 && (
+                {(slot.hintsRevealed > 0 || slot.lettersRevealed > 0) && (
                   <span className="text-gray-600">
-                    {slot.hintsRevealed} hint{slot.hintsRevealed > 1 ? "s" : ""}
+                    {slot.hintsRevealed > 0 && `${slot.hintsRevealed} hint${slot.hintsRevealed > 1 ? "s" : ""}`}
+                    {slot.hintsRevealed > 0 && slot.lettersRevealed > 0 && ", "}
+                    {slot.lettersRevealed > 0 && `${slot.lettersRevealed} letter${slot.lettersRevealed > 1 ? "s" : ""}`}
                   </span>
                 )}
                 <span
