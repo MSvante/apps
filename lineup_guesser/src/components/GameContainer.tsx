@@ -17,7 +17,6 @@ export function GameContainer() {
     selectSlot,
     submitGuess,
     requestHint,
-    revealLetter,
     giveUp,
     giveUpSlot,
     clearFeedback,
@@ -71,7 +70,6 @@ export function GameContainer() {
         onSelectSlot={handleSelectSlot}
         onSubmitGuess={handleSubmitGuess}
         onRequestHint={requestHint}
-        onRevealLetter={revealLetter}
         onGiveUpSlot={giveUpSlot}
         onClosePopup={handleClosePopup}
       />
