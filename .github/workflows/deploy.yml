@@ -39,6 +39,8 @@ jobs:
           mkdir -p _site/lineup_guesser
           cp index.html _site/
           cp -r kalender _site/
+          cp -r pokemon _site/
+          cp -r spell_match _site/
           cp -r lineup_guesser/dist/* _site/lineup_guesser/
 
       - uses: actions/configure-pages@v5
