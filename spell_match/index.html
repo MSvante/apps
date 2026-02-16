@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spell Match</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: #1a1a2e;
+  color: #eee;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+h1 {
+  font-size: 1.8rem;
+  color: #e94560;
+  margin-bottom: 4px;
+}
+
+.subtitle {
+  color: #888;
+  font-size: 0.95rem;
+}
+
+.difficulty-buttons {
+  display: flex;
+  gap: 8px;
+  margin: 16px 0;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.difficulty-buttons button {
+  padding: 10px 20px;
+  border: 2px solid #1b2838;
+  border-radius: 8px;
+  background: #162447;
+  color: #ccc;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.difficulty-buttons button:hover {
+  background: #1f3460;
+  border-color: #e94560;
+  color: #fff;
+}
+
+.difficulty-buttons button.active {
+  border-color: #e94560;
+  background: #1a1a3e;
+  color: #fff;
+  box-shadow: 0 0 12px rgba(233, 69, 96, 0.25);
+}
+
+.stats-bar {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 20px;
+  font-size: 1rem;
+  color: #ccc;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.stats-bar span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.stats-bar .label {
+  color: #888;
+  font-size: 0.85rem;
+}
+
+.stats-bar .value {
+  color: #fff;
+  font-weight: 600;
+}
+
+.best-score {
+  color: #888;
+  font-size: 0.85rem;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.card-grid {
+  display: grid;
+  gap: 10px;
+  perspective: 1000px;
+  max-width: 700px;
+  width: 100%;
+}
+
+.card-grid.cols-4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.card-grid.cols-5 {
+  grid-template-columns: repeat(5, 1fr);
+}
+
+.card-grid.cols-6 {
+  grid-template-columns: repeat(6, 1fr);
+}
+
+.card-container {
+  aspect-ratio: 3 / 4;
+  cursor: pointer;
+}
+
+.card {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.5s;
+}
+
+.card.flipped {
+  transform: rotateY(180deg);
+}
+
+.card-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  text-align: center;
+  font-size: 0.85rem;
+  line-height: 1.3;
+}
+
+.card-front {
+  background: #162447;
+  border: 2px solid #1b2838;
+  color: #e94560;
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+
+.card-front::after {
+  content: '⚡';
+}
+
+.card-back {
+  background: #0d1b2a;
+  border: 2px solid #1b2838;
+  transform: rotateY(180deg);
+  flex-direction: column;
+  gap: 4px;
+}
+
+.card-back.spell-card {
+  color: #e94560;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.card-back.effect-card {
+  color: #ccc;
+  font-size: 0.8rem;
+}
+
+.card-back.effect-card .effect-label {
+  color: #888;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.card.matched .card-back {
+  border-color: #4ECDC4;
+  background: rgba(78, 205, 196, 0.1);
+}
+
+.card.matched .card-back.spell-card {
+  color: #4ECDC4;
+}
+
+/* Win overlay */
+.win-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 10, 20, 0.92);
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.win-overlay.show {
+  display: flex;
+}
+
+.win-overlay h2 {
+  font-size: 3rem;
+  color: #e94560;
+}
+
+.win-overlay p {
+  font-size: 1.4rem;
+  color: #ccc;
+}
+
+.win-overlay .win-stats {
+  font-size: 1.1rem;
+  color: #888;
+}
+
+.win-overlay .new-record {
+  color: #4ECDC4;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.win-overlay button {
+  padding: 12px 28px;
+  border: none;
+  border-radius: 8px;
+  background: #e94560;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background 0.2s;
+}
+
+.win-overlay button:hover {
+  background: #c73650;
+}
+
+@media (max-width: 600px) {
+  h1 { font-size: 1.4rem; }
+  .card-grid { gap: 6px; }
+  .card-face { font-size: 0.7rem; padding: 4px; }
+  .card-front { font-size: 1.4rem; }
+  .card-back.spell-card { font-size: 0.75rem; }
+  .card-back.effect-card { font-size: 0.65rem; }
+  .stats-bar { gap: 16px; font-size: 0.9rem; }
+}
+
+@media (max-width: 375px) {
+  .card-grid.cols-6 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Spell Match</h1>
+  <p class="subtitle">Match each spell to its effect</p>
+</header>
+
+<div class="difficulty-buttons" id="difficulty-buttons">
+  <button data-level="easy" class="active">Easy (5 pairs)</button>
+  <button data-level="medium">Medium (10 pairs)</button>
+  <button data-level="hard">Hard (15 pairs)</button>
+</div>
+
+<div class="stats-bar">
+  <span><span class="label">Moves:</span> <span class="value" id="moves">0</span></span>
+  <span><span class="label">Time:</span> <span class="value" id="timer">00:00</span></span>
+  <span><span class="label">Pairs:</span> <span class="value" id="pairs">0 / 0</span></span>
+</div>
+
+<div class="best-score" id="best-score"></div>
+
+<div class="card-grid" id="card-grid"></div>
+
+<div class="win-overlay" id="win-overlay">
+  <h2>Well Done!</h2>
+  <p id="win-message"></p>
+  <p class="win-stats" id="win-stats"></p>
+  <p class="new-record" id="new-record" style="display:none">New Best Score!</p>
+  <button onclick="startGame(currentDifficulty)">Play Again</button>
+</div>
+
+<script>
+const ALL_SPELLS = [
+  // Core spells
+  { spell: 'Lumos', effect: 'Creates light' },
+  { spell: 'Nox', effect: 'Extinguishes light' },
+  { spell: 'Expelliarmus', effect: 'Disarms opponent' },
+  { spell: 'Wingardium Leviosa', effect: 'Levitation spell' },
+  { spell: 'Expecto Patronum', effect: 'Summons patronus' },
+  { spell: 'Accio', effect: 'Summons objects' },
+  { spell: 'Stupefy', effect: 'Stuns target' },
+  { spell: 'Alohomora', effect: 'Unlocks doors' },
+  { spell: 'Protego', effect: 'Shield charm' },
+  { spell: 'Obliviate', effect: 'Erases memories' },
+  { spell: 'Riddikulus', effect: 'Defeats boggart' },
+  { spell: 'Petrificus Totalus', effect: 'Full body bind' },
+  // Offensive spells
+  { spell: 'Sectumsempra', effect: 'Slashes like a sword' },
+  { spell: 'Confringo', effect: 'Blasting curse' },
+  { spell: 'Reducto', effect: 'Blasts objects apart' },
+  { spell: 'Bombarda', effect: 'Causes explosion' },
+  { spell: 'Impedimenta', effect: 'Slows target down' },
+  { spell: 'Incendio', effect: 'Starts a fire' },
+  { spell: 'Diffindo', effect: 'Cuts objects' },
+  { spell: 'Depulso', effect: 'Pushes objects away' },
+  // Defensive & healing
+  { spell: 'Episkey', effect: 'Heals minor injuries' },
+  { spell: 'Finite Incantatem', effect: 'Stops active spells' },
+  { spell: 'Salvio Hexia', effect: 'Repels hexes' },
+  { spell: 'Cave Inimicum', effect: 'Warns of intruders' },
+  { spell: 'Protego Maxima', effect: 'Powerful shield' },
+  // Charms & utility
+  { spell: 'Reparo', effect: 'Repairs broken objects' },
+  { spell: 'Aguamenti', effect: 'Produces water' },
+  { spell: 'Scourgify', effect: 'Cleans things up' },
+  { spell: 'Silencio', effect: 'Silences target' },
+  { spell: 'Sonorus', effect: 'Amplifies voice' },
+  { spell: 'Quietus', effect: 'Cancels Sonorus' },
+  { spell: 'Engorgio', effect: 'Enlarges objects' },
+  { spell: 'Reducio', effect: 'Shrinks objects' },
+  { spell: 'Lumos Maxima', effect: 'Very bright light' },
+  { spell: 'Point Me', effect: 'Compass spell' },
+  { spell: 'Pack', effect: 'Packs a trunk' },
+  { spell: 'Colloportus', effect: 'Locks a door' },
+  { spell: 'Muffliato', effect: 'Fills ears with buzzing' },
+  { spell: 'Tergeo', effect: 'Cleans up blood' },
+  // Transfiguration & movement
+  { spell: 'Avis', effect: 'Creates flock of birds' },
+  { spell: 'Serpensortia', effect: 'Conjures a snake' },
+  { spell: 'Orchideous', effect: 'Conjures flowers' },
+  { spell: 'Aparecium', effect: 'Reveals hidden text' },
+  { spell: 'Locomotor', effect: 'Moves an object' },
+  { spell: 'Expulso', effect: 'Makes things explode' },
+  { spell: 'Geminio', effect: 'Duplicates an object' },
+  // Mind & control
+  { spell: 'Confundo', effect: 'Confuses the target' },
+  { spell: 'Imperio', effect: 'Controls target\'s mind' },
+  { spell: 'Legilimens', effect: 'Reads thoughts' },
+  { spell: 'Rictusempra', effect: 'Tickling charm' },
+  { spell: 'Tarantallegra', effect: 'Forces dancing' },
+  { spell: 'Levicorpus', effect: 'Dangles upside down' },
+  { spell: 'Liberacorpus', effect: 'Reverses Levicorpus' },
+  // Dark & unforgivable
+  { spell: 'Avada Kedavra', effect: 'Killing curse' },
+  { spell: 'Crucio', effect: 'Causes extreme pain' },
+  { spell: 'Morsmordre', effect: 'Casts the Dark Mark' },
+];
+
+const DIFFICULTY = {
+  easy:   { pairs: 5, cols: 5 },
+  medium: { pairs: 10, cols: 5 },
+  hard:   { pairs: 15, cols: 6 },
+};
+
+let currentDifficulty = 'easy';
+let cards = [];
+let flippedCards = [];
+let matchedPairs = 0;
+let totalPairs = 0;
+let moves = 0;
+let timerInterval = null;
+let seconds = 0;
+let boardLocked = false;
+
+// Difficulty buttons
+document.getElementById('difficulty-buttons').addEventListener('click', (e) => {
+  const btn = e.target.closest('button');
+  if (!btn) return;
+  const level = btn.dataset.level;
+  document.querySelectorAll('.difficulty-buttons button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  startGame(level);
+});
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function startGame(difficulty) {
+  currentDifficulty = difficulty;
+  const { pairs, cols } = DIFFICULTY[difficulty];
+  totalPairs = pairs;
+  matchedPairs = 0;
+  moves = 0;
+  seconds = 0;
+  flippedCards = [];
+  boardLocked = false;
+
+  if (timerInterval) clearInterval(timerInterval);
+  timerInterval = null;
+
+  document.getElementById('moves').textContent = '0';
+  document.getElementById('timer').textContent = '00:00';
+  document.getElementById('pairs').textContent = '0 / ' + totalPairs;
+  document.getElementById('win-overlay').classList.remove('show');
+
+  updateBestScore();
+
+  // Pick random spells for this game
+  const selectedSpells = shuffle([...ALL_SPELLS]).slice(0, pairs);
+
+  // Create card data: one spell card + one effect card per pair
+  cards = [];
+  selectedSpells.forEach((s, i) => {
+    cards.push({ pairId: i, type: 'spell', text: s.spell });
+    cards.push({ pairId: i, type: 'effect', text: s.effect });
+  });
+  shuffle(cards);
+
+  const grid = document.getElementById('card-grid');
+  grid.className = 'card-grid cols-' + cols;
+  grid.innerHTML = '';
+
+  cards.forEach((cardData, idx) => {
+    const container = document.createElement('div');
+    container.className = 'card-container';
+    container.dataset.index = idx;
+
+    const card = document.createElement('div');
+    card.className = 'card';
+
+    const front = document.createElement('div');
+    front.className = 'card-face card-front';
+
+    const back = document.createElement('div');
+    back.className = 'card-face card-back';
+
+    if (cardData.type === 'spell') {
+      back.classList.add('spell-card');
+      back.textContent = cardData.text;
+    } else {
+      back.classList.add('effect-card');
+      const label = document.createElement('span');
+      label.className = 'effect-label';
+      label.textContent = 'Effect';
+      back.appendChild(label);
+      back.appendChild(document.createTextNode(cardData.text));
+    }
+
+    card.appendChild(front);
+    card.appendChild(back);
+    container.appendChild(card);
+    grid.appendChild(container);
+
+    container.addEventListener('click', () => handleCardClick(idx));
+  });
+}
+
+function handleCardClick(idx) {
+  if (boardLocked) return;
+
+  const container = document.querySelectorAll('.card-container')[idx];
+  const card = container.querySelector('.card');
+
+  // Ignore if already flipped or matched
+  if (card.classList.contains('flipped') || card.classList.contains('matched')) return;
+
+  // Ignore if this card is already in flippedCards
+  if (flippedCards.includes(idx)) return;
+
+  // Start timer on first move
+  if (!timerInterval) {
+    timerInterval = setInterval(() => {
+      seconds++;
+      document.getElementById('timer').textContent = formatTime(seconds);
+    }, 1000);
+  }
+
+  card.classList.add('flipped');
+  flippedCards.push(idx);
+
+  if (flippedCards.length === 2) {
+    moves++;
+    document.getElementById('moves').textContent = moves;
+
+    const [i1, i2] = flippedCards;
+    const c1 = cards[i1];
+    const c2 = cards[i2];
+
+    // Match: same pairId, different type
+    if (c1.pairId === c2.pairId && c1.type !== c2.type) {
+      const card1 = document.querySelectorAll('.card-container')[i1].querySelector('.card');
+      const card2 = document.querySelectorAll('.card-container')[i2].querySelector('.card');
+      card1.classList.add('matched');
+      card2.classList.add('matched');
+      matchedPairs++;
+      document.getElementById('pairs').textContent = matchedPairs + ' / ' + totalPairs;
+      flippedCards = [];
+
+      if (matchedPairs === totalPairs) {
+        clearInterval(timerInterval);
+        setTimeout(showWin, 600);
+      }
+    } else {
+      // Mismatch: flip back after delay
+      boardLocked = true;
+      setTimeout(() => {
+        const card1 = document.querySelectorAll('.card-container')[i1].querySelector('.card');
+        const card2 = document.querySelectorAll('.card-container')[i2].querySelector('.card');
+        card1.classList.remove('flipped');
+        card2.classList.remove('flipped');
+        flippedCards = [];
+        boardLocked = false;
+      }, 1000);
+    }
+  }
+}
+
+function formatTime(s) {
+  const m = Math.floor(s / 60);
+  const sec = s % 60;
+  return String(m).padStart(2, '0') + ':' + String(sec).padStart(2, '0');
+}
+
+function showWin() {
+  const key = 'spellmatch_best_' + currentDifficulty;
+  const prev = localStorage.getItem(key);
+  const isNewRecord = !prev || moves < parseInt(prev);
+
+  if (isNewRecord) {
+    localStorage.setItem(key, moves);
+  }
+
+  document.getElementById('win-message').textContent =
+    'All ' + totalPairs + ' pairs matched!';
+  document.getElementById('win-stats').textContent =
+    moves + ' moves in ' + formatTime(seconds);
+
+  const recordEl = document.getElementById('new-record');
+  recordEl.style.display = isNewRecord ? 'block' : 'none';
+
+  document.getElementById('win-overlay').classList.add('show');
+  updateBestScore();
+}
+
+function updateBestScore() {
+  const key = 'spellmatch_best_' + currentDifficulty;
+  const best = localStorage.getItem(key);
+  const el = document.getElementById('best-score');
+  if (best) {
+    el.textContent = 'Best: ' + best + ' moves (' + currentDifficulty + ')';
+  } else {
+    el.textContent = '';
+  }
+}
+
+// Start with easy
+startGame('easy');
+</script>
+</body>
+</html>

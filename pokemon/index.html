@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Who's That Pok&eacute;mon?</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: #1a1a2e;
+  color: #eee;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+h1 {
+  font-size: 1.8rem;
+  color: #e94560;
+  margin-bottom: 4px;
+}
+
+.subtitle {
+  color: #888;
+  font-size: 0.95rem;
+}
+
+.gen-buttons {
+  display: flex;
+  gap: 8px;
+  margin: 16px 0;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.gen-buttons button {
+  padding: 10px 20px;
+  border: 2px solid #1b2838;
+  border-radius: 8px;
+  background: #162447;
+  color: #ccc;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.gen-buttons button:hover {
+  background: #1f3460;
+  border-color: #e94560;
+  color: #fff;
+}
+
+.gen-buttons button.active {
+  border-color: #e94560;
+  background: #1a1a3e;
+  color: #fff;
+  box-shadow: 0 0 12px rgba(233, 69, 96, 0.25);
+}
+
+.sprite-container {
+  width: 300px;
+  height: 300px;
+  background: #0d1b2a;
+  border: 2px solid #1b2838;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.sprite-container img {
+  max-width: 260px;
+  max-height: 260px;
+  transition: filter 0.6s ease;
+  image-rendering: auto;
+}
+
+.sprite-container img.silhouette {
+  filter: brightness(0);
+}
+
+.sprite-container img.partial-reveal {
+  filter: brightness(0.25) saturate(0);
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #1b2838;
+  border-top-color: #e94560;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.hint-buttons {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.hint-buttons button {
+  padding: 8px 16px;
+  border: 2px solid #1b2838;
+  border-radius: 8px;
+  background: #162447;
+  color: #ccc;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.hint-buttons button:hover:not(:disabled) {
+  background: #1f3460;
+  border-color: #e94560;
+  color: #fff;
+}
+
+.hint-buttons button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.hint-text {
+  color: #4ECDC4;
+  font-size: 0.9rem;
+  margin-bottom: 12px;
+  min-height: 1.2em;
+  text-align: center;
+}
+
+.guess-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  width: 100%;
+  max-width: 400px;
+}
+
+.guess-row input {
+  flex: 1;
+  padding: 12px 16px;
+  border: 2px solid #1b2838;
+  border-radius: 8px;
+  background: #162447;
+  color: #fff;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.guess-row input:focus {
+  border-color: #e94560;
+}
+
+.guess-row input::placeholder {
+  color: #555;
+}
+
+.guess-row button {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  background: #e94560;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+
+.guess-row button:hover {
+  background: #c73650;
+}
+
+.feedback {
+  font-size: 1rem;
+  min-height: 1.4em;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.feedback.correct {
+  color: #4ECDC4;
+  font-weight: 700;
+}
+
+.feedback.wrong {
+  color: #e94560;
+}
+
+.stats-bar {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 16px;
+  font-size: 1rem;
+  color: #ccc;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.stats-bar span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.stats-bar .label {
+  color: #888;
+  font-size: 0.85rem;
+}
+
+.stats-bar .value {
+  color: #fff;
+  font-weight: 600;
+}
+
+.skip-btn {
+  padding: 8px 20px;
+  border: 2px solid #1b2838;
+  border-radius: 8px;
+  background: transparent;
+  color: #888;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.skip-btn:hover {
+  border-color: #e94560;
+  color: #ccc;
+}
+
+.pokemon-name {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #e94560;
+  margin-bottom: 12px;
+  text-align: center;
+  min-height: 1.6em;
+}
+
+@media (max-width: 600px) {
+  h1 { font-size: 1.4rem; }
+  .sprite-container { width: 240px; height: 240px; }
+  .sprite-container img { max-width: 200px; max-height: 200px; }
+  .stats-bar { gap: 16px; font-size: 0.9rem; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Who's That Pok&eacute;mon?</h1>
+  <p class="subtitle">Guess the Pok&eacute;mon from its silhouette!</p>
+</header>
+
+<div class="gen-buttons" id="gen-buttons">
+  <button data-gen="1">Gen 1</button>
+  <button data-gen="2">Gen 2</button>
+  <button data-gen="3">Gen 3</button>
+  <button data-gen="all" class="active">All</button>
+</div>
+
+<div class="sprite-container" id="sprite-container">
+  <div class="spinner" id="spinner"></div>
+  <img id="pokemon-sprite" style="display:none" alt="Pokemon silhouette">
+</div>
+
+<div class="pokemon-name" id="pokemon-name"></div>
+
+<div class="hint-buttons" id="hint-buttons">
+  <button data-hint="type" id="hint-type">Type (-20 pts)</button>
+  <button data-hint="letter" id="hint-letter">First Letter (-20 pts)</button>
+  <button data-hint="reveal" id="hint-reveal">Partial Reveal (-20 pts)</button>
+</div>
+
+<div class="hint-text" id="hint-text"></div>
+
+<div class="feedback" id="feedback"></div>
+
+<div class="guess-row">
+  <input type="text" id="guess-input" placeholder="Enter Pok&eacute;mon name..." autocomplete="off">
+  <button id="guess-btn" onclick="makeGuess()">Guess</button>
+</div>
+
+<div class="stats-bar">
+  <span><span class="label">Score:</span> <span class="value" id="score">0</span></span>
+  <span><span class="label">Streak:</span> <span class="value" id="streak">0</span></span>
+  <span><span class="label">Best Streak:</span> <span class="value" id="best-streak">0</span></span>
+</div>
+
+<button class="skip-btn" id="skip-btn" onclick="skipPokemon()">Skip / Give Up</button>
+
+<script>
+const GEN_RANGES = {
+  '1': { offset: 0, limit: 151 },
+  '2': { offset: 151, limit: 100 },
+  '3': { offset: 251, limit: 135 },
+  'all': { offset: 0, limit: 386 },
+};
+
+const SPRITE_BASE = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/';
+
+let pokemonList = {};  // gen -> [{name, id}]
+let detailCache = {};  // id -> {types: [...]}
+let currentGen = 'all';
+let currentPokemon = null;  // {name, id}
+let hintsUsed = 0;
+let usedHints = { type: false, letter: false, reveal: false };
+let score = 0;
+let streak = 0;
+let bestStreak = 0;
+let revealed = false;
+
+// Load persisted stats
+function loadStats() {
+  score = parseInt(localStorage.getItem('pokemon_score') || '0');
+  streak = parseInt(localStorage.getItem('pokemon_streak') || '0');
+  bestStreak = parseInt(localStorage.getItem('pokemon_best_streak') || '0');
+  updateStatsDisplay();
+}
+
+function saveStats() {
+  localStorage.setItem('pokemon_score', score);
+  localStorage.setItem('pokemon_streak', streak);
+  localStorage.setItem('pokemon_best_streak', bestStreak);
+}
+
+function updateStatsDisplay() {
+  document.getElementById('score').textContent = score;
+  document.getElementById('streak').textContent = streak;
+  document.getElementById('best-streak').textContent = bestStreak;
+}
+
+// Fetch pokemon list for a generation
+async function fetchPokemonList(gen) {
+  if (pokemonList[gen]) return pokemonList[gen];
+
+  const { offset, limit } = GEN_RANGES[gen];
+  try {
+    const resp = await fetch(`https://pokeapi.co/api/v2/pokemon?offset=${offset}&limit=${limit}`);
+    const data = await resp.json();
+    pokemonList[gen] = data.results.map((p, i) => ({
+      name: p.name,
+      id: offset + i + 1,
+    }));
+    return pokemonList[gen];
+  } catch (err) {
+    console.error('Failed to fetch pokemon list:', err);
+    return [];
+  }
+}
+
+// Fetch pokemon details (for type hint)
+async function fetchPokemonDetail(id) {
+  if (detailCache[id]) return detailCache[id];
+
+  try {
+    const resp = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`);
+    const data = await resp.json();
+    detailCache[id] = {
+      types: data.types.map(t => t.type.name),
+    };
+    return detailCache[id];
+  } catch (err) {
+    console.error('Failed to fetch pokemon detail:', err);
+    return null;
+  }
+}
+
+// Normalize name for comparison
+function normalize(name) {
+  return name.toLowerCase().replace(/[^a-z0-9]/g, '');
+}
+
+// Format pokemon name for display
+function formatName(name) {
+  return name.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('-');
+}
+
+// Start a new round
+async function newRound() {
+  revealed = false;
+  hintsUsed = 0;
+  usedHints = { type: false, letter: false, reveal: false };
+
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('feedback').className = 'feedback';
+  document.getElementById('hint-text').textContent = '';
+  document.getElementById('pokemon-name').textContent = '';
+  document.getElementById('guess-input').value = '';
+  document.getElementById('guess-input').disabled = false;
+  document.getElementById('guess-btn').disabled = false;
+  document.getElementById('skip-btn').textContent = 'Skip / Give Up';
+
+  // Reset hint buttons
+  document.querySelectorAll('#hint-buttons button').forEach(b => b.disabled = false);
+
+  // Show spinner, hide sprite
+  document.getElementById('spinner').style.display = 'block';
+  const img = document.getElementById('pokemon-sprite');
+  img.style.display = 'none';
+
+  const list = await fetchPokemonList(currentGen);
+  if (list.length === 0) {
+    document.getElementById('feedback').textContent = 'Failed to load Pokémon list. Check your connection.';
+    document.getElementById('feedback').className = 'feedback wrong';
+    return;
+  }
+
+  currentPokemon = list[Math.floor(Math.random() * list.length)];
+
+  // Load sprite
+  img.onload = () => {
+    document.getElementById('spinner').style.display = 'none';
+    img.style.display = 'block';
+    img.className = 'silhouette';
+    document.getElementById('guess-input').focus();
+  };
+  img.onerror = () => {
+    document.getElementById('spinner').style.display = 'none';
+    document.getElementById('feedback').textContent = 'Failed to load sprite. Skipping...';
+    document.getElementById('feedback').className = 'feedback wrong';
+    setTimeout(newRound, 1500);
+  };
+  img.src = SPRITE_BASE + currentPokemon.id + '.png';
+}
+
+function makeGuess() {
+  if (!currentPokemon || revealed) return;
+
+  const input = document.getElementById('guess-input');
+  const guess = input.value.trim();
+  if (!guess) return;
+
+  if (normalize(guess) === normalize(currentPokemon.name)) {
+    // Correct!
+    revealed = true;
+    const pts = Math.max(100 - hintsUsed * 20, 20);
+    score += pts;
+    streak++;
+    if (streak > bestStreak) bestStreak = streak;
+    saveStats();
+    updateStatsDisplay();
+
+    document.getElementById('pokemon-sprite').className = '';
+    document.getElementById('pokemon-name').textContent = formatName(currentPokemon.name);
+    document.getElementById('feedback').textContent = 'Correct! +' + pts + ' points';
+    document.getElementById('feedback').className = 'feedback correct';
+    document.getElementById('guess-input').disabled = true;
+    document.getElementById('guess-btn').disabled = true;
+    document.getElementById('skip-btn').textContent = 'Next Pokémon';
+
+    // Disable hints
+    document.querySelectorAll('#hint-buttons button').forEach(b => b.disabled = true);
+  } else {
+    document.getElementById('feedback').textContent = 'Wrong! Try again.';
+    document.getElementById('feedback').className = 'feedback wrong';
+    input.value = '';
+    input.focus();
+  }
+}
+
+function skipPokemon() {
+  if (revealed) {
+    newRound();
+    return;
+  }
+
+  // Give up
+  revealed = true;
+  streak = 0;
+  saveStats();
+  updateStatsDisplay();
+
+  document.getElementById('pokemon-sprite').className = '';
+  document.getElementById('pokemon-name').textContent = formatName(currentPokemon.name);
+  document.getElementById('feedback').textContent = 'It was ' + formatName(currentPokemon.name) + '!';
+  document.getElementById('feedback').className = 'feedback wrong';
+  document.getElementById('guess-input').disabled = true;
+  document.getElementById('guess-btn').disabled = true;
+  document.getElementById('skip-btn').textContent = 'Next Pokémon';
+
+  document.querySelectorAll('#hint-buttons button').forEach(b => b.disabled = true);
+}
+
+// Hint handlers
+document.getElementById('hint-buttons').addEventListener('click', async (e) => {
+  const btn = e.target.closest('button');
+  if (!btn || btn.disabled || !currentPokemon || revealed) return;
+
+  const hint = btn.dataset.hint;
+  if (usedHints[hint]) return;
+
+  usedHints[hint] = true;
+  hintsUsed++;
+  btn.disabled = true;
+
+  if (hint === 'type') {
+    const detail = await fetchPokemonDetail(currentPokemon.id);
+    if (detail) {
+      document.getElementById('hint-text').textContent =
+        'Type: ' + detail.types.map(t => t.charAt(0).toUpperCase() + t.slice(1)).join(' / ');
+    }
+  } else if (hint === 'letter') {
+    const firstLetter = currentPokemon.name.charAt(0).toUpperCase();
+    document.getElementById('hint-text').textContent = 'Starts with: ' + firstLetter;
+  } else if (hint === 'reveal') {
+    document.getElementById('pokemon-sprite').className = 'partial-reveal';
+    document.getElementById('hint-text').textContent = 'Silhouette partially revealed!';
+  }
+});
+
+// Gen buttons
+document.getElementById('gen-buttons').addEventListener('click', (e) => {
+  const btn = e.target.closest('button');
+  if (!btn) return;
+  document.querySelectorAll('.gen-buttons button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentGen = btn.dataset.gen;
+  newRound();
+});
+
+// Enter key to guess
+document.getElementById('guess-input').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') makeGuess();
+});
+
+// Init
+loadStats();
+newRound();
+</script>
+</body>
+</html>
