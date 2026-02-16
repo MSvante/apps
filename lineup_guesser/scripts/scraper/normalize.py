@@ -39,6 +39,42 @@ SINGLE_NAME_OVERRIDES: dict[str, dict] = {
         "lastName": "Silva",
         "alternateNames": ["David Silva"],
     },
+    "Thiago Alcântara": {
+        "lastName": "Thiago",
+        "alternateNames": ["Alcantara"],
+    },
+    "Kepa Arrizabalaga": {
+        "lastName": "Kepa",
+        "alternateNames": ["Arrizabalaga"],
+    },
+    "Gabriel Magalhães": {
+        "lastName": "Gabriel",
+        "alternateNames": ["Magalhaes"],
+    },
+    "Cédric Soares": {
+        "lastName": "Cédric",
+        "alternateNames": ["Soares", "Cedric"],
+    },
+    "Emile Smith Rowe": {
+        "lastName": "Smith Rowe",
+        "alternateNames": ["Rowe"],
+    },
+    "Alexis Mac Allister": {
+        "lastName": "Mac Allister",
+        "alternateNames": ["Allister", "Macallister"],
+    },
+    "João Pedro": {
+        "lastName": "João Pedro",
+        "alternateNames": ["Pedro", "Joao Pedro"],
+    },
+    "Roque Santa Cruz": {
+        "lastName": "Santa Cruz",
+        "alternateNames": ["Cruz"],
+    },
+    "Bruno Martins Indi": {
+        "lastName": "Martins Indi",
+        "alternateNames": ["Indi"],
+    },
 }
 
 
@@ -64,9 +100,11 @@ def extract_last_name(full_name: str) -> tuple[str, list[str]]:
         hyphen_parts = last.split("-")
         alternates.append(hyphen_parts[-1])  # e.g., "Chamberlain"
 
-    # Handle "van Dijk", "de Gea" etc.
+    # Handle "van Dijk", "de Gea", "van der Vaart" etc.
     prefixes = {"van", "de", "di", "von", "el", "al", "le", "la", "dos", "da"}
-    if len(parts) >= 3 and parts[-2].lower() in prefixes:
+    if len(parts) >= 4 and parts[-3].lower() in prefixes and parts[-2].lower() in {"der", "den", "het"}:
+        last = f"{parts[-3]} {parts[-2]} {parts[-1]}"
+    elif len(parts) >= 3 and parts[-2].lower() in prefixes:
         last = f"{parts[-2]} {parts[-1]}"
 
     return last, alternates

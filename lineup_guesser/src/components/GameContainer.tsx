@@ -7,10 +7,39 @@ import { Pitch } from "./Pitch";
 import { GameSummary } from "./GameSummary";
 import { TeamFilter } from "./TeamFilter";
 
-const teams = getTeams();
+const TEAM_KEY = "lineup-guesser-team";
+const YEAR_KEY = "lineup-guesser-min-year";
+
+function readStoredTeam(): string | null {
+  try {
+    return localStorage.getItem(TEAM_KEY) || null;
+  } catch {
+    return null;
+  }
+}
+
+function readStoredYear(): number | null {
+  try {
+    const val = localStorage.getItem(YEAR_KEY);
+    return val ? Number(val) : null;
+  } catch {
+    return null;
+  }
+}
 
 export function GameContainer() {
-  const [teamFilter, setTeamFilter] = useState<string | null>(null);
+  const [teamFilter, setTeamFilter] = useState<string | null>(readStoredTeam);
+  const [minYear, setMinYear] = useState<number | null>(readStoredYear);
+
+  const teams = useMemo(() => getTeams(minYear), [minYear]);
+
+  // If the selected team no longer exists in the filtered list, clear it
+  useEffect(() => {
+    if (teamFilter && !teams.includes(teamFilter)) {
+      setTeamFilter(null);
+    }
+  }, [teams, teamFilter]);
+
   const {
     state,
     newGame,
@@ -20,7 +49,7 @@ export function GameContainer() {
     giveUp,
     giveUpSlot,
     clearFeedback,
-  } = useGame(teamFilter);
+  } = useGame(teamFilter, minYear);
 
   const isFirstRender = useRef(true);
   useEffect(() => {
@@ -29,7 +58,23 @@ export function GameContainer() {
       return;
     }
     newGame();
-  }, [teamFilter]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [teamFilter, minYear]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleTeamChange = (team: string | null) => {
+    setTeamFilter(team);
+    try {
+      if (team) localStorage.setItem(TEAM_KEY, team);
+      else localStorage.removeItem(TEAM_KEY);
+    } catch {}
+  };
+
+  const handleYearChange = (year: number | null) => {
+    setMinYear(year);
+    try {
+      if (year) localStorage.setItem(YEAR_KEY, String(year));
+      else localStorage.removeItem(YEAR_KEY);
+    } catch {}
+  };
 
   const positions = useMemo(
     () => getFormationPositions(state.lineup.formation),
@@ -53,7 +98,13 @@ export function GameContainer() {
 
   return (
     <div className="max-w-lg mx-auto px-3 sm:px-4 py-2 sm:py-4 space-y-2 sm:space-y-3">
-      <TeamFilter teams={teams} selected={teamFilter} onChange={setTeamFilter} />
+      <TeamFilter
+        teams={teams}
+        selected={teamFilter}
+        onChange={handleTeamChange}
+        minYear={minYear}
+        onMinYearChange={handleYearChange}
+      />
 
       <MatchHeader match={state.match} team={state.team} />
 

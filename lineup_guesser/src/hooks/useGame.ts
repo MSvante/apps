@@ -26,18 +26,25 @@ function addPlayedId(id: string) {
   localStorage.setItem(PLAYED_KEY, JSON.stringify(trimmed));
 }
 
-export function getTeams(): string[] {
+export function getTeams(minYear: number | null = null): string[] {
   const teams = new Set<string>();
+  const minDate = minYear ? `${minYear}-01-01` : null;
   matches.forEach((m) => {
+    if (minDate && m.date < minDate) return;
     teams.add(m.homeTeam);
     teams.add(m.awayTeam);
   });
   return [...teams].sort();
 }
 
-function pickRandomMatch(teamFilter: string | null): Match {
+function pickRandomMatch(teamFilter: string | null, minYear: number | null = null): Match {
   const played = getPlayedIds();
   let pool = matches;
+
+  if (minYear) {
+    const minDate = `${minYear}-01-01`;
+    pool = pool.filter((m) => m.date >= minDate);
+  }
 
   if (teamFilter) {
     pool = pool.filter(
@@ -50,8 +57,8 @@ function pickRandomMatch(teamFilter: string | null): Match {
   return finalPool[Math.floor(Math.random() * finalPool.length)];
 }
 
-function createInitialState(teamFilter: string | null = null): GameState {
-  const match = pickRandomMatch(teamFilter);
+function createInitialState(teamFilter: string | null = null, minYear: number | null = null): GameState {
+  const match = pickRandomMatch(teamFilter, minYear);
   let team: "home" | "away";
 
   if (teamFilter) {
@@ -81,7 +88,7 @@ function createInitialState(teamFilter: string | null = null): GameState {
 }
 
 type GameAction =
-  | { type: "NEW_GAME"; teamFilter: string | null }
+  | { type: "NEW_GAME"; teamFilter: string | null; minYear: number | null }
   | { type: "SELECT_SLOT"; index: number | null }
   | { type: "SUBMIT_GUESS"; name: string }
   | { type: "REQUEST_HINT" }
@@ -92,7 +99,7 @@ type GameAction =
 function gameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
     case "NEW_GAME":
-      return createInitialState(action.teamFilter);
+      return createInitialState(action.teamFilter, action.minYear);
 
     case "SELECT_SLOT": {
       return {
@@ -266,16 +273,16 @@ function gameReducer(state: GameState, action: GameAction): GameState {
   }
 }
 
-export function useGame(teamFilter: string | null) {
+export function useGame(teamFilter: string | null, minYear: number | null = null) {
   const [state, dispatch] = useReducer(
     gameReducer,
-    teamFilter,
-    (filter) => createInitialState(filter)
+    { teamFilter, minYear },
+    ({ teamFilter, minYear }) => createInitialState(teamFilter, minYear)
   );
 
   const newGame = useCallback(
-    () => dispatch({ type: "NEW_GAME", teamFilter }),
-    [teamFilter]
+    () => dispatch({ type: "NEW_GAME", teamFilter, minYear }),
+    [teamFilter, minYear]
   );
   const selectSlot = useCallback(
     (index: number | null) => dispatch({ type: "SELECT_SLOT", index }),
