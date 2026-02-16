@@ -190,12 +190,12 @@ h1 {
 }
 
 .card.matched .card-back {
-  border-color: #4ECDC4;
-  background: rgba(78, 205, 196, 0.1);
+  background: rgba(255, 255, 255, 0.05);
 }
 
-.card.matched .card-back.spell-card {
-  color: #4ECDC4;
+.card-emoji {
+  font-size: 1.4rem;
+  line-height: 1;
 }
 
 /* Win overlay */
@@ -253,6 +253,27 @@ h1 {
   background: #c73650;
 }
 
+/* ===== BACK LINK ===== */
+.back-link {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  text-decoration: none;
+  color: #888;
+  font-size: 0.85rem;
+  padding: 6px 14px;
+  border: 2px solid #1b2838;
+  border-radius: 8px;
+  background: #162447;
+  transition: all 0.2s;
+}
+
+.back-link:hover {
+  border-color: #e94560;
+  color: #ccc;
+  background: #1f3460;
+}
+
 @media (max-width: 600px) {
   h1 { font-size: 1.4rem; }
   .card-grid { gap: 6px; }
@@ -261,6 +282,11 @@ h1 {
   .card-back.spell-card { font-size: 0.75rem; }
   .card-back.effect-card { font-size: 0.65rem; }
   .stats-bar { gap: 16px; font-size: 0.9rem; }
+  .back-link {
+    position: static;
+    display: inline-block;
+    margin-bottom: 8px;
+  }
 }
 
 @media (max-width: 375px) {
@@ -271,6 +297,8 @@ h1 {
 </style>
 </head>
 <body>
+
+<a class="back-link" href="../">&#8592; Menu</a>
 
 <header>
   <h1>Spell Match</h1>
@@ -304,68 +332,75 @@ h1 {
 <script>
 const ALL_SPELLS = [
   // Core spells
-  { spell: 'Lumos', effect: 'Creates light' },
-  { spell: 'Nox', effect: 'Extinguishes light' },
-  { spell: 'Expelliarmus', effect: 'Disarms opponent' },
-  { spell: 'Wingardium Leviosa', effect: 'Levitation spell' },
-  { spell: 'Expecto Patronum', effect: 'Summons patronus' },
-  { spell: 'Accio', effect: 'Summons objects' },
-  { spell: 'Stupefy', effect: 'Stuns target' },
-  { spell: 'Alohomora', effect: 'Unlocks doors' },
-  { spell: 'Protego', effect: 'Shield charm' },
-  { spell: 'Obliviate', effect: 'Erases memories' },
-  { spell: 'Riddikulus', effect: 'Defeats boggart' },
-  { spell: 'Petrificus Totalus', effect: 'Full body bind' },
+  { spell: 'Lumos', effect: 'Creates light', emoji: '💡' },
+  { spell: 'Nox', effect: 'Extinguishes light', emoji: '🌑' },
+  { spell: 'Expelliarmus', effect: 'Disarms opponent', emoji: '🤺' },
+  { spell: 'Wingardium Leviosa', effect: 'Levitation spell', emoji: '🪶' },
+  { spell: 'Expecto Patronum', effect: 'Summons patronus', emoji: '🦌' },
+  { spell: 'Accio', effect: 'Summons objects', emoji: '🧲' },
+  { spell: 'Stupefy', effect: 'Stuns target', emoji: '⚡' },
+  { spell: 'Alohomora', effect: 'Unlocks doors', emoji: '🔓' },
+  { spell: 'Protego', effect: 'Shield charm', emoji: '🛡️' },
+  { spell: 'Obliviate', effect: 'Erases memories', emoji: '🧠' },
+  { spell: 'Riddikulus', effect: 'Defeats boggart', emoji: '🤡' },
+  { spell: 'Petrificus Totalus', effect: 'Full body bind', emoji: '🧊' },
   // Offensive spells
-  { spell: 'Sectumsempra', effect: 'Slashes like a sword' },
-  { spell: 'Confringo', effect: 'Blasting curse' },
-  { spell: 'Reducto', effect: 'Blasts objects apart' },
-  { spell: 'Bombarda', effect: 'Causes explosion' },
-  { spell: 'Impedimenta', effect: 'Slows target down' },
-  { spell: 'Incendio', effect: 'Starts a fire' },
-  { spell: 'Diffindo', effect: 'Cuts objects' },
-  { spell: 'Depulso', effect: 'Pushes objects away' },
+  { spell: 'Sectumsempra', effect: 'Slashes like a sword', emoji: '🗡️' },
+  { spell: 'Confringo', effect: 'Blasting curse', emoji: '💥' },
+  { spell: 'Reducto', effect: 'Blasts objects apart', emoji: '🧨' },
+  { spell: 'Bombarda', effect: 'Causes explosion', emoji: '💣' },
+  { spell: 'Impedimenta', effect: 'Slows target down', emoji: '🐌' },
+  { spell: 'Incendio', effect: 'Starts a fire', emoji: '🔥' },
+  { spell: 'Diffindo', effect: 'Cuts objects', emoji: '✂️' },
+  { spell: 'Depulso', effect: 'Pushes objects away', emoji: '💨' },
   // Defensive & healing
-  { spell: 'Episkey', effect: 'Heals minor injuries' },
-  { spell: 'Finite Incantatem', effect: 'Stops active spells' },
-  { spell: 'Salvio Hexia', effect: 'Repels hexes' },
-  { spell: 'Cave Inimicum', effect: 'Warns of intruders' },
-  { spell: 'Protego Maxima', effect: 'Powerful shield' },
+  { spell: 'Episkey', effect: 'Heals minor injuries', emoji: '🩹' },
+  { spell: 'Finite Incantatem', effect: 'Stops active spells', emoji: '🚫' },
+  { spell: 'Salvio Hexia', effect: 'Repels hexes', emoji: '🔰' },
+  { spell: 'Cave Inimicum', effect: 'Warns of intruders', emoji: '🚨' },
+  { spell: 'Protego Maxima', effect: 'Powerful shield', emoji: '🏰' },
   // Charms & utility
-  { spell: 'Reparo', effect: 'Repairs broken objects' },
-  { spell: 'Aguamenti', effect: 'Produces water' },
-  { spell: 'Scourgify', effect: 'Cleans things up' },
-  { spell: 'Silencio', effect: 'Silences target' },
-  { spell: 'Sonorus', effect: 'Amplifies voice' },
-  { spell: 'Quietus', effect: 'Cancels Sonorus' },
-  { spell: 'Engorgio', effect: 'Enlarges objects' },
-  { spell: 'Reducio', effect: 'Shrinks objects' },
-  { spell: 'Lumos Maxima', effect: 'Very bright light' },
-  { spell: 'Point Me', effect: 'Compass spell' },
-  { spell: 'Pack', effect: 'Packs a trunk' },
-  { spell: 'Colloportus', effect: 'Locks a door' },
-  { spell: 'Muffliato', effect: 'Fills ears with buzzing' },
-  { spell: 'Tergeo', effect: 'Cleans up blood' },
+  { spell: 'Reparo', effect: 'Repairs broken objects', emoji: '🔧' },
+  { spell: 'Aguamenti', effect: 'Produces water', emoji: '💧' },
+  { spell: 'Scourgify', effect: 'Cleans things up', emoji: '🧹' },
+  { spell: 'Silencio', effect: 'Silences target', emoji: '🤫' },
+  { spell: 'Sonorus', effect: 'Amplifies voice', emoji: '📢' },
+  { spell: 'Quietus', effect: 'Cancels Sonorus', emoji: '🔇' },
+  { spell: 'Engorgio', effect: 'Enlarges objects', emoji: '🔍' },
+  { spell: 'Reducio', effect: 'Shrinks objects', emoji: '🔬' },
+  { spell: 'Lumos Maxima', effect: 'Very bright light', emoji: '☀️' },
+  { spell: 'Point Me', effect: 'Compass spell', emoji: '🧭' },
+  { spell: 'Pack', effect: 'Packs a trunk', emoji: '🧳' },
+  { spell: 'Colloportus', effect: 'Locks a door', emoji: '🔒' },
+  { spell: 'Muffliato', effect: 'Fills ears with buzzing', emoji: '🐝' },
+  { spell: 'Tergeo', effect: 'Cleans up blood', emoji: '🩸' },
   // Transfiguration & movement
-  { spell: 'Avis', effect: 'Creates flock of birds' },
-  { spell: 'Serpensortia', effect: 'Conjures a snake' },
-  { spell: 'Orchideous', effect: 'Conjures flowers' },
-  { spell: 'Aparecium', effect: 'Reveals hidden text' },
-  { spell: 'Locomotor', effect: 'Moves an object' },
-  { spell: 'Expulso', effect: 'Makes things explode' },
-  { spell: 'Geminio', effect: 'Duplicates an object' },
+  { spell: 'Avis', effect: 'Creates flock of birds', emoji: '🐦' },
+  { spell: 'Serpensortia', effect: 'Conjures a snake', emoji: '🐍' },
+  { spell: 'Orchideous', effect: 'Conjures flowers', emoji: '🌺' },
+  { spell: 'Aparecium', effect: 'Reveals hidden text', emoji: '📜' },
+  { spell: 'Locomotor', effect: 'Moves an object', emoji: '🏃' },
+  { spell: 'Expulso', effect: 'Makes things explode', emoji: '🎆' },
+  { spell: 'Geminio', effect: 'Duplicates an object', emoji: '👯' },
   // Mind & control
-  { spell: 'Confundo', effect: 'Confuses the target' },
-  { spell: 'Imperio', effect: 'Controls target\'s mind' },
-  { spell: 'Legilimens', effect: 'Reads thoughts' },
-  { spell: 'Rictusempra', effect: 'Tickling charm' },
-  { spell: 'Tarantallegra', effect: 'Forces dancing' },
-  { spell: 'Levicorpus', effect: 'Dangles upside down' },
-  { spell: 'Liberacorpus', effect: 'Reverses Levicorpus' },
+  { spell: 'Confundo', effect: 'Confuses the target', emoji: '😵‍💫' },
+  { spell: 'Imperio', effect: 'Controls target\'s mind', emoji: '🎭' },
+  { spell: 'Legilimens', effect: 'Reads thoughts', emoji: '👁️' },
+  { spell: 'Rictusempra', effect: 'Tickling charm', emoji: '🤣' },
+  { spell: 'Tarantallegra', effect: 'Forces dancing', emoji: '💃' },
+  { spell: 'Levicorpus', effect: 'Dangles upside down', emoji: '🙃' },
+  { spell: 'Liberacorpus', effect: 'Reverses Levicorpus', emoji: '🙂' },
   // Dark & unforgivable
-  { spell: 'Avada Kedavra', effect: 'Killing curse' },
-  { spell: 'Crucio', effect: 'Causes extreme pain' },
-  { spell: 'Morsmordre', effect: 'Casts the Dark Mark' },
+  { spell: 'Avada Kedavra', effect: 'Killing curse', emoji: '💀' },
+  { spell: 'Crucio', effect: 'Causes extreme pain', emoji: '😱' },
+  { spell: 'Morsmordre', effect: 'Casts the Dark Mark', emoji: '☠️' },
+];
+
+// 15 distinct colors for pair identification on match
+const PAIR_COLORS = [
+  '#e94560', '#4ECDC4', '#F7DC6F', '#BB86FC', '#FF6B6B',
+  '#45B7D1', '#96CEB4', '#F0A500', '#DDA0DD', '#00CC99',
+  '#FF8A65', '#7986CB', '#A5D6A7', '#F48FB1', '#80DEEA',
 ];
 
 const DIFFICULTY = {
@@ -428,8 +463,8 @@ function startGame(difficulty) {
   // Create card data: one spell card + one effect card per pair
   cards = [];
   selectedSpells.forEach((s, i) => {
-    cards.push({ pairId: i, type: 'spell', text: s.spell });
-    cards.push({ pairId: i, type: 'effect', text: s.effect });
+    cards.push({ pairId: i, type: 'spell', text: s.spell, emoji: s.emoji });
+    cards.push({ pairId: i, type: 'effect', text: s.effect, emoji: s.emoji });
   });
   shuffle(cards);
 
@@ -453,9 +488,17 @@ function startGame(difficulty) {
 
     if (cardData.type === 'spell') {
       back.classList.add('spell-card');
-      back.textContent = cardData.text;
+      const emoji = document.createElement('span');
+      emoji.className = 'card-emoji';
+      emoji.textContent = cardData.emoji;
+      back.appendChild(emoji);
+      back.appendChild(document.createTextNode(cardData.text));
     } else {
       back.classList.add('effect-card');
+      const emoji = document.createElement('span');
+      emoji.className = 'card-emoji';
+      emoji.textContent = cardData.emoji;
+      back.appendChild(emoji);
       const label = document.createElement('span');
       label.className = 'effect-label';
       label.textContent = 'Effect';
@@ -505,10 +548,16 @@ function handleCardClick(idx) {
 
     // Match: same pairId, different type
     if (c1.pairId === c2.pairId && c1.type !== c2.type) {
+      const pairColor = PAIR_COLORS[c1.pairId % PAIR_COLORS.length];
       const card1 = document.querySelectorAll('.card-container')[i1].querySelector('.card');
       const card2 = document.querySelectorAll('.card-container')[i2].querySelector('.card');
       card1.classList.add('matched');
       card2.classList.add('matched');
+      [card1, card2].forEach(c => {
+        const back = c.querySelector('.card-back');
+        back.style.borderColor = pairColor;
+        back.style.color = pairColor;
+      });
       matchedPairs++;
       document.getElementById('pairs').textContent = matchedPairs + ' / ' + totalPairs;
       flippedCards = [];
