@@ -57,19 +57,20 @@ h1 {
 
 .gen-buttons {
   display: flex;
-  gap: 8px;
-  margin: 16px 0;
+  gap: 6px;
+  margin: 12px 0;
   flex-wrap: wrap;
   justify-content: center;
+  max-width: 400px;
 }
 
 .gen-buttons button {
-  padding: 10px 20px;
+  padding: 7px 12px;
   border: 2px solid #1b2838;
   border-radius: 8px;
   background: #162447;
   color: #ccc;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
@@ -284,15 +285,29 @@ h1 {
 }
 
 @media (max-width: 600px) {
+  body { padding: 12px 10px; }
   h1 { font-size: 1.4rem; }
-  .sprite-container { width: 240px; height: 240px; }
-  .sprite-container img { max-width: 200px; max-height: 200px; }
-  .stats-bar { gap: 16px; font-size: 0.9rem; }
+  header { margin-bottom: 8px; }
+  .sprite-container { width: 220px; height: 220px; margin-bottom: 12px; }
+  .sprite-container img { max-width: 190px; max-height: 190px; }
+  .pokemon-name { font-size: 1.2rem; margin-bottom: 8px; min-height: 1.4em; }
+  .hint-buttons { margin-bottom: 10px; }
+  .feedback { margin-bottom: 10px; }
+  .choices { gap: 8px; margin-bottom: 14px; }
+  .choice-btn { padding: 12px 8px; font-size: 0.9rem; }
+  .stats-bar { gap: 14px; font-size: 0.85rem; margin-bottom: 10px; }
   .back-link {
     position: static;
     display: inline-block;
     margin-bottom: 8px;
   }
+}
+
+@media (max-width: 375px) {
+  .sprite-container { width: 180px; height: 180px; }
+  .sprite-container img { max-width: 155px; max-height: 155px; }
+  .choice-btn { padding: 10px 6px; font-size: 0.85rem; }
+  .gen-buttons button { padding: 5px 9px; font-size: 0.75rem; }
 }
 </style>
 </head>
