@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Emoji Films</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: #1a1a2e;
+  color: #eee;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
+
+.back-link {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  text-decoration: none;
+  color: #888;
+  font-size: 0.85rem;
+  padding: 6px 14px;
+  border: 2px solid #1b2838;
+  border-radius: 8px;
+  background: #162447;
+  transition: all 0.2s;
+}
+
+.back-link:hover {
+  border-color: #e94560;
+  color: #ccc;
+  background: #1f3460;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+h1 {
+  font-size: 1.8rem;
+  color: #e94560;
+  margin-bottom: 4px;
+}
+
+.subtitle {
+  color: #888;
+  font-size: 0.95rem;
+}
+
+.emoji-container {
+  width: 100%;
+  max-width: 420px;
+  background: #0d1b2a;
+  border: 2px solid #1b2838;
+  border-radius: 16px;
+  padding: 32px 24px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 120px;
+}
+
+.emoji-display {
+  font-size: 3.5rem;
+  text-align: center;
+  line-height: 1.4;
+  letter-spacing: 8px;
+}
+
+.movie-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #e94560;
+  margin-bottom: 12px;
+  text-align: center;
+  min-height: 1.6em;
+}
+
+.feedback {
+  font-size: 1rem;
+  min-height: 1.4em;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.feedback.correct {
+  color: #4ECDC4;
+  font-weight: 700;
+}
+
+.feedback.wrong {
+  color: #e94560;
+}
+
+.choices {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  width: 100%;
+  max-width: 420px;
+  margin-bottom: 20px;
+}
+
+.choice-btn {
+  padding: 14px 12px;
+  border: 2px solid #1b2838;
+  border-radius: 10px;
+  background: #162447;
+  color: #eee;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.choice-btn:hover:not(:disabled) {
+  background: #1f3460;
+  border-color: #e94560;
+  color: #fff;
+}
+
+.choice-btn:disabled {
+  cursor: default;
+}
+
+.choice-btn.correct-choice {
+  border-color: #4ECDC4;
+  background: rgba(78, 205, 196, 0.15);
+  color: #4ECDC4;
+}
+
+.choice-btn.wrong-choice {
+  border-color: #e94560;
+  background: rgba(233, 69, 96, 0.15);
+  color: #e94560;
+}
+
+.choice-btn.dimmed {
+  opacity: 0.35;
+}
+
+.stats-bar {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 16px;
+  font-size: 1rem;
+  color: #ccc;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.stats-bar span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.stats-bar .label {
+  color: #888;
+  font-size: 0.85rem;
+}
+
+.stats-bar .value {
+  color: #fff;
+  font-weight: 600;
+}
+
+.skip-btn {
+  padding: 8px 20px;
+  border: 2px solid #1b2838;
+  border-radius: 8px;
+  background: transparent;
+  color: #888;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.skip-btn:hover {
+  border-color: #e94560;
+  color: #ccc;
+}
+
+@media (max-width: 600px) {
+  body { padding: 12px 10px; }
+  h1 { font-size: 1.4rem; }
+  header { margin-bottom: 8px; }
+  .emoji-container { padding: 24px 16px; margin-bottom: 14px; min-height: 100px; }
+  .emoji-display { font-size: 2.8rem; letter-spacing: 6px; }
+  .movie-title { font-size: 1.2rem; margin-bottom: 8px; min-height: 1.4em; }
+  .feedback { margin-bottom: 10px; }
+  .choices { gap: 8px; margin-bottom: 14px; }
+  .choice-btn { padding: 12px 8px; font-size: 0.9rem; }
+  .stats-bar { gap: 14px; font-size: 0.85rem; margin-bottom: 10px; }
+  .back-link {
+    position: static;
+    display: inline-block;
+    margin-bottom: 8px;
+  }
+}
+
+@media (max-width: 375px) {
+  .emoji-container { padding: 20px 12px; }
+  .emoji-display { font-size: 2.2rem; letter-spacing: 4px; }
+  .choice-btn { padding: 10px 6px; font-size: 0.85rem; }
+}
+</style>
+</head>
+<body>
+
+<a class="back-link" href="../">&#8592; Menu</a>
+
+<header>
+  <h1>Emoji Films</h1>
+  <p class="subtitle">Guess the movie from the emojis!</p>
+</header>
+
+<div class="emoji-container">
+  <div class="emoji-display" id="emoji-display"></div>
+</div>
+
+<div class="movie-title" id="movie-title"></div>
+
+<div class="feedback" id="feedback"></div>
+
+<div class="choices" id="choices"></div>
+
+<div class="stats-bar">
+  <span><span class="label">Score:</span> <span class="value" id="score">0</span></span>
+  <span><span class="label">Streak:</span> <span class="value" id="streak">0</span></span>
+  <span><span class="label">Best Streak:</span> <span class="value" id="best-streak">0</span></span>
+</div>
+
+<button class="skip-btn" id="skip-btn" onclick="skipMovie()">Skip / Give Up</button>
+
+<script>
+const MOVIES = [
+  // Action / Adventure
+  { emoji: "🦈🌊😱", title: "Jaws", genre: "action" },
+  { emoji: "🏴‍☠️⚓🌊", title: "Pirates of the Caribbean", genre: "action" },
+  { emoji: "🕷️🦸‍♂️🏙️", title: "Spider-Man", genre: "action" },
+  { emoji: "🦇🌃🃏", title: "The Dark Knight", genre: "action" },
+  { emoji: "🏎️💨🏁", title: "Fast & Furious", genre: "action" },
+  { emoji: "🤵🔫🍸", title: "James Bond", genre: "action" },
+  { emoji: "🦖🏝️⚡", title: "Jurassic Park", genre: "action" },
+  { emoji: "👽🚲🌕", title: "E.T.", genre: "action" },
+  { emoji: "🗡️⭐🌌", title: "Star Wars", genre: "action" },
+  { emoji: "🚀👨‍🚀🪐", title: "Interstellar", genre: "action" },
+  { emoji: "💀🏴‍☠️📦", title: "Indiana Jones", genre: "action" },
+  { emoji: "🔨⚡👑", title: "Thor", genre: "action" },
+  { emoji: "🧊🚢💔", title: "Titanic", genre: "action" },
+  { emoji: "🦁👑🌅", title: "The Lion King", genre: "action" },
+  { emoji: "🐉🗡️🏰", title: "How to Train Your Dragon", genre: "action" },
+  { emoji: "🤖🔴🌐", title: "The Terminator", genre: "action" },
+  { emoji: "🧟‍♂️🌍🔫", title: "World War Z", genre: "action" },
+  { emoji: "🏹💚🌲", title: "Robin Hood", genre: "action" },
+  { emoji: "🦍🏙️✈️", title: "King Kong", genre: "action" },
+  { emoji: "🛸👾💥", title: "Independence Day", genre: "action" },
+
+  // Fantasy / Sci-Fi
+  { emoji: "🧙‍♂️💍🌋", title: "The Lord of the Rings", genre: "fantasy" },
+  { emoji: "🧙‍♂️⚡👦", title: "Harry Potter", genre: "fantasy" },
+  { emoji: "🏰❄️👸", title: "Frozen", genre: "fantasy" },
+  { emoji: "🧞‍♂️🏜️🕌", title: "Aladdin", genre: "fantasy" },
+  { emoji: "🤖❤️🌱", title: "WALL-E", genre: "fantasy" },
+  { emoji: "👻🚫🚗", title: "Ghostbusters", genre: "fantasy" },
+  { emoji: "🧬🦕🥚", title: "Jurassic World", genre: "fantasy" },
+  { emoji: "🌀😴💭", title: "Inception", genre: "fantasy" },
+  { emoji: "💊🔴🔵", title: "The Matrix", genre: "fantasy" },
+  { emoji: "🪄🎪✨", title: "The Greatest Showman", genre: "fantasy" },
+  { emoji: "🕰️⚡🚗", title: "Back to the Future", genre: "fantasy" },
+  { emoji: "👽☎️🏠", title: "E.T. the Extra-Terrestrial", genre: "fantasy" },
+  { emoji: "🧛‍♂️🌙💉", title: "Dracula", genre: "fantasy" },
+  { emoji: "🐵🌍🗽", title: "Planet of the Apes", genre: "fantasy" },
+
+  // Drama
+  { emoji: "🥊🏆🇺🇸", title: "Rocky", genre: "drama" },
+  { emoji: "🎹🌧️😢", title: "The Pianist", genre: "drama" },
+  { emoji: "👨‍💼📉💸", title: "The Wolf of Wall Street", genre: "drama" },
+  { emoji: "🎭🎬🏆", title: "Birdman", genre: "drama" },
+  { emoji: "🏈🧠👨‍👦", title: "The Blind Side", genre: "drama" },
+  { emoji: "👨‍🚀🌑🇺🇸", title: "Apollo 13", genre: "drama" },
+  { emoji: "⛵🐅🌊", title: "Life of Pi", genre: "drama" },
+  { emoji: "🎻📃❤️", title: "Schindler's List", genre: "drama" },
+  { emoji: "🏃‍♂️🍫🪶", title: "Forrest Gump", genre: "drama" },
+  { emoji: "👴🎈🏠", title: "Up", genre: "drama" },
+  { emoji: "🎸🇲🇽💀", title: "Coco", genre: "drama" },
+  { emoji: "🏝️🏐👨", title: "Cast Away", genre: "drama" },
+  { emoji: "👑🇬🇧🗣️", title: "The King's Speech", genre: "drama" },
+  { emoji: "🚌💺✊🏿", title: "Selma", genre: "drama" },
+  { emoji: "💰🎰🤵", title: "Casino", genre: "drama" },
+  { emoji: "🎵🎤⭐", title: "A Star Is Born", genre: "drama" },
+
+  // Comedy
+  { emoji: "🐟🔍🌊", title: "Finding Nemo", genre: "comedy" },
+  { emoji: "🧸🎮👦", title: "Toy Story", genre: "comedy" },
+  { emoji: "👹💚🧅", title: "Shrek", genre: "comedy" },
+  { emoji: "🐀👨‍🍳🇫🇷", title: "Ratatouille", genre: "comedy" },
+  { emoji: "🐧🎤❄️", title: "Happy Feet", genre: "comedy" },
+  { emoji: "👗👠💎", title: "The Devil Wears Prada", genre: "comedy" },
+  { emoji: "🎄🏠😈", title: "Home Alone", genre: "comedy" },
+  { emoji: "🤥👃🐋", title: "Pinocchio", genre: "comedy" },
+  { emoji: "🦸‍♂️👨‍👩‍👧‍👦🏠", title: "The Incredibles", genre: "comedy" },
+  { emoji: "🥢🐉🗡️", title: "Mulan", genre: "comedy" },
+  { emoji: "🐝🍯🎬", title: "Bee Movie", genre: "comedy" },
+  { emoji: "🍕😢😡", title: "Inside Out", genre: "comedy" },
+  { emoji: "🤖👮‍♂️🐰", title: "Zootopia", genre: "comedy" },
+  { emoji: "👻🏚️🔮", title: "Beetlejuice", genre: "comedy" },
+
+  // Horror / Thriller
+  { emoji: "🔪🚿😱", title: "Psycho", genre: "thriller" },
+  { emoji: "🤡🎈🕳️", title: "It", genre: "thriller" },
+  { emoji: "👁️🔇🏠", title: "A Quiet Place", genre: "thriller" },
+  { emoji: "😱📞🔪", title: "Scream", genre: "thriller" },
+  { emoji: "🏨❄️🪓", title: "The Shining", genre: "thriller" },
+  { emoji: "👽🚀😱", title: "Alien", genre: "thriller" },
+  { emoji: "🦑🌊🚢", title: "20,000 Leagues Under the Sea", genre: "thriller" },
+  { emoji: "🧩🔪🍷", title: "Knives Out", genre: "thriller" },
+  { emoji: "🐑😶🍽️", title: "The Silence of the Lambs", genre: "thriller" },
+  { emoji: "📼📺7️⃣", title: "The Ring", genre: "thriller" },
+
+  // Romance
+  { emoji: "📓💑🌧️", title: "The Notebook", genre: "romance" },
+  { emoji: "🌹👸🐻", title: "Beauty and the Beast", genre: "romance" },
+  { emoji: "👰‍♀️🤵💒", title: "My Big Fat Greek Wedding", genre: "romance" },
+  { emoji: "💌📮🎄", title: "You've Got Mail", genre: "romance" },
+  { emoji: "☔👗🎩", title: "Singin' in the Rain", genre: "romance" },
+  { emoji: "🧜‍♀️🌊🏰", title: "The Little Mermaid", genre: "romance" },
+  { emoji: "💃🕺🇦🇷", title: "Dirty Dancing", genre: "romance" },
+  { emoji: "👸🐸💋", title: "The Princess Bride", genre: "romance" },
+  { emoji: "💍👠🎃", title: "Cinderella", genre: "romance" },
+  { emoji: "🗼🇫🇷❤️", title: "Amélie", genre: "romance" },
+];
+
+const NUM_CHOICES = 4;
+
+let currentMovie = null;
+let currentChoices = [];
+let revealed = false;
+let score = 0;
+let streak = 0;
+let bestStreak = 0;
+let usedMovies = new Set();
+
+function loadStats() {
+  score = parseInt(localStorage.getItem('emojifilms_score') || '0');
+  streak = parseInt(localStorage.getItem('emojifilms_streak') || '0');
+  bestStreak = parseInt(localStorage.getItem('emojifilms_best_streak') || '0');
+  updateStatsDisplay();
+}
+
+function saveStats() {
+  localStorage.setItem('emojifilms_score', score);
+  localStorage.setItem('emojifilms_streak', streak);
+  localStorage.setItem('emojifilms_best_streak', bestStreak);
+}
+
+function updateStatsDisplay() {
+  document.getElementById('score').textContent = score;
+  document.getElementById('streak').textContent = streak;
+  document.getElementById('best-streak').textContent = bestStreak;
+}
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function buildChoices(movie) {
+  const sameGenre = MOVIES.filter(m => m.genre === movie.genre && m.title !== movie.title);
+  const distractors = shuffle([...sameGenre]).slice(0, NUM_CHOICES - 1);
+
+  if (distractors.length < NUM_CHOICES - 1) {
+    const others = MOVIES.filter(m => m.title !== movie.title && !distractors.some(d => d.title === m.title));
+    distractors.push(...shuffle([...others]).slice(0, NUM_CHOICES - 1 - distractors.length));
+  }
+
+  return shuffle([movie, ...distractors]);
+}
+
+function pickMovie() {
+  if (usedMovies.size >= MOVIES.length - 4) {
+    usedMovies.clear();
+  }
+
+  const available = MOVIES.filter(m => !usedMovies.has(m.title));
+  const pick = available[Math.floor(Math.random() * available.length)];
+  usedMovies.add(pick.title);
+  return pick;
+}
+
+function newRound() {
+  revealed = false;
+
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('feedback').className = 'feedback';
+  document.getElementById('movie-title').textContent = '';
+  document.getElementById('choices').innerHTML = '';
+  document.getElementById('skip-btn').textContent = 'Skip / Give Up';
+
+  currentMovie = pickMovie();
+  currentChoices = buildChoices(currentMovie);
+
+  document.getElementById('emoji-display').textContent = currentMovie.emoji;
+  renderChoices();
+}
+
+function renderChoices() {
+  const container = document.getElementById('choices');
+  container.innerHTML = '';
+
+  currentChoices.forEach((choice, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.textContent = choice.title;
+    btn.addEventListener('click', () => handleChoice(idx));
+    container.appendChild(btn);
+  });
+}
+
+function handleChoice(idx) {
+  if (revealed) return;
+
+  const chosen = currentChoices[idx];
+  const correct = currentMovie;
+  revealed = true;
+
+  document.getElementById('movie-title').textContent = correct.title;
+
+  const allBtns = document.querySelectorAll('.choice-btn');
+  allBtns.forEach((b, i) => {
+    b.disabled = true;
+    if (currentChoices[i].title === correct.title) {
+      b.classList.add('correct-choice');
+    } else if (i === idx) {
+      b.classList.add('wrong-choice');
+    } else {
+      b.classList.add('dimmed');
+    }
+  });
+
+  if (chosen.title === correct.title) {
+    score += 100;
+    streak++;
+    if (streak > bestStreak) bestStreak = streak;
+    saveStats();
+    updateStatsDisplay();
+
+    document.getElementById('feedback').textContent = 'Correct! +100 points';
+    document.getElementById('feedback').className = 'feedback correct';
+  } else {
+    streak = 0;
+    saveStats();
+    updateStatsDisplay();
+
+    document.getElementById('feedback').textContent = 'Wrong! It was ' + correct.title + '!';
+    document.getElementById('feedback').className = 'feedback wrong';
+  }
+
+  document.getElementById('skip-btn').textContent = 'Next Movie';
+}
+
+function skipMovie() {
+  if (revealed) {
+    newRound();
+    return;
+  }
+
+  revealed = true;
+  streak = 0;
+  saveStats();
+  updateStatsDisplay();
+
+  const correct = currentMovie;
+  document.getElementById('movie-title').textContent = correct.title;
+  document.getElementById('feedback').textContent = 'It was ' + correct.title + '!';
+  document.getElementById('feedback').className = 'feedback wrong';
+  document.getElementById('skip-btn').textContent = 'Next Movie';
+
+  const allBtns = document.querySelectorAll('.choice-btn');
+  allBtns.forEach((b, i) => {
+    b.disabled = true;
+    if (currentChoices[i].title === correct.title) {
+      b.classList.add('correct-choice');
+    } else {
+      b.classList.add('dimmed');
+    }
+  });
+}
+
+// Init
+loadStats();
+newRound();
+</script>
+</body>
+</html>

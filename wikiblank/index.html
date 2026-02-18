@@ -1,0 +1,1520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WikiBlank</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: #1a1a2e;
+  color: #eee;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
+
+.back-link {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  text-decoration: none;
+  color: #888;
+  font-size: 0.85rem;
+  padding: 6px 14px;
+  border: 2px solid #1b2838;
+  border-radius: 8px;
+  background: #162447;
+  transition: all 0.2s;
+}
+
+.back-link:hover {
+  border-color: #e94560;
+  color: #ccc;
+  background: #1f3460;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+h1 {
+  font-size: 1.8rem;
+  color: #e94560;
+  margin-bottom: 4px;
+}
+
+.subtitle {
+  color: #888;
+  font-size: 0.95rem;
+}
+
+.extract-container {
+  width: 100%;
+  max-width: 600px;
+  background: #0d1b2a;
+  border: 2px solid #1b2838;
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 20px;
+  min-height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.extract-text {
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: #ddd;
+}
+
+.extract-text .blank {
+  color: #e94560;
+  font-weight: 700;
+  border-bottom: 2px solid #e94560;
+  padding: 0 2px;
+}
+
+.category-tag {
+  display: inline-block;
+  font-size: 0.75rem;
+  background: rgba(78, 205, 196, 0.15);
+  color: #4ECDC4;
+  padding: 3px 10px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #1b2838;
+  border-top-color: #e94560;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.feedback {
+  font-size: 1rem;
+  min-height: 1.4em;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.feedback.correct {
+  color: #4ECDC4;
+  font-weight: 700;
+}
+
+.feedback.wrong {
+  color: #e94560;
+}
+
+.choices {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  width: 100%;
+  max-width: 420px;
+  margin-bottom: 20px;
+}
+
+.choice-btn {
+  padding: 14px 12px;
+  border: 2px solid #1b2838;
+  border-radius: 10px;
+  background: #162447;
+  color: #eee;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.choice-btn:hover:not(:disabled) {
+  background: #1f3460;
+  border-color: #e94560;
+  color: #fff;
+}
+
+.choice-btn:disabled {
+  cursor: default;
+}
+
+.choice-btn.correct-choice {
+  border-color: #4ECDC4;
+  background: rgba(78, 205, 196, 0.15);
+  color: #4ECDC4;
+}
+
+.choice-btn.wrong-choice {
+  border-color: #e94560;
+  background: rgba(233, 69, 96, 0.15);
+  color: #e94560;
+}
+
+.choice-btn.dimmed {
+  opacity: 0.35;
+}
+
+.stats-bar {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 16px;
+  font-size: 1rem;
+  color: #ccc;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.stats-bar span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.stats-bar .label {
+  color: #888;
+  font-size: 0.85rem;
+}
+
+.stats-bar .value {
+  color: #fff;
+  font-weight: 600;
+}
+
+.skip-btn {
+  padding: 8px 20px;
+  border: 2px solid #1b2838;
+  border-radius: 8px;
+  background: transparent;
+  color: #888;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.skip-btn:hover {
+  border-color: #e94560;
+  color: #ccc;
+}
+
+@media (max-width: 600px) {
+  body { padding: 12px 10px; }
+  h1 { font-size: 1.4rem; }
+  header { margin-bottom: 8px; }
+  .extract-container { padding: 16px; margin-bottom: 14px; min-height: 100px; }
+  .extract-text { font-size: 0.95rem; }
+  .choices { gap: 8px; margin-bottom: 14px; }
+  .choice-btn { padding: 12px 8px; font-size: 0.9rem; }
+  .stats-bar { gap: 14px; font-size: 0.85rem; margin-bottom: 10px; }
+  .back-link {
+    position: static;
+    display: inline-block;
+    margin-bottom: 8px;
+  }
+}
+
+@media (max-width: 375px) {
+  .extract-container { padding: 12px; }
+  .extract-text { font-size: 0.88rem; line-height: 1.6; }
+  .choice-btn { padding: 10px 6px; font-size: 0.85rem; }
+}
+</style>
+</head>
+<body>
+
+<a class="back-link" href="../">&#8592; Menu</a>
+
+<header>
+  <h1>WikiBlank</h1>
+  <p class="subtitle">Guess the Wikipedia subject from its article!</p>
+</header>
+
+<div id="category-tag" class="category-tag" style="display:none"></div>
+
+<div class="extract-container" id="extract-container">
+  <div class="spinner" id="spinner"></div>
+  <div class="extract-text" id="extract-text" style="display:none"></div>
+</div>
+
+<div class="feedback" id="feedback"></div>
+
+<div class="choices" id="choices"></div>
+
+<div class="stats-bar">
+  <span><span class="label">Score:</span> <span class="value" id="score">0</span></span>
+  <span><span class="label">Streak:</span> <span class="value" id="streak">0</span></span>
+  <span><span class="label">Best Streak:</span> <span class="value" id="best-streak">0</span></span>
+</div>
+
+<button class="skip-btn" id="skip-btn" onclick="skipQuestion()">Skip / Give Up</button>
+
+<script>
+const ARTICLES = [
+  // Scientists & Inventors (~80)
+  { title: "Albert_Einstein", display: "Albert Einstein", category: "scientists" },
+  { title: "Isaac_Newton", display: "Isaac Newton", category: "scientists" },
+  { title: "Marie_Curie", display: "Marie Curie", category: "scientists" },
+  { title: "Charles_Darwin", display: "Charles Darwin", category: "scientists" },
+  { title: "Nikola_Tesla", display: "Nikola Tesla", category: "scientists" },
+  { title: "Galileo_Galilei", display: "Galileo Galilei", category: "scientists" },
+  { title: "Stephen_Hawking", display: "Stephen Hawking", category: "scientists" },
+  { title: "Ada_Lovelace", display: "Ada Lovelace", category: "scientists" },
+  { title: "Louis_Pasteur", display: "Louis Pasteur", category: "scientists" },
+  { title: "Alan_Turing", display: "Alan Turing", category: "scientists" },
+  { title: "Leonardo_da_Vinci", display: "Leonardo da Vinci", category: "scientists" },
+  { title: "Alexander_Fleming", display: "Alexander Fleming", category: "scientists" },
+  { title: "Thomas_Edison", display: "Thomas Edison", category: "scientists" },
+  { title: "Archimedes", display: "Archimedes", category: "scientists" },
+  { title: "Nicolaus_Copernicus", display: "Nicolaus Copernicus", category: "scientists" },
+  { title: "Johannes_Kepler", display: "Johannes Kepler", category: "scientists" },
+  { title: "James_Clerk_Maxwell", display: "James Clerk Maxwell", category: "scientists" },
+  { title: "Michael_Faraday", display: "Michael Faraday", category: "scientists" },
+  { title: "Niels_Bohr", display: "Niels Bohr", category: "scientists" },
+  { title: "Max_Planck", display: "Max Planck", category: "scientists" },
+  { title: "Werner_Heisenberg", display: "Werner Heisenberg", category: "scientists" },
+  { title: "Richard_Feynman", display: "Richard Feynman", category: "scientists" },
+  { title: "Erwin_Schr%C3%B6dinger", display: "Erwin Schrodinger", category: "scientists" },
+  { title: "Gregor_Mendel", display: "Gregor Mendel", category: "scientists" },
+  { title: "Carl_Linnaeus", display: "Carl Linnaeus", category: "scientists" },
+  { title: "Antoine_Lavoisier", display: "Antoine Lavoisier", category: "scientists" },
+  { title: "Dmitri_Mendeleev", display: "Dmitri Mendeleev", category: "scientists" },
+  { title: "Robert_Hooke", display: "Robert Hooke", category: "scientists" },
+  { title: "Alexander_Graham_Bell", display: "Alexander Graham Bell", category: "scientists" },
+  { title: "Wright_brothers", display: "Wright brothers", category: "scientists" },
+  { title: "Guglielmo_Marconi", display: "Guglielmo Marconi", category: "scientists" },
+  { title: "James_Watt", display: "James Watt", category: "scientists" },
+  { title: "Benjamin_Franklin", display: "Benjamin Franklin", category: "scientists" },
+  { title: "Carl_Sagan", display: "Carl Sagan", category: "scientists" },
+  { title: "Jane_Goodall", display: "Jane Goodall", category: "scientists" },
+  { title: "Rachel_Carson", display: "Rachel Carson", category: "scientists" },
+  { title: "Rosalind_Franklin", display: "Rosalind Franklin", category: "scientists" },
+  { title: "Dorothy_Hodgkin", display: "Dorothy Hodgkin", category: "scientists" },
+  { title: "Tim_Berners-Lee", display: "Tim Berners-Lee", category: "scientists" },
+  { title: "Enrico_Fermi", display: "Enrico Fermi", category: "scientists" },
+  { title: "Robert_Oppenheimer", display: "Robert Oppenheimer", category: "scientists" },
+  { title: "Edwin_Hubble", display: "Edwin Hubble", category: "scientists" },
+  { title: "Alfred_Nobel", display: "Alfred Nobel", category: "scientists" },
+  { title: "Linus_Pauling", display: "Linus Pauling", category: "scientists" },
+  { title: "Ernest_Rutherford", display: "Ernest Rutherford", category: "scientists" },
+  { title: "John_von_Neumann", display: "John von Neumann", category: "scientists" },
+  { title: "Blaise_Pascal", display: "Blaise Pascal", category: "scientists" },
+  { title: "Carl_Friedrich_Gauss", display: "Carl Friedrich Gauss", category: "scientists" },
+  { title: "Leonhard_Euler", display: "Leonhard Euler", category: "scientists" },
+  { title: "Pierre-Simon_Laplace", display: "Pierre-Simon Laplace", category: "scientists" },
+  { title: "Hippocrates", display: "Hippocrates", category: "scientists" },
+  { title: "Pythagoras", display: "Pythagoras", category: "scientists" },
+  { title: "Euclid", display: "Euclid", category: "scientists" },
+  { title: "Aristotle", display: "Aristotle", category: "scientists" },
+  { title: "Plato", display: "Plato", category: "scientists" },
+  { title: "Socrates", display: "Socrates", category: "scientists" },
+  { title: "Francis_Bacon", display: "Francis Bacon", category: "scientists" },
+  { title: "Ren%C3%A9_Descartes", display: "Rene Descartes", category: "scientists" },
+  { title: "Gottfried_Wilhelm_Leibniz", display: "Gottfried Wilhelm Leibniz", category: "scientists" },
+  { title: "Charles_Babbage", display: "Charles Babbage", category: "scientists" },
+  { title: "George_Washington_Carver", display: "George Washington Carver", category: "scientists" },
+  { title: "Marie_Stopes", display: "Marie Stopes", category: "scientists" },
+  { title: "Wernher_von_Braun", display: "Wernher von Braun", category: "scientists" },
+  { title: "Grace_Hopper", display: "Grace Hopper", category: "scientists" },
+  { title: "Katherine_Johnson", display: "Katherine Johnson", category: "scientists" },
+  { title: "Vera_Rubin", display: "Vera Rubin", category: "scientists" },
+  { title: "Srinivasa_Ramanujan", display: "Srinivasa Ramanujan", category: "scientists" },
+  { title: "Emmy_Noether", display: "Emmy Noether", category: "scientists" },
+  { title: "Tycho_Brahe", display: "Tycho Brahe", category: "scientists" },
+  { title: "William_Harvey", display: "William Harvey", category: "scientists" },
+  { title: "Edward_Jenner", display: "Edward Jenner", category: "scientists" },
+  { title: "Joseph_Lister", display: "Joseph Lister", category: "scientists" },
+  { title: "Alexander_von_Humboldt", display: "Alexander von Humboldt", category: "scientists" },
+  { title: "Mary_Anning", display: "Mary Anning", category: "scientists" },
+
+  // Historical Figures (~80)
+  { title: "Cleopatra", display: "Cleopatra", category: "historical" },
+  { title: "Napoleon", display: "Napoleon", category: "historical" },
+  { title: "Julius_Caesar", display: "Julius Caesar", category: "historical" },
+  { title: "Genghis_Khan", display: "Genghis Khan", category: "historical" },
+  { title: "Mahatma_Gandhi", display: "Mahatma Gandhi", category: "historical" },
+  { title: "Martin_Luther_King_Jr.", display: "Martin Luther King Jr.", category: "historical" },
+  { title: "Nelson_Mandela", display: "Nelson Mandela", category: "historical" },
+  { title: "Winston_Churchill", display: "Winston Churchill", category: "historical" },
+  { title: "Abraham_Lincoln", display: "Abraham Lincoln", category: "historical" },
+  { title: "Queen_Victoria", display: "Queen Victoria", category: "historical" },
+  { title: "Alexander_the_Great", display: "Alexander the Great", category: "historical" },
+  { title: "Joan_of_Arc", display: "Joan of Arc", category: "historical" },
+  { title: "Queen_Elizabeth_I", display: "Queen Elizabeth I", category: "historical" },
+  { title: "Queen_Elizabeth_II", display: "Queen Elizabeth II", category: "historical" },
+  { title: "George_Washington", display: "George Washington", category: "historical" },
+  { title: "Thomas_Jefferson", display: "Thomas Jefferson", category: "historical" },
+  { title: "Theodore_Roosevelt", display: "Theodore Roosevelt", category: "historical" },
+  { title: "Franklin_D._Roosevelt", display: "Franklin D. Roosevelt", category: "historical" },
+  { title: "John_F._Kennedy", display: "John F. Kennedy", category: "historical" },
+  { title: "Charlemagne", display: "Charlemagne", category: "historical" },
+  { title: "Otto_von_Bismarck", display: "Otto von Bismarck", category: "historical" },
+  { title: "Catherine_the_Great", display: "Catherine the Great", category: "historical" },
+  { title: "Peter_the_Great", display: "Peter the Great", category: "historical" },
+  { title: "Hernán_Cortés", display: "Hernan Cortes", category: "historical" },
+  { title: "Christopher_Columbus", display: "Christopher Columbus", category: "historical" },
+  { title: "Marco_Polo", display: "Marco Polo", category: "historical" },
+  { title: "Ferdinand_Magellan", display: "Ferdinand Magellan", category: "historical" },
+  { title: "Vasco_da_Gama", display: "Vasco da Gama", category: "historical" },
+  { title: "Attila", display: "Attila", category: "historical" },
+  { title: "Spartacus", display: "Spartacus", category: "historical" },
+  { title: "Boudicca", display: "Boudicca", category: "historical" },
+  { title: "Sitting_Bull", display: "Sitting Bull", category: "historical" },
+  { title: "Pocahontas", display: "Pocahontas", category: "historical" },
+  { title: "Harriet_Tubman", display: "Harriet Tubman", category: "historical" },
+  { title: "Rosa_Parks", display: "Rosa Parks", category: "historical" },
+  { title: "Florence_Nightingale", display: "Florence Nightingale", category: "historical" },
+  { title: "Mother_Teresa", display: "Mother Teresa", category: "historical" },
+  { title: "Che_Guevara", display: "Che Guevara", category: "historical" },
+  { title: "Mao_Zedong", display: "Mao Zedong", category: "historical" },
+  { title: "Joseph_Stalin", display: "Joseph Stalin", category: "historical" },
+  { title: "Vladimir_Lenin", display: "Vladimir Lenin", category: "historical" },
+  { title: "Fidel_Castro", display: "Fidel Castro", category: "historical" },
+  { title: "Simón_Bolívar", display: "Simon Bolivar", category: "historical" },
+  { title: "Sun_Yat-sen", display: "Sun Yat-sen", category: "historical" },
+  { title: "Suleiman_the_Magnificent", display: "Suleiman the Magnificent", category: "historical" },
+  { title: "Saladin", display: "Saladin", category: "historical" },
+  { title: "Richard_the_Lionheart", display: "Richard the Lionheart", category: "historical" },
+  { title: "William_the_Conqueror", display: "William the Conqueror", category: "historical" },
+  { title: "Henry_VIII", display: "Henry VIII", category: "historical" },
+  { title: "Louis_XIV", display: "Louis XIV", category: "historical" },
+  { title: "Marie_Antoinette", display: "Marie Antoinette", category: "historical" },
+  { title: "Robespierre", display: "Robespierre", category: "historical" },
+  { title: "Confucius", display: "Confucius", category: "historical" },
+  { title: "Tutankhamun", display: "Tutankhamun", category: "historical" },
+  { title: "Ramesses_II", display: "Ramesses II", category: "historical" },
+  { title: "Augustus", display: "Augustus", category: "historical" },
+  { title: "Marcus_Aurelius", display: "Marcus Aurelius", category: "historical" },
+  { title: "Hannibal_Barca", display: "Hannibal Barca", category: "historical" },
+  { title: "Leif_Erikson", display: "Leif Erikson", category: "historical" },
+  { title: "Vlad_the_Impaler", display: "Vlad the Impaler", category: "historical" },
+  { title: "Ivan_the_Terrible", display: "Ivan the Terrible", category: "historical" },
+  { title: "Tokugawa_Ieyasu", display: "Tokugawa Ieyasu", category: "historical" },
+  { title: "Oda_Nobunaga", display: "Oda Nobunaga", category: "historical" },
+  { title: "Qin_Shi_Huang", display: "Qin Shi Huang", category: "historical" },
+  { title: "Kublai_Khan", display: "Kublai Khan", category: "historical" },
+  { title: "Akbar", display: "Akbar", category: "historical" },
+  { title: "Hatshepsut", display: "Hatshepsut", category: "historical" },
+  { title: "Nefertiti", display: "Nefertiti", category: "historical" },
+  { title: "Amelia_Earhart", display: "Amelia Earhart", category: "historical" },
+  { title: "Neil_Armstrong", display: "Neil Armstrong", category: "historical" },
+  { title: "Yuri_Gagarin", display: "Yuri Gagarin", category: "historical" },
+  { title: "Emmeline_Pankhurst", display: "Emmeline Pankhurst", category: "historical" },
+  { title: "Desmond_Tutu", display: "Desmond Tutu", category: "historical" },
+  { title: "Dalai_Lama", display: "Dalai Lama", category: "historical" },
+
+  // Landmarks (~70)
+  { title: "Great_Wall_of_China", display: "Great Wall of China", category: "landmarks" },
+  { title: "Eiffel_Tower", display: "Eiffel Tower", category: "landmarks" },
+  { title: "Colosseum", display: "Colosseum", category: "landmarks" },
+  { title: "Machu_Picchu", display: "Machu Picchu", category: "landmarks" },
+  { title: "Taj_Mahal", display: "Taj Mahal", category: "landmarks" },
+  { title: "Statue_of_Liberty", display: "Statue of Liberty", category: "landmarks" },
+  { title: "Great_Pyramid_of_Giza", display: "Great Pyramid of Giza", category: "landmarks" },
+  { title: "Stonehenge", display: "Stonehenge", category: "landmarks" },
+  { title: "Big_Ben", display: "Big Ben", category: "landmarks" },
+  { title: "Mount_Rushmore", display: "Mount Rushmore", category: "landmarks" },
+  { title: "Parthenon", display: "Parthenon", category: "landmarks" },
+  { title: "Sydney_Opera_House", display: "Sydney Opera House", category: "landmarks" },
+  { title: "Petra", display: "Petra", category: "landmarks" },
+  { title: "Christ_the_Redeemer_(statue)", display: "Christ the Redeemer", category: "landmarks" },
+  { title: "Angkor_Wat", display: "Angkor Wat", category: "landmarks" },
+  { title: "Hagia_Sophia", display: "Hagia Sophia", category: "landmarks" },
+  { title: "Alhambra", display: "Alhambra", category: "landmarks" },
+  { title: "Tower_of_London", display: "Tower of London", category: "landmarks" },
+  { title: "Buckingham_Palace", display: "Buckingham Palace", category: "landmarks" },
+  { title: "Palace_of_Versailles", display: "Palace of Versailles", category: "landmarks" },
+  { title: "Forbidden_City", display: "Forbidden City", category: "landmarks" },
+  { title: "Leaning_Tower_of_Pisa", display: "Leaning Tower of Pisa", category: "landmarks" },
+  { title: "Golden_Gate_Bridge", display: "Golden Gate Bridge", category: "landmarks" },
+  { title: "Empire_State_Building", display: "Empire State Building", category: "landmarks" },
+  { title: "Burj_Khalifa", display: "Burj Khalifa", category: "landmarks" },
+  { title: "Sagrada_Família", display: "Sagrada Familia", category: "landmarks" },
+  { title: "Notre-Dame_de_Paris", display: "Notre-Dame de Paris", category: "landmarks" },
+  { title: "Chichen_Itza", display: "Chichen Itza", category: "landmarks" },
+  { title: "Easter_Island", display: "Easter Island", category: "landmarks" },
+  { title: "Acropolis_of_Athens", display: "Acropolis of Athens", category: "landmarks" },
+  { title: "Neuschwanstein_Castle", display: "Neuschwanstein Castle", category: "landmarks" },
+  { title: "Brandenburg_Gate", display: "Brandenburg Gate", category: "landmarks" },
+  { title: "Arc_de_Triomphe", display: "Arc de Triomphe", category: "landmarks" },
+  { title: "Kremlin", display: "Kremlin", category: "landmarks" },
+  { title: "White_House", display: "White House", category: "landmarks" },
+  { title: "Louvre", display: "Louvre", category: "landmarks" },
+  { title: "Vatican_City", display: "Vatican City", category: "landmarks" },
+  { title: "Sistine_Chapel", display: "Sistine Chapel", category: "landmarks" },
+  { title: "Berlin_Wall", display: "Berlin Wall", category: "landmarks" },
+  { title: "Panama_Canal", display: "Panama Canal", category: "landmarks" },
+  { title: "Suez_Canal", display: "Suez Canal", category: "landmarks" },
+  { title: "Hoover_Dam", display: "Hoover Dam", category: "landmarks" },
+  { title: "Channel_Tunnel", display: "Channel Tunnel", category: "landmarks" },
+  { title: "Tower_Bridge", display: "Tower Bridge", category: "landmarks" },
+  { title: "Brooklyn_Bridge", display: "Brooklyn Bridge", category: "landmarks" },
+  { title: "Terracotta_Army", display: "Terracotta Army", category: "landmarks" },
+  { title: "Great_Sphinx_of_Giza", display: "Great Sphinx of Giza", category: "landmarks" },
+  { title: "Pompeii", display: "Pompeii", category: "landmarks" },
+  { title: "Moai", display: "Moai", category: "landmarks" },
+  { title: "Abu_Simbel", display: "Abu Simbel", category: "landmarks" },
+  { title: "Westminster_Abbey", display: "Westminster Abbey", category: "landmarks" },
+  { title: "St._Peter%27s_Basilica", display: "St. Peter's Basilica", category: "landmarks" },
+  { title: "Potala_Palace", display: "Potala Palace", category: "landmarks" },
+  { title: "Borobudur", display: "Borobudur", category: "landmarks" },
+  { title: "Mount_Fuji", display: "Mount Fuji", category: "landmarks" },
+  { title: "Table_Mountain", display: "Table Mountain", category: "landmarks" },
+  { title: "Rock_of_Gibraltar", display: "Rock of Gibraltar", category: "landmarks" },
+  { title: "Yellowstone_National_Park", display: "Yellowstone National Park", category: "landmarks" },
+  { title: "Yosemite_National_Park", display: "Yosemite National Park", category: "landmarks" },
+
+  // Animals (~80)
+  { title: "Blue_whale", display: "Blue whale", category: "animals" },
+  { title: "Bald_eagle", display: "Bald eagle", category: "animals" },
+  { title: "Giant_panda", display: "Giant panda", category: "animals" },
+  { title: "Komodo_dragon", display: "Komodo dragon", category: "animals" },
+  { title: "Great_white_shark", display: "Great white shark", category: "animals" },
+  { title: "Emperor_penguin", display: "Emperor penguin", category: "animals" },
+  { title: "African_elephant", display: "African elephant", category: "animals" },
+  { title: "Red_fox", display: "Red fox", category: "animals" },
+  { title: "Cheetah", display: "Cheetah", category: "animals" },
+  { title: "Octopus", display: "Octopus", category: "animals" },
+  { title: "Polar_bear", display: "Polar bear", category: "animals" },
+  { title: "Honeybee", display: "Honeybee", category: "animals" },
+  { title: "Gorilla", display: "Gorilla", category: "animals" },
+  { title: "Bottlenose_dolphin", display: "Bottlenose dolphin", category: "animals" },
+  { title: "Gray_wolf", display: "Gray wolf", category: "animals" },
+  { title: "Bengal_tiger", display: "Bengal tiger", category: "animals" },
+  { title: "Lion", display: "Lion", category: "animals" },
+  { title: "Giraffe", display: "Giraffe", category: "animals" },
+  { title: "Hippopotamus", display: "Hippopotamus", category: "animals" },
+  { title: "Rhinoceros", display: "Rhinoceros", category: "animals" },
+  { title: "Orangutan", display: "Orangutan", category: "animals" },
+  { title: "Chimpanzee", display: "Chimpanzee", category: "animals" },
+  { title: "Koala", display: "Koala", category: "animals" },
+  { title: "Platypus", display: "Platypus", category: "animals" },
+  { title: "Kangaroo", display: "Kangaroo", category: "animals" },
+  { title: "Sloth", display: "Sloth", category: "animals" },
+  { title: "Porcupine", display: "Porcupine", category: "animals" },
+  { title: "Pangolin", display: "Pangolin", category: "animals" },
+  { title: "Snow_leopard", display: "Snow leopard", category: "animals" },
+  { title: "Peregrine_falcon", display: "Peregrine falcon", category: "animals" },
+  { title: "Golden_eagle", display: "Golden eagle", category: "animals" },
+  { title: "Humpback_whale", display: "Humpback whale", category: "animals" },
+  { title: "Orca", display: "Orca", category: "animals" },
+  { title: "Sea_turtle", display: "Sea turtle", category: "animals" },
+  { title: "Hammerhead_shark", display: "Hammerhead shark", category: "animals" },
+  { title: "Manta_ray", display: "Manta ray", category: "animals" },
+  { title: "Seahorse", display: "Seahorse", category: "animals" },
+  { title: "Axolotl", display: "Axolotl", category: "animals" },
+  { title: "Chameleon", display: "Chameleon", category: "animals" },
+  { title: "King_cobra", display: "King cobra", category: "animals" },
+  { title: "Anaconda", display: "Anaconda", category: "animals" },
+  { title: "Crocodile", display: "Crocodile", category: "animals" },
+  { title: "Flamingo", display: "Flamingo", category: "animals" },
+  { title: "Peacock", display: "Peacock", category: "animals" },
+  { title: "Albatross", display: "Albatross", category: "animals" },
+  { title: "Narwhal", display: "Narwhal", category: "animals" },
+  { title: "Wolverine", display: "Wolverine", category: "animals" },
+  { title: "Armadillo", display: "Armadillo", category: "animals" },
+  { title: "Capybara", display: "Capybara", category: "animals" },
+  { title: "Jaguar", display: "Jaguar", category: "animals" },
+  { title: "Fennec_fox", display: "Fennec fox", category: "animals" },
+  { title: "Monarch_butterfly", display: "Monarch butterfly", category: "animals" },
+  { title: "Firefly", display: "Firefly", category: "animals" },
+  { title: "Tarantula", display: "Tarantula", category: "animals" },
+  { title: "Jellyfish", display: "Jellyfish", category: "animals" },
+  { title: "Starfish", display: "Starfish", category: "animals" },
+  { title: "Coral", display: "Coral", category: "animals" },
+  { title: "Electric_eel", display: "Electric eel", category: "animals" },
+  { title: "Pufferfish", display: "Pufferfish", category: "animals" },
+  { title: "Elephant_seal", display: "Elephant seal", category: "animals" },
+  { title: "Walrus", display: "Walrus", category: "animals" },
+  { title: "Manatee", display: "Manatee", category: "animals" },
+  { title: "Red_panda", display: "Red panda", category: "animals" },
+  { title: "Wombat", display: "Wombat", category: "animals" },
+  { title: "Tasmanian_devil", display: "Tasmanian devil", category: "animals" },
+  { title: "Dodo", display: "Dodo", category: "animals" },
+  { title: "Woolly_mammoth", display: "Woolly mammoth", category: "animals" },
+  { title: "Tyrannosaurus", display: "Tyrannosaurus", category: "animals" },
+  { title: "Triceratops", display: "Triceratops", category: "animals" },
+  { title: "Velociraptor", display: "Velociraptor", category: "animals" },
+  { title: "Pteranodon", display: "Pteranodon", category: "animals" },
+  { title: "Stegosaurus", display: "Stegosaurus", category: "animals" },
+  { title: "Brachiosaurus", display: "Brachiosaurus", category: "animals" },
+
+  // Countries (~70)
+  { title: "Japan", display: "Japan", category: "countries" },
+  { title: "Brazil", display: "Brazil", category: "countries" },
+  { title: "Egypt", display: "Egypt", category: "countries" },
+  { title: "Australia", display: "Australia", category: "countries" },
+  { title: "Iceland", display: "Iceland", category: "countries" },
+  { title: "New_Zealand", display: "New Zealand", category: "countries" },
+  { title: "Switzerland", display: "Switzerland", category: "countries" },
+  { title: "South_Korea", display: "South Korea", category: "countries" },
+  { title: "Mexico", display: "Mexico", category: "countries" },
+  { title: "Norway", display: "Norway", category: "countries" },
+  { title: "India", display: "India", category: "countries" },
+  { title: "Canada", display: "Canada", category: "countries" },
+  { title: "Greece", display: "Greece", category: "countries" },
+  { title: "China", display: "China", category: "countries" },
+  { title: "Russia", display: "Russia", category: "countries" },
+  { title: "Germany", display: "Germany", category: "countries" },
+  { title: "France", display: "France", category: "countries" },
+  { title: "Italy", display: "Italy", category: "countries" },
+  { title: "Spain", display: "Spain", category: "countries" },
+  { title: "Portugal", display: "Portugal", category: "countries" },
+  { title: "United_Kingdom", display: "United Kingdom", category: "countries" },
+  { title: "Ireland", display: "Ireland", category: "countries" },
+  { title: "Sweden", display: "Sweden", category: "countries" },
+  { title: "Denmark", display: "Denmark", category: "countries" },
+  { title: "Finland", display: "Finland", category: "countries" },
+  { title: "Netherlands", display: "Netherlands", category: "countries" },
+  { title: "Belgium", display: "Belgium", category: "countries" },
+  { title: "Austria", display: "Austria", category: "countries" },
+  { title: "Poland", display: "Poland", category: "countries" },
+  { title: "Turkey", display: "Turkey", category: "countries" },
+  { title: "Thailand", display: "Thailand", category: "countries" },
+  { title: "Vietnam", display: "Vietnam", category: "countries" },
+  { title: "Indonesia", display: "Indonesia", category: "countries" },
+  { title: "Philippines", display: "Philippines", category: "countries" },
+  { title: "Malaysia", display: "Malaysia", category: "countries" },
+  { title: "Singapore", display: "Singapore", category: "countries" },
+  { title: "Saudi_Arabia", display: "Saudi Arabia", category: "countries" },
+  { title: "Iran", display: "Iran", category: "countries" },
+  { title: "Israel", display: "Israel", category: "countries" },
+  { title: "South_Africa", display: "South Africa", category: "countries" },
+  { title: "Nigeria", display: "Nigeria", category: "countries" },
+  { title: "Kenya", display: "Kenya", category: "countries" },
+  { title: "Ethiopia", display: "Ethiopia", category: "countries" },
+  { title: "Morocco", display: "Morocco", category: "countries" },
+  { title: "Argentina", display: "Argentina", category: "countries" },
+  { title: "Chile", display: "Chile", category: "countries" },
+  { title: "Colombia", display: "Colombia", category: "countries" },
+  { title: "Peru", display: "Peru", category: "countries" },
+  { title: "Cuba", display: "Cuba", category: "countries" },
+  { title: "Jamaica", display: "Jamaica", category: "countries" },
+  { title: "Czech_Republic", display: "Czech Republic", category: "countries" },
+  { title: "Hungary", display: "Hungary", category: "countries" },
+  { title: "Romania", display: "Romania", category: "countries" },
+  { title: "Croatia", display: "Croatia", category: "countries" },
+  { title: "Ukraine", display: "Ukraine", category: "countries" },
+  { title: "Mongolia", display: "Mongolia", category: "countries" },
+  { title: "Nepal", display: "Nepal", category: "countries" },
+  { title: "Sri_Lanka", display: "Sri Lanka", category: "countries" },
+  { title: "Pakistan", display: "Pakistan", category: "countries" },
+  { title: "Bangladesh", display: "Bangladesh", category: "countries" },
+  { title: "Myanmar", display: "Myanmar", category: "countries" },
+  { title: "Madagascar", display: "Madagascar", category: "countries" },
+  { title: "Tanzania", display: "Tanzania", category: "countries" },
+  { title: "Ghana", display: "Ghana", category: "countries" },
+  { title: "Senegal", display: "Senegal", category: "countries" },
+  { title: "Algeria", display: "Algeria", category: "countries" },
+  { title: "Venezuela", display: "Venezuela", category: "countries" },
+  { title: "Ecuador", display: "Ecuador", category: "countries" },
+  { title: "Bolivia", display: "Bolivia", category: "countries" },
+  { title: "Paraguay", display: "Paraguay", category: "countries" },
+  { title: "Uruguay", display: "Uruguay", category: "countries" },
+
+  // Inventions & Technology (~70)
+  { title: "Printing_press", display: "Printing press", category: "inventions" },
+  { title: "Telescope", display: "Telescope", category: "inventions" },
+  { title: "Steam_engine", display: "Steam engine", category: "inventions" },
+  { title: "Telephone", display: "Telephone", category: "inventions" },
+  { title: "Internet", display: "Internet", category: "inventions" },
+  { title: "Television", display: "Television", category: "inventions" },
+  { title: "Radio", display: "Radio", category: "inventions" },
+  { title: "Compass", display: "Compass", category: "inventions" },
+  { title: "Dynamite", display: "Dynamite", category: "inventions" },
+  { title: "Photography", display: "Photography", category: "inventions" },
+  { title: "Penicillin", display: "Penicillin", category: "inventions" },
+  { title: "Bicycle", display: "Bicycle", category: "inventions" },
+  { title: "Airplane", display: "Airplane", category: "inventions" },
+  { title: "Automobile", display: "Automobile", category: "inventions" },
+  { title: "Locomotive", display: "Locomotive", category: "inventions" },
+  { title: "Submarine", display: "Submarine", category: "inventions" },
+  { title: "Helicopter", display: "Helicopter", category: "inventions" },
+  { title: "Microscope", display: "Microscope", category: "inventions" },
+  { title: "Stethoscope", display: "Stethoscope", category: "inventions" },
+  { title: "X-ray", display: "X-ray", category: "inventions" },
+  { title: "Vaccination", display: "Vaccination", category: "inventions" },
+  { title: "Antibiotics", display: "Antibiotics", category: "inventions" },
+  { title: "Anesthesia", display: "Anesthesia", category: "inventions" },
+  { title: "Electric_battery", display: "Electric battery", category: "inventions" },
+  { title: "Light-emitting_diode", display: "Light-emitting diode", category: "inventions" },
+  { title: "Incandescent_light_bulb", display: "Incandescent light bulb", category: "inventions" },
+  { title: "Nuclear_power", display: "Nuclear power", category: "inventions" },
+  { title: "Solar_cell", display: "Solar cell", category: "inventions" },
+  { title: "Wind_turbine", display: "Wind turbine", category: "inventions" },
+  { title: "Transistor", display: "Transistor", category: "inventions" },
+  { title: "Integrated_circuit", display: "Integrated circuit", category: "inventions" },
+  { title: "Personal_computer", display: "Personal computer", category: "inventions" },
+  { title: "World_Wide_Web", display: "World Wide Web", category: "inventions" },
+  { title: "Smartphone", display: "Smartphone", category: "inventions" },
+  { title: "Global_Positioning_System", display: "Global Positioning System", category: "inventions" },
+  { title: "Satellite", display: "Satellite", category: "inventions" },
+  { title: "Radar", display: "Radar", category: "inventions" },
+  { title: "Sonar", display: "Sonar", category: "inventions" },
+  { title: "Laser", display: "Laser", category: "inventions" },
+  { title: "Fiber_optics", display: "Fiber optics", category: "inventions" },
+  { title: "Barcode", display: "Barcode", category: "inventions" },
+  { title: "Zipper", display: "Zipper", category: "inventions" },
+  { title: "Velcro", display: "Velcro", category: "inventions" },
+  { title: "Paper", display: "Paper", category: "inventions" },
+  { title: "Gunpowder", display: "Gunpowder", category: "inventions" },
+  { title: "Wheel", display: "Wheel", category: "inventions" },
+  { title: "Concrete", display: "Concrete", category: "inventions" },
+  { title: "Steel", display: "Steel", category: "inventions" },
+  { title: "Glass", display: "Glass", category: "inventions" },
+  { title: "Plastic", display: "Plastic", category: "inventions" },
+  { title: "Refrigerator", display: "Refrigerator", category: "inventions" },
+  { title: "Washing_machine", display: "Washing machine", category: "inventions" },
+  { title: "Microwave_oven", display: "Microwave oven", category: "inventions" },
+  { title: "Air_conditioning", display: "Air conditioning", category: "inventions" },
+  { title: "Elevator", display: "Elevator", category: "inventions" },
+  { title: "Escalator", display: "Escalator", category: "inventions" },
+  { title: "Sewing_machine", display: "Sewing machine", category: "inventions" },
+  { title: "3D_printing", display: "3D printing", category: "inventions" },
+  { title: "Bluetooth", display: "Bluetooth", category: "inventions" },
+  { title: "Wi-Fi", display: "Wi-Fi", category: "inventions" },
+
+  // Musicians, Artists & Writers (~80)
+  { title: "Wolfgang_Amadeus_Mozart", display: "Wolfgang Amadeus Mozart", category: "artists" },
+  { title: "Ludwig_van_Beethoven", display: "Ludwig van Beethoven", category: "artists" },
+  { title: "Vincent_van_Gogh", display: "Vincent van Gogh", category: "artists" },
+  { title: "Pablo_Picasso", display: "Pablo Picasso", category: "artists" },
+  { title: "Michelangelo", display: "Michelangelo", category: "artists" },
+  { title: "Frida_Kahlo", display: "Frida Kahlo", category: "artists" },
+  { title: "William_Shakespeare", display: "William Shakespeare", category: "artists" },
+  { title: "Elvis_Presley", display: "Elvis Presley", category: "artists" },
+  { title: "The_Beatles", display: "The Beatles", category: "artists" },
+  { title: "Bob_Marley", display: "Bob Marley", category: "artists" },
+  { title: "Charlie_Chaplin", display: "Charlie Chaplin", category: "artists" },
+  { title: "Walt_Disney", display: "Walt Disney", category: "artists" },
+  { title: "Rembrandt", display: "Rembrandt", category: "artists" },
+  { title: "Johann_Sebastian_Bach", display: "Johann Sebastian Bach", category: "artists" },
+  { title: "Frederic_Chopin", display: "Frederic Chopin", category: "artists" },
+  { title: "Pyotr_Ilyich_Tchaikovsky", display: "Pyotr Ilyich Tchaikovsky", category: "artists" },
+  { title: "Antonio_Vivaldi", display: "Antonio Vivaldi", category: "artists" },
+  { title: "Giuseppe_Verdi", display: "Giuseppe Verdi", category: "artists" },
+  { title: "Richard_Wagner", display: "Richard Wagner", category: "artists" },
+  { title: "Claude_Debussy", display: "Claude Debussy", category: "artists" },
+  { title: "Igor_Stravinsky", display: "Igor Stravinsky", category: "artists" },
+  { title: "Claude_Monet", display: "Claude Monet", category: "artists" },
+  { title: "Salvador_Dalí", display: "Salvador Dali", category: "artists" },
+  { title: "Andy_Warhol", display: "Andy Warhol", category: "artists" },
+  { title: "Raphael", display: "Raphael", category: "artists" },
+  { title: "Caravaggio", display: "Caravaggio", category: "artists" },
+  { title: "Auguste_Rodin", display: "Auguste Rodin", category: "artists" },
+  { title: "Banksy", display: "Banksy", category: "artists" },
+  { title: "Charles_Dickens", display: "Charles Dickens", category: "artists" },
+  { title: "Jane_Austen", display: "Jane Austen", category: "artists" },
+  { title: "Mark_Twain", display: "Mark Twain", category: "artists" },
+  { title: "Leo_Tolstoy", display: "Leo Tolstoy", category: "artists" },
+  { title: "Fyodor_Dostoevsky", display: "Fyodor Dostoevsky", category: "artists" },
+  { title: "Ernest_Hemingway", display: "Ernest Hemingway", category: "artists" },
+  { title: "Franz_Kafka", display: "Franz Kafka", category: "artists" },
+  { title: "Virginia_Woolf", display: "Virginia Woolf", category: "artists" },
+  { title: "Edgar_Allan_Poe", display: "Edgar Allan Poe", category: "artists" },
+  { title: "Oscar_Wilde", display: "Oscar Wilde", category: "artists" },
+  { title: "Agatha_Christie", display: "Agatha Christie", category: "artists" },
+  { title: "J._R._R._Tolkien", display: "J. R. R. Tolkien", category: "artists" },
+  { title: "George_Orwell", display: "George Orwell", category: "artists" },
+  { title: "Gabriel_García_Márquez", display: "Gabriel Garcia Marquez", category: "artists" },
+  { title: "Homer", display: "Homer", category: "artists" },
+  { title: "Dante_Alighieri", display: "Dante Alighieri", category: "artists" },
+  { title: "Miguel_de_Cervantes", display: "Miguel de Cervantes", category: "artists" },
+  { title: "Victor_Hugo", display: "Victor Hugo", category: "artists" },
+  { title: "Hans_Christian_Andersen", display: "Hans Christian Andersen", category: "artists" },
+  { title: "Brothers_Grimm", display: "Brothers Grimm", category: "artists" },
+  { title: "Jules_Verne", display: "Jules Verne", category: "artists" },
+  { title: "H._G._Wells", display: "H. G. Wells", category: "artists" },
+  { title: "Arthur_Conan_Doyle", display: "Arthur Conan Doyle", category: "artists" },
+  { title: "Alfred_Hitchcock", display: "Alfred Hitchcock", category: "artists" },
+  { title: "Stanley_Kubrick", display: "Stanley Kubrick", category: "artists" },
+  { title: "Steven_Spielberg", display: "Steven Spielberg", category: "artists" },
+  { title: "Frank_Sinatra", display: "Frank Sinatra", category: "artists" },
+  { title: "Louis_Armstrong", display: "Louis Armstrong", category: "artists" },
+  { title: "Miles_Davis", display: "Miles Davis", category: "artists" },
+  { title: "Jimi_Hendrix", display: "Jimi Hendrix", category: "artists" },
+  { title: "David_Bowie", display: "David Bowie", category: "artists" },
+  { title: "Freddie_Mercury", display: "Freddie Mercury", category: "artists" },
+  { title: "Michael_Jackson", display: "Michael Jackson", category: "artists" },
+  { title: "Prince_(musician)", display: "Prince", category: "artists" },
+  { title: "Bob_Dylan", display: "Bob Dylan", category: "artists" },
+  { title: "John_Lennon", display: "John Lennon", category: "artists" },
+  { title: "Aretha_Franklin", display: "Aretha Franklin", category: "artists" },
+  { title: "Whitney_Houston", display: "Whitney Houston", category: "artists" },
+  { title: "Nina_Simone", display: "Nina Simone", category: "artists" },
+  { title: "Ella_Fitzgerald", display: "Ella Fitzgerald", category: "artists" },
+  { title: "Ray_Charles", display: "Ray Charles", category: "artists" },
+  { title: "Stevie_Wonder", display: "Stevie Wonder", category: "artists" },
+  { title: "Edith_Piaf", display: "Edith Piaf", category: "artists" },
+  { title: "Luciano_Pavarotti", display: "Luciano Pavarotti", category: "artists" },
+  { title: "Maria_Callas", display: "Maria Callas", category: "artists" },
+  { title: "Tupac_Shakur", display: "Tupac Shakur", category: "artists" },
+  { title: "Kurt_Cobain", display: "Kurt Cobain", category: "artists" },
+
+  // Space & Geography (~70)
+  { title: "Mars", display: "Mars", category: "space" },
+  { title: "Jupiter", display: "Jupiter", category: "space" },
+  { title: "Saturn", display: "Saturn", category: "space" },
+  { title: "Moon", display: "Moon", category: "space" },
+  { title: "Milky_Way", display: "Milky Way", category: "space" },
+  { title: "Black_hole", display: "Black hole", category: "space" },
+  { title: "Amazon_rainforest", display: "Amazon rainforest", category: "space" },
+  { title: "Mount_Everest", display: "Mount Everest", category: "space" },
+  { title: "Sahara", display: "Sahara", category: "space" },
+  { title: "Great_Barrier_Reef", display: "Great Barrier Reef", category: "space" },
+  { title: "Niagara_Falls", display: "Niagara Falls", category: "space" },
+  { title: "Grand_Canyon", display: "Grand Canyon", category: "space" },
+  { title: "Sun", display: "Sun", category: "space" },
+  { title: "Mercury_(planet)", display: "Mercury", category: "space" },
+  { title: "Venus", display: "Venus", category: "space" },
+  { title: "Neptune", display: "Neptune", category: "space" },
+  { title: "Uranus", display: "Uranus", category: "space" },
+  { title: "Pluto", display: "Pluto", category: "space" },
+  { title: "Asteroid_belt", display: "Asteroid belt", category: "space" },
+  { title: "Halley%27s_Comet", display: "Halley's Comet", category: "space" },
+  { title: "Andromeda_Galaxy", display: "Andromeda Galaxy", category: "space" },
+  { title: "Supernova", display: "Supernova", category: "space" },
+  { title: "Neutron_star", display: "Neutron star", category: "space" },
+  { title: "International_Space_Station", display: "International Space Station", category: "space" },
+  { title: "Hubble_Space_Telescope", display: "Hubble Space Telescope", category: "space" },
+  { title: "Apollo_11", display: "Apollo 11", category: "space" },
+  { title: "Amazon_River", display: "Amazon River", category: "space" },
+  { title: "Nile", display: "Nile", category: "space" },
+  { title: "Mississippi_River", display: "Mississippi River", category: "space" },
+  { title: "Danube", display: "Danube", category: "space" },
+  { title: "Ganges", display: "Ganges", category: "space" },
+  { title: "Yangtze", display: "Yangtze", category: "space" },
+  { title: "Pacific_Ocean", display: "Pacific Ocean", category: "space" },
+  { title: "Atlantic_Ocean", display: "Atlantic Ocean", category: "space" },
+  { title: "Indian_Ocean", display: "Indian Ocean", category: "space" },
+  { title: "Arctic_Ocean", display: "Arctic Ocean", category: "space" },
+  { title: "Mediterranean_Sea", display: "Mediterranean Sea", category: "space" },
+  { title: "Dead_Sea", display: "Dead Sea", category: "space" },
+  { title: "Mariana_Trench", display: "Mariana Trench", category: "space" },
+  { title: "Victoria_Falls", display: "Victoria Falls", category: "space" },
+  { title: "Angel_Falls", display: "Angel Falls", category: "space" },
+  { title: "Kilimanjaro", display: "Kilimanjaro", category: "space" },
+  { title: "K2", display: "K2", category: "space" },
+  { title: "Himalayas", display: "Himalayas", category: "space" },
+  { title: "Andes", display: "Andes", category: "space" },
+  { title: "Alps", display: "Alps", category: "space" },
+  { title: "Rocky_Mountains", display: "Rocky Mountains", category: "space" },
+  { title: "Galápagos_Islands", display: "Galapagos Islands", category: "space" },
+  { title: "Bermuda_Triangle", display: "Bermuda Triangle", category: "space" },
+  { title: "Antarctica", display: "Antarctica", category: "space" },
+  { title: "Arctic", display: "Arctic", category: "space" },
+  { title: "Atacama_Desert", display: "Atacama Desert", category: "space" },
+  { title: "Gobi_Desert", display: "Gobi Desert", category: "space" },
+  { title: "Lake_Baikal", display: "Lake Baikal", category: "space" },
+  { title: "Caspian_Sea", display: "Caspian Sea", category: "space" },
+  { title: "Lake_Victoria", display: "Lake Victoria", category: "space" },
+  { title: "Yellowstone_Caldera", display: "Yellowstone Caldera", category: "space" },
+  { title: "Ring_of_Fire", display: "Ring of Fire", category: "space" },
+  { title: "Northern_lights", display: "Northern lights", category: "space" },
+
+  // Athletes & Sports (~80)
+  { title: "Muhammad_Ali", display: "Muhammad Ali", category: "athletes" },
+  { title: "Michael_Jordan", display: "Michael Jordan", category: "athletes" },
+  { title: "Pelé", display: "Pele", category: "athletes" },
+  { title: "Diego_Maradona", display: "Diego Maradona", category: "athletes" },
+  { title: "Lionel_Messi", display: "Lionel Messi", category: "athletes" },
+  { title: "Cristiano_Ronaldo", display: "Cristiano Ronaldo", category: "athletes" },
+  { title: "Usain_Bolt", display: "Usain Bolt", category: "athletes" },
+  { title: "Serena_Williams", display: "Serena Williams", category: "athletes" },
+  { title: "Roger_Federer", display: "Roger Federer", category: "athletes" },
+  { title: "Tiger_Woods", display: "Tiger Woods", category: "athletes" },
+  { title: "Michael_Phelps", display: "Michael Phelps", category: "athletes" },
+  { title: "Wayne_Gretzky", display: "Wayne Gretzky", category: "athletes" },
+  { title: "Babe_Ruth", display: "Babe Ruth", category: "athletes" },
+  { title: "Jesse_Owens", display: "Jesse Owens", category: "athletes" },
+  { title: "Jackie_Robinson", display: "Jackie Robinson", category: "athletes" },
+  { title: "LeBron_James", display: "LeBron James", category: "athletes" },
+  { title: "Kobe_Bryant", display: "Kobe Bryant", category: "athletes" },
+  { title: "Nadia_Comăneci", display: "Nadia Comaneci", category: "athletes" },
+  { title: "Carl_Lewis", display: "Carl Lewis", category: "athletes" },
+  { title: "Mark_Spitz", display: "Mark Spitz", category: "athletes" },
+  { title: "Sachin_Tendulkar", display: "Sachin Tendulkar", category: "athletes" },
+  { title: "Don_Bradman", display: "Don Bradman", category: "athletes" },
+  { title: "Wilt_Chamberlain", display: "Wilt Chamberlain", category: "athletes" },
+  { title: "Zinedine_Zidane", display: "Zinedine Zidane", category: "athletes" },
+  { title: "Ronaldo_(Brazilian_footballer)", display: "Ronaldo", category: "athletes" },
+  { title: "Johan_Cruyff", display: "Johan Cruyff", category: "athletes" },
+  { title: "Franz_Beckenbauer", display: "Franz Beckenbauer", category: "athletes" },
+  { title: "David_Beckham", display: "David Beckham", category: "athletes" },
+  { title: "Rafael_Nadal", display: "Rafael Nadal", category: "athletes" },
+  { title: "Novak_Djokovic", display: "Novak Djokovic", category: "athletes" },
+  { title: "Simone_Biles", display: "Simone Biles", category: "athletes" },
+  { title: "Tom_Brady", display: "Tom Brady", category: "athletes" },
+  { title: "Mike_Tyson", display: "Mike Tyson", category: "athletes" },
+  { title: "Floyd_Mayweather_Jr.", display: "Floyd Mayweather Jr.", category: "athletes" },
+  { title: "Manny_Pacquiao", display: "Manny Pacquiao", category: "athletes" },
+  { title: "Michael_Schumacher", display: "Michael Schumacher", category: "athletes" },
+  { title: "Ayrton_Senna", display: "Ayrton Senna", category: "athletes" },
+  { title: "Lewis_Hamilton", display: "Lewis Hamilton", category: "athletes" },
+  { title: "Valentino_Rossi", display: "Valentino Rossi", category: "athletes" },
+  { title: "Neymar", display: "Neymar", category: "athletes" },
+  { title: "Kylian_Mbappé", display: "Kylian Mbappe", category: "athletes" },
+  { title: "Erling_Haaland", display: "Erling Haaland", category: "athletes" },
+  { title: "Shaquille_O%27Neal", display: "Shaquille O'Neal", category: "athletes" },
+  { title: "Magic_Johnson", display: "Magic Johnson", category: "athletes" },
+  { title: "Larry_Bird", display: "Larry Bird", category: "athletes" },
+  { title: "Kareem_Abdul-Jabbar", display: "Kareem Abdul-Jabbar", category: "athletes" },
+  { title: "Bjorn_Borg", display: "Bjorn Borg", category: "athletes" },
+  { title: "Venus_Williams", display: "Venus Williams", category: "athletes" },
+  { title: "Billie_Jean_King", display: "Billie Jean King", category: "athletes" },
+  { title: "Jack_Nicklaus", display: "Jack Nicklaus", category: "athletes" },
+  { title: "Arnold_Palmer", display: "Arnold Palmer", category: "athletes" },
+  { title: "Tony_Hawk", display: "Tony Hawk", category: "athletes" },
+  { title: "Shaun_White", display: "Shaun White", category: "athletes" },
+  { title: "Bobby_Fischer", display: "Bobby Fischer", category: "athletes" },
+  { title: "Garry_Kasparov", display: "Garry Kasparov", category: "athletes" },
+  { title: "Magnus_Carlsen", display: "Magnus Carlsen", category: "athletes" },
+
+  // Cities (~70)
+  { title: "Tokyo", display: "Tokyo", category: "cities" },
+  { title: "Paris", display: "Paris", category: "cities" },
+  { title: "London", display: "London", category: "cities" },
+  { title: "New_York_City", display: "New York City", category: "cities" },
+  { title: "Rome", display: "Rome", category: "cities" },
+  { title: "Berlin", display: "Berlin", category: "cities" },
+  { title: "Moscow", display: "Moscow", category: "cities" },
+  { title: "Beijing", display: "Beijing", category: "cities" },
+  { title: "Cairo", display: "Cairo", category: "cities" },
+  { title: "Istanbul", display: "Istanbul", category: "cities" },
+  { title: "Mumbai", display: "Mumbai", category: "cities" },
+  { title: "Rio_de_Janeiro", display: "Rio de Janeiro", category: "cities" },
+  { title: "Sydney", display: "Sydney", category: "cities" },
+  { title: "Los_Angeles", display: "Los Angeles", category: "cities" },
+  { title: "Chicago", display: "Chicago", category: "cities" },
+  { title: "San_Francisco", display: "San Francisco", category: "cities" },
+  { title: "Hong_Kong", display: "Hong Kong", category: "cities" },
+  { title: "Bangkok", display: "Bangkok", category: "cities" },
+  { title: "Dubai", display: "Dubai", category: "cities" },
+  { title: "Jerusalem", display: "Jerusalem", category: "cities" },
+  { title: "Athens", display: "Athens", category: "cities" },
+  { title: "Barcelona", display: "Barcelona", category: "cities" },
+  { title: "Madrid", display: "Madrid", category: "cities" },
+  { title: "Lisbon", display: "Lisbon", category: "cities" },
+  { title: "Amsterdam", display: "Amsterdam", category: "cities" },
+  { title: "Vienna", display: "Vienna", category: "cities" },
+  { title: "Prague", display: "Prague", category: "cities" },
+  { title: "Budapest", display: "Budapest", category: "cities" },
+  { title: "Dublin", display: "Dublin", category: "cities" },
+  { title: "Edinburgh", display: "Edinburgh", category: "cities" },
+  { title: "Copenhagen", display: "Copenhagen", category: "cities" },
+  { title: "Stockholm", display: "Stockholm", category: "cities" },
+  { title: "Oslo", display: "Oslo", category: "cities" },
+  { title: "Helsinki", display: "Helsinki", category: "cities" },
+  { title: "Havana", display: "Havana", category: "cities" },
+  { title: "Mexico_City", display: "Mexico City", category: "cities" },
+  { title: "Buenos_Aires", display: "Buenos Aires", category: "cities" },
+  { title: "Lima", display: "Lima", category: "cities" },
+  { title: "Bogotá", display: "Bogota", category: "cities" },
+  { title: "Nairobi", display: "Nairobi", category: "cities" },
+  { title: "Cape_Town", display: "Cape Town", category: "cities" },
+  { title: "Marrakech", display: "Marrakech", category: "cities" },
+  { title: "Lagos", display: "Lagos", category: "cities" },
+  { title: "Kyoto", display: "Kyoto", category: "cities" },
+  { title: "Seoul", display: "Seoul", category: "cities" },
+  { title: "Shanghai", display: "Shanghai", category: "cities" },
+  { title: "Delhi", display: "Delhi", category: "cities" },
+  { title: "Kathmandu", display: "Kathmandu", category: "cities" },
+  { title: "Hanoi", display: "Hanoi", category: "cities" },
+  { title: "Venice", display: "Venice", category: "cities" },
+  { title: "Florence", display: "Florence", category: "cities" },
+  { title: "Milan", display: "Milan", category: "cities" },
+  { title: "Munich", display: "Munich", category: "cities" },
+  { title: "Zurich", display: "Zurich", category: "cities" },
+  { title: "Geneva", display: "Geneva", category: "cities" },
+  { title: "Brussels", display: "Brussels", category: "cities" },
+  { title: "Warsaw", display: "Warsaw", category: "cities" },
+  { title: "Krakow", display: "Krakow", category: "cities" },
+  { title: "Saint_Petersburg", display: "Saint Petersburg", category: "cities" },
+  { title: "Vancouver", display: "Vancouver", category: "cities" },
+  { title: "Toronto", display: "Toronto", category: "cities" },
+  { title: "Washington,_D.C.", display: "Washington, D.C.", category: "cities" },
+  { title: "Las_Vegas", display: "Las Vegas", category: "cities" },
+  { title: "New_Orleans", display: "New Orleans", category: "cities" },
+  { title: "Reykjavik", display: "Reykjavik", category: "cities" },
+
+  // Food & Drink (~60)
+  { title: "Pizza", display: "Pizza", category: "food" },
+  { title: "Sushi", display: "Sushi", category: "food" },
+  { title: "Chocolate", display: "Chocolate", category: "food" },
+  { title: "Coffee", display: "Coffee", category: "food" },
+  { title: "Tea", display: "Tea", category: "food" },
+  { title: "Wine", display: "Wine", category: "food" },
+  { title: "Beer", display: "Beer", category: "food" },
+  { title: "Whisky", display: "Whisky", category: "food" },
+  { title: "Champagne", display: "Champagne", category: "food" },
+  { title: "Pasta", display: "Pasta", category: "food" },
+  { title: "Rice", display: "Rice", category: "food" },
+  { title: "Bread", display: "Bread", category: "food" },
+  { title: "Cheese", display: "Cheese", category: "food" },
+  { title: "Olive_oil", display: "Olive oil", category: "food" },
+  { title: "Curry", display: "Curry", category: "food" },
+  { title: "Kimchi", display: "Kimchi", category: "food" },
+  { title: "Tofu", display: "Tofu", category: "food" },
+  { title: "Hummus", display: "Hummus", category: "food" },
+  { title: "Croissant", display: "Croissant", category: "food" },
+  { title: "Hamburger", display: "Hamburger", category: "food" },
+  { title: "Hot_dog", display: "Hot dog", category: "food" },
+  { title: "Ice_cream", display: "Ice cream", category: "food" },
+  { title: "Pancake", display: "Pancake", category: "food" },
+  { title: "Maple_syrup", display: "Maple syrup", category: "food" },
+  { title: "Avocado", display: "Avocado", category: "food" },
+  { title: "Banana", display: "Banana", category: "food" },
+  { title: "Pineapple", display: "Pineapple", category: "food" },
+  { title: "Mango", display: "Mango", category: "food" },
+  { title: "Coconut", display: "Coconut", category: "food" },
+  { title: "Vanilla", display: "Vanilla", category: "food" },
+  { title: "Cinnamon", display: "Cinnamon", category: "food" },
+  { title: "Saffron", display: "Saffron", category: "food" },
+  { title: "Chili_pepper", display: "Chili pepper", category: "food" },
+  { title: "Wasabi", display: "Wasabi", category: "food" },
+  { title: "Honey", display: "Honey", category: "food" },
+  { title: "Sugar", display: "Sugar", category: "food" },
+  { title: "Salt", display: "Salt", category: "food" },
+  { title: "Vinegar", display: "Vinegar", category: "food" },
+  { title: "Soy_sauce", display: "Soy sauce", category: "food" },
+  { title: "Ketchup", display: "Ketchup", category: "food" },
+  { title: "Mustard_(condiment)", display: "Mustard", category: "food" },
+  { title: "Pretzel", display: "Pretzel", category: "food" },
+  { title: "Bagel", display: "Bagel", category: "food" },
+  { title: "Taco", display: "Taco", category: "food" },
+  { title: "Burrito", display: "Burrito", category: "food" },
+  { title: "Ramen", display: "Ramen", category: "food" },
+  { title: "Dim_sum", display: "Dim sum", category: "food" },
+  { title: "Paella", display: "Paella", category: "food" },
+  { title: "Risotto", display: "Risotto", category: "food" },
+  { title: "Tiramisu", display: "Tiramisu", category: "food" },
+  { title: "Crème_brûlée", display: "Creme brulee", category: "food" },
+  { title: "Macaron", display: "Macaron", category: "food" },
+  { title: "Espresso", display: "Espresso", category: "food" },
+  { title: "Matcha", display: "Matcha", category: "food" },
+  { title: "Sourdough", display: "Sourdough", category: "food" },
+  { title: "Fondue", display: "Fondue", category: "food" },
+
+  // Historical Events (~70)
+  { title: "French_Revolution", display: "French Revolution", category: "events" },
+  { title: "American_Revolution", display: "American Revolution", category: "events" },
+  { title: "Industrial_Revolution", display: "Industrial Revolution", category: "events" },
+  { title: "World_War_I", display: "World War I", category: "events" },
+  { title: "World_War_II", display: "World War II", category: "events" },
+  { title: "Cold_War", display: "Cold War", category: "events" },
+  { title: "Renaissance", display: "Renaissance", category: "events" },
+  { title: "Black_Death", display: "Black Death", category: "events" },
+  { title: "Fall_of_the_Berlin_Wall", display: "Fall of the Berlin Wall", category: "events" },
+  { title: "Moon_landing", display: "Moon landing", category: "events" },
+  { title: "Titanic", display: "Titanic", category: "events" },
+  { title: "Hiroshima_and_Nagasaki", display: "Hiroshima and Nagasaki", category: "events" },
+  { title: "D-Day", display: "D-Day", category: "events" },
+  { title: "Battle_of_Waterloo", display: "Battle of Waterloo", category: "events" },
+  { title: "Battle_of_Hastings", display: "Battle of Hastings", category: "events" },
+  { title: "Battle_of_Gettysburg", display: "Battle of Gettysburg", category: "events" },
+  { title: "Battle_of_Thermopylae", display: "Battle of Thermopylae", category: "events" },
+  { title: "Battle_of_Stalingrad", display: "Battle of Stalingrad", category: "events" },
+  { title: "Signing_of_the_Magna_Carta", display: "Magna Carta", category: "events" },
+  { title: "Declaration_of_Independence", display: "Declaration of Independence", category: "events" },
+  { title: "Russian_Revolution", display: "Russian Revolution", category: "events" },
+  { title: "Crusades", display: "Crusades", category: "events" },
+  { title: "Age_of_Discovery", display: "Age of Discovery", category: "events" },
+  { title: "Silk_Road", display: "Silk Road", category: "events" },
+  { title: "Roman_Empire", display: "Roman Empire", category: "events" },
+  { title: "Byzantine_Empire", display: "Byzantine Empire", category: "events" },
+  { title: "Ottoman_Empire", display: "Ottoman Empire", category: "events" },
+  { title: "Mongol_Empire", display: "Mongol Empire", category: "events" },
+  { title: "British_Empire", display: "British Empire", category: "events" },
+  { title: "Viking_Age", display: "Viking Age", category: "events" },
+  { title: "Spanish_Inquisition", display: "Spanish Inquisition", category: "events" },
+  { title: "Trail_of_Tears", display: "Trail of Tears", category: "events" },
+  { title: "Transatlantic_slave_trade", display: "Transatlantic slave trade", category: "events" },
+  { title: "Great_Depression", display: "Great Depression", category: "events" },
+  { title: "Space_Race", display: "Space Race", category: "events" },
+  { title: "Chernobyl_disaster", display: "Chernobyl disaster", category: "events" },
+  { title: "September_11_attacks", display: "September 11 attacks", category: "events" },
+  { title: "COVID-19_pandemic", display: "COVID-19 pandemic", category: "events" },
+  { title: "Olympic_Games", display: "Olympic Games", category: "events" },
+  { title: "FIFA_World_Cup", display: "FIFA World Cup", category: "events" },
+  { title: "Nobel_Prize", display: "Nobel Prize", category: "events" },
+  { title: "Reformation", display: "Reformation", category: "events" },
+  { title: "Enlightenment", display: "Enlightenment", category: "events" },
+  { title: "Scientific_Revolution", display: "Scientific Revolution", category: "events" },
+  { title: "Green_Revolution", display: "Green Revolution", category: "events" },
+  { title: "Manhattan_Project", display: "Manhattan Project", category: "events" },
+  { title: "Apollo_program", display: "Apollo program", category: "events" },
+  { title: "Human_Genome_Project", display: "Human Genome Project", category: "events" },
+  { title: "Trojan_War", display: "Trojan War", category: "events" },
+  { title: "Peloponnesian_War", display: "Peloponnesian War", category: "events" },
+  { title: "Punic_Wars", display: "Punic Wars", category: "events" },
+  { title: "Hundred_Years%27_War", display: "Hundred Years' War", category: "events" },
+  { title: "American_Civil_War", display: "American Civil War", category: "events" },
+  { title: "Napoleonic_Wars", display: "Napoleonic Wars", category: "events" },
+
+  // Mythology & Religion (~50)
+  { title: "Zeus", display: "Zeus", category: "mythology" },
+  { title: "Poseidon", display: "Poseidon", category: "mythology" },
+  { title: "Athena", display: "Athena", category: "mythology" },
+  { title: "Apollo", display: "Apollo", category: "mythology" },
+  { title: "Aphrodite", display: "Aphrodite", category: "mythology" },
+  { title: "Ares", display: "Ares", category: "mythology" },
+  { title: "Hades", display: "Hades", category: "mythology" },
+  { title: "Hermes", display: "Hermes", category: "mythology" },
+  { title: "Hercules", display: "Hercules", category: "mythology" },
+  { title: "Achilles", display: "Achilles", category: "mythology" },
+  { title: "Odysseus", display: "Odysseus", category: "mythology" },
+  { title: "Odin", display: "Odin", category: "mythology" },
+  { title: "Thor", display: "Thor", category: "mythology" },
+  { title: "Loki", display: "Loki", category: "mythology" },
+  { title: "Freya", display: "Freya", category: "mythology" },
+  { title: "Valkyrie", display: "Valkyrie", category: "mythology" },
+  { title: "Anubis", display: "Anubis", category: "mythology" },
+  { title: "Isis", display: "Isis", category: "mythology" },
+  { title: "Osiris", display: "Osiris", category: "mythology" },
+  { title: "Ra", display: "Ra", category: "mythology" },
+  { title: "Medusa", display: "Medusa", category: "mythology" },
+  { title: "Minotaur", display: "Minotaur", category: "mythology" },
+  { title: "Phoenix_(mythology)", display: "Phoenix", category: "mythology" },
+  { title: "Dragon", display: "Dragon", category: "mythology" },
+  { title: "Unicorn", display: "Unicorn", category: "mythology" },
+  { title: "Kraken", display: "Kraken", category: "mythology" },
+  { title: "Cerberus", display: "Cerberus", category: "mythology" },
+  { title: "Pegasus", display: "Pegasus", category: "mythology" },
+  { title: "Centaur", display: "Centaur", category: "mythology" },
+  { title: "Cyclops", display: "Cyclops", category: "mythology" },
+  { title: "Pandora", display: "Pandora", category: "mythology" },
+  { title: "Prometheus", display: "Prometheus", category: "mythology" },
+  { title: "Atlas_(mythology)", display: "Atlas", category: "mythology" },
+  { title: "Icarus", display: "Icarus", category: "mythology" },
+  { title: "Trojan_Horse", display: "Trojan Horse", category: "mythology" },
+  { title: "Holy_Grail", display: "Holy Grail", category: "mythology" },
+  { title: "Excalibur", display: "Excalibur", category: "mythology" },
+  { title: "King_Arthur", display: "King Arthur", category: "mythology" },
+  { title: "Robin_Hood", display: "Robin Hood", category: "mythology" },
+  { title: "Atlantis", display: "Atlantis", category: "mythology" },
+  { title: "El_Dorado", display: "El Dorado", category: "mythology" },
+  { title: "Fountain_of_Youth", display: "Fountain of Youth", category: "mythology" },
+  { title: "Noah%27s_Ark", display: "Noah's Ark", category: "mythology" },
+  { title: "Tower_of_Babel", display: "Tower of Babel", category: "mythology" },
+  { title: "Valhalla", display: "Valhalla", category: "mythology" },
+  { title: "Ragnarök", display: "Ragnarok", category: "mythology" },
+
+  // Science Concepts (~60)
+  { title: "Evolution", display: "Evolution", category: "science" },
+  { title: "Gravity", display: "Gravity", category: "science" },
+  { title: "Photosynthesis", display: "Photosynthesis", category: "science" },
+  { title: "DNA", display: "DNA", category: "science" },
+  { title: "Atom", display: "Atom", category: "science" },
+  { title: "Theory_of_relativity", display: "Theory of relativity", category: "science" },
+  { title: "Quantum_mechanics", display: "Quantum mechanics", category: "science" },
+  { title: "Plate_tectonics", display: "Plate tectonics", category: "science" },
+  { title: "Big_Bang", display: "Big Bang", category: "science" },
+  { title: "Natural_selection", display: "Natural selection", category: "science" },
+  { title: "Periodic_table", display: "Periodic table", category: "science" },
+  { title: "Speed_of_light", display: "Speed of light", category: "science" },
+  { title: "Magnetic_field", display: "Magnetic field", category: "science" },
+  { title: "Electricity", display: "Electricity", category: "science" },
+  { title: "Radioactivity", display: "Radioactivity", category: "science" },
+  { title: "Nuclear_fission", display: "Nuclear fission", category: "science" },
+  { title: "Nuclear_fusion", display: "Nuclear fusion", category: "science" },
+  { title: "Entropy", display: "Entropy", category: "science" },
+  { title: "Sound", display: "Sound", category: "science" },
+  { title: "Light", display: "Light", category: "science" },
+  { title: "Magnetism", display: "Magnetism", category: "science" },
+  { title: "Thermodynamics", display: "Thermodynamics", category: "science" },
+  { title: "Electromagnetism", display: "Electromagnetism", category: "science" },
+  { title: "Doppler_effect", display: "Doppler effect", category: "science" },
+  { title: "Tectonic_plate", display: "Tectonic plate", category: "science" },
+  { title: "Volcano", display: "Volcano", category: "science" },
+  { title: "Earthquake", display: "Earthquake", category: "science" },
+  { title: "Tsunami", display: "Tsunami", category: "science" },
+  { title: "Hurricane", display: "Hurricane", category: "science" },
+  { title: "Tornado", display: "Tornado", category: "science" },
+  { title: "Glacier", display: "Glacier", category: "science" },
+  { title: "Fossil", display: "Fossil", category: "science" },
+  { title: "Genome", display: "Genome", category: "science" },
+  { title: "Vaccine", display: "Vaccine", category: "science" },
+  { title: "Virus", display: "Virus", category: "science" },
+  { title: "Bacteria", display: "Bacteria", category: "science" },
+  { title: "Cell_(biology)", display: "Cell", category: "science" },
+  { title: "Protein", display: "Protein", category: "science" },
+  { title: "Enzyme", display: "Enzyme", category: "science" },
+  { title: "Stem_cell", display: "Stem cell", category: "science" },
+  { title: "Ecosystem", display: "Ecosystem", category: "science" },
+  { title: "Biodiversity", display: "Biodiversity", category: "science" },
+  { title: "Climate_change", display: "Climate change", category: "science" },
+  { title: "Ozone_layer", display: "Ozone layer", category: "science" },
+  { title: "Greenhouse_effect", display: "Greenhouse effect", category: "science" },
+  { title: "Carbon_cycle", display: "Carbon cycle", category: "science" },
+  { title: "Water_cycle", display: "Water cycle", category: "science" },
+  { title: "Fibonacci_sequence", display: "Fibonacci sequence", category: "science" },
+  { title: "Golden_ratio", display: "Golden ratio", category: "science" },
+  { title: "Pi", display: "Pi", category: "science" },
+  { title: "Infinity", display: "Infinity", category: "science" },
+  { title: "Artificial_intelligence", display: "Artificial intelligence", category: "science" },
+  { title: "Machine_learning", display: "Machine learning", category: "science" },
+  { title: "Blockchain", display: "Blockchain", category: "science" },
+  { title: "Cryptocurrency", display: "Cryptocurrency", category: "science" },
+
+  // Musical Instruments & Art Forms (~40)
+  { title: "Piano", display: "Piano", category: "artforms" },
+  { title: "Violin", display: "Violin", category: "artforms" },
+  { title: "Guitar", display: "Guitar", category: "artforms" },
+  { title: "Drum", display: "Drum", category: "artforms" },
+  { title: "Flute", display: "Flute", category: "artforms" },
+  { title: "Trumpet", display: "Trumpet", category: "artforms" },
+  { title: "Cello", display: "Cello", category: "artforms" },
+  { title: "Harp", display: "Harp", category: "artforms" },
+  { title: "Organ_(music)", display: "Organ", category: "artforms" },
+  { title: "Saxophone", display: "Saxophone", category: "artforms" },
+  { title: "Bagpipes", display: "Bagpipes", category: "artforms" },
+  { title: "Accordion", display: "Accordion", category: "artforms" },
+  { title: "Ukulele", display: "Ukulele", category: "artforms" },
+  { title: "Banjo", display: "Banjo", category: "artforms" },
+  { title: "Harmonica", display: "Harmonica", category: "artforms" },
+  { title: "Ballet", display: "Ballet", category: "artforms" },
+  { title: "Opera", display: "Opera", category: "artforms" },
+  { title: "Jazz", display: "Jazz", category: "artforms" },
+  { title: "Hip_hop", display: "Hip hop", category: "artforms" },
+  { title: "Blues", display: "Blues", category: "artforms" },
+  { title: "Reggae", display: "Reggae", category: "artforms" },
+  { title: "Flamenco", display: "Flamenco", category: "artforms" },
+  { title: "Tango", display: "Tango", category: "artforms" },
+  { title: "Origami", display: "Origami", category: "artforms" },
+  { title: "Calligraphy", display: "Calligraphy", category: "artforms" },
+  { title: "Pottery", display: "Pottery", category: "artforms" },
+  { title: "Mosaic", display: "Mosaic", category: "artforms" },
+  { title: "Graffiti", display: "Graffiti", category: "artforms" },
+  { title: "Manga", display: "Manga", category: "artforms" },
+  { title: "Anime", display: "Anime", category: "artforms" },
+  { title: "Haiku", display: "Haiku", category: "artforms" },
+  { title: "Sonnet", display: "Sonnet", category: "artforms" },
+  { title: "Symphony", display: "Symphony", category: "artforms" },
+  { title: "Sonata", display: "Sonata", category: "artforms" },
+  { title: "Waltz", display: "Waltz", category: "artforms" },
+  { title: "Kabuki", display: "Kabuki", category: "artforms" },
+  { title: "Capoeira", display: "Capoeira", category: "artforms" },
+
+  // Games, Sports & Leisure (~40)
+  { title: "Chess", display: "Chess", category: "games" },
+  { title: "Football", display: "Football", category: "games" },
+  { title: "Basketball", display: "Basketball", category: "games" },
+  { title: "Tennis", display: "Tennis", category: "games" },
+  { title: "Cricket", display: "Cricket", category: "games" },
+  { title: "Baseball", display: "Baseball", category: "games" },
+  { title: "Rugby_union", display: "Rugby", category: "games" },
+  { title: "Ice_hockey", display: "Ice hockey", category: "games" },
+  { title: "Golf", display: "Golf", category: "games" },
+  { title: "Swimming", display: "Swimming", category: "games" },
+  { title: "Marathon", display: "Marathon", category: "games" },
+  { title: "Surfing", display: "Surfing", category: "games" },
+  { title: "Skateboarding", display: "Skateboarding", category: "games" },
+  { title: "Snowboarding", display: "Snowboarding", category: "games" },
+  { title: "Fencing", display: "Fencing", category: "games" },
+  { title: "Archery", display: "Archery", category: "games" },
+  { title: "Table_tennis", display: "Table tennis", category: "games" },
+  { title: "Badminton", display: "Badminton", category: "games" },
+  { title: "Volleyball", display: "Volleyball", category: "games" },
+  { title: "Handball", display: "Handball", category: "games" },
+  { title: "Polo", display: "Polo", category: "games" },
+  { title: "Formula_One", display: "Formula One", category: "games" },
+  { title: "Tour_de_France", display: "Tour de France", category: "games" },
+  { title: "Super_Bowl", display: "Super Bowl", category: "games" },
+  { title: "Wimbledon_Championships", display: "Wimbledon", category: "games" },
+  { title: "Poker", display: "Poker", category: "games" },
+  { title: "Backgammon", display: "Backgammon", category: "games" },
+  { title: "Go_(game)", display: "Go", category: "games" },
+  { title: "Sudoku", display: "Sudoku", category: "games" },
+  { title: "Rubik%27s_Cube", display: "Rubik's Cube", category: "games" },
+  { title: "Monopoly_(game)", display: "Monopoly", category: "games" },
+  { title: "Scrabble", display: "Scrabble", category: "games" },
+  { title: "Tetris", display: "Tetris", category: "games" },
+  { title: "Minecraft", display: "Minecraft", category: "games" },
+  { title: "Pac-Man", display: "Pac-Man", category: "games" },
+  { title: "Super_Mario", display: "Super Mario", category: "games" },
+  { title: "The_Legend_of_Zelda", display: "The Legend of Zelda", category: "games" },
+  { title: "Pokémon", display: "Pokemon", category: "games" },
+];
+
+const CATEGORY_LABELS = {
+  scientists: "Scientists & Inventors",
+  historical: "Historical Figures",
+  landmarks: "Landmarks",
+  animals: "Animals",
+  countries: "Countries",
+  inventions: "Inventions & Technology",
+  artists: "Musicians, Artists & Writers",
+  space: "Space & Geography",
+  athletes: "Athletes & Sports",
+  cities: "Cities",
+  food: "Food & Drink",
+  events: "Historical Events",
+  mythology: "Mythology & Legends",
+  science: "Science Concepts",
+  artforms: "Art Forms & Instruments",
+  games: "Games, Sports & Leisure",
+};
+
+const NUM_CHOICES = 4;
+const API_BASE = 'https://en.wikipedia.org/api/rest_v1/page/summary/';
+
+let currentArticle = null;
+let currentChoices = [];
+let revealed = false;
+let score = 0;
+let streak = 0;
+let bestStreak = 0;
+let usedArticles = new Set();
+
+function loadStats() {
+  score = parseInt(localStorage.getItem('wikiblank_score') || '0');
+  streak = parseInt(localStorage.getItem('wikiblank_streak') || '0');
+  bestStreak = parseInt(localStorage.getItem('wikiblank_best_streak') || '0');
+  updateStatsDisplay();
+}
+
+function saveStats() {
+  localStorage.setItem('wikiblank_score', score);
+  localStorage.setItem('wikiblank_streak', streak);
+  localStorage.setItem('wikiblank_best_streak', bestStreak);
+}
+
+function updateStatsDisplay() {
+  document.getElementById('score').textContent = score;
+  document.getElementById('streak').textContent = streak;
+  document.getElementById('best-streak').textContent = bestStreak;
+}
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function getBlankPatterns(article) {
+  const patterns = [];
+  const display = article.display;
+
+  // Full name
+  patterns.push(display);
+
+  // Split into words and add individual significant words (3+ chars)
+  const words = display.split(/\s+/);
+  for (const word of words) {
+    // Skip short words, articles, prepositions
+    const clean = word.replace(/[.,;:!?()]/g, '');
+    if (clean.length >= 3 && !['the', 'of', 'and', 'for', 'van', 'von', 'del', 'das'].includes(clean.toLowerCase())) {
+      patterns.push(clean);
+    }
+  }
+
+  // Sort by length descending so longer matches are replaced first
+  patterns.sort((a, b) => b.length - a.length);
+  return [...new Set(patterns)];
+}
+
+function blankOutText(text, article) {
+  const patterns = getBlankPatterns(article);
+  let result = text;
+
+  for (const pattern of patterns) {
+    const escaped = pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(escaped, 'gi');
+    result = result.replace(regex, '______');
+  }
+
+  return result;
+}
+
+function buildChoices(article) {
+  const sameCategory = ARTICLES.filter(a => a.category === article.category && a.title !== article.title);
+  const distractors = shuffle([...sameCategory]).slice(0, NUM_CHOICES - 1);
+
+  // If not enough from same category, fill from others
+  if (distractors.length < NUM_CHOICES - 1) {
+    const others = ARTICLES.filter(a => a.title !== article.title && !distractors.includes(a));
+    distractors.push(...shuffle([...others]).slice(0, NUM_CHOICES - 1 - distractors.length));
+  }
+
+  const choices = [article, ...distractors];
+  return shuffle(choices);
+}
+
+function pickArticle() {
+  // Reset pool if we've used most articles
+  if (usedArticles.size >= ARTICLES.length - 4) {
+    usedArticles.clear();
+  }
+
+  const available = ARTICLES.filter(a => !usedArticles.has(a.title));
+  const pick = available[Math.floor(Math.random() * available.length)];
+  usedArticles.add(pick.title);
+  return pick;
+}
+
+async function newRound() {
+  revealed = false;
+
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('feedback').className = 'feedback';
+  document.getElementById('choices').innerHTML = '';
+  document.getElementById('skip-btn').textContent = 'Skip / Give Up';
+  document.getElementById('category-tag').style.display = 'none';
+
+  // Show spinner, hide text
+  document.getElementById('spinner').style.display = 'block';
+  document.getElementById('extract-text').style.display = 'none';
+
+  currentArticle = pickArticle();
+  currentChoices = buildChoices(currentArticle);
+
+  try {
+    const resp = await fetch(API_BASE + encodeURIComponent(currentArticle.title));
+    if (!resp.ok) throw new Error('API returned ' + resp.status);
+    const data = await resp.json();
+
+    let extract = data.extract;
+    if (!extract || extract.length < 20) throw new Error('Extract too short');
+
+    // Truncate very long extracts
+    if (extract.length > 500) {
+      const cutoff = extract.lastIndexOf('.', 500);
+      if (cutoff > 200) extract = extract.slice(0, cutoff + 1);
+    }
+
+    const blanked = blankOutText(extract, currentArticle);
+
+    document.getElementById('spinner').style.display = 'none';
+    const textEl = document.getElementById('extract-text');
+    textEl.innerHTML = blanked.replace(/______/g, '<span class="blank">______</span>');
+    textEl.style.display = 'block';
+
+    document.getElementById('category-tag').textContent = CATEGORY_LABELS[currentArticle.category] || currentArticle.category;
+    document.getElementById('category-tag').style.display = 'inline-block';
+
+    renderChoices();
+  } catch (err) {
+    console.error('Failed to fetch article:', err);
+    document.getElementById('spinner').style.display = 'none';
+    document.getElementById('extract-text').textContent = 'Failed to load article. Trying another...';
+    document.getElementById('extract-text').style.display = 'block';
+    setTimeout(newRound, 1500);
+  }
+}
+
+function renderChoices() {
+  const container = document.getElementById('choices');
+  container.innerHTML = '';
+
+  currentChoices.forEach((choice, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.textContent = choice.display;
+    btn.addEventListener('click', () => handleChoice(idx, btn));
+    container.appendChild(btn);
+  });
+}
+
+function handleChoice(idx) {
+  if (revealed) return;
+
+  const chosen = currentChoices[idx];
+  const correct = currentArticle;
+  revealed = true;
+
+  // Reveal the blanked text
+  const textEl = document.getElementById('extract-text');
+  const patterns = getBlankPatterns(currentArticle);
+  let html = textEl.innerHTML;
+  html = html.replace(/<span class="blank">______<\/span>/g, '______');
+  // Re-insert original text (without blanks)
+  // Just show the original un-blanked extract would be complex; instead show the answer
+  textEl.innerHTML = html.replace(/______/g, '<span class="blank" style="color:#4ECDC4;border-color:#4ECDC4">' + correct.display + '</span>');
+
+  const allBtns = document.querySelectorAll('.choice-btn');
+  allBtns.forEach((b, i) => {
+    b.disabled = true;
+    if (currentChoices[i].title === correct.title) {
+      b.classList.add('correct-choice');
+    } else if (i === idx) {
+      b.classList.add('wrong-choice');
+    } else {
+      b.classList.add('dimmed');
+    }
+  });
+
+  if (chosen.title === correct.title) {
+    score += 100;
+    streak++;
+    if (streak > bestStreak) bestStreak = streak;
+    saveStats();
+    updateStatsDisplay();
+
+    document.getElementById('feedback').textContent = 'Correct! +100 points';
+    document.getElementById('feedback').className = 'feedback correct';
+  } else {
+    streak = 0;
+    saveStats();
+    updateStatsDisplay();
+
+    document.getElementById('feedback').textContent = 'Wrong! It was ' + correct.display + '!';
+    document.getElementById('feedback').className = 'feedback wrong';
+  }
+
+  document.getElementById('skip-btn').textContent = 'Next Question';
+}
+
+function skipQuestion() {
+  if (revealed) {
+    newRound();
+    return;
+  }
+
+  revealed = true;
+  streak = 0;
+  saveStats();
+  updateStatsDisplay();
+
+  const correct = currentArticle;
+
+  // Reveal blanks
+  const textEl = document.getElementById('extract-text');
+  let html = textEl.innerHTML;
+  html = html.replace(/<span class="blank">______<\/span>/g, '______');
+  textEl.innerHTML = html.replace(/______/g, '<span class="blank" style="color:#4ECDC4;border-color:#4ECDC4">' + correct.display + '</span>');
+
+  document.getElementById('feedback').textContent = 'It was ' + correct.display + '!';
+  document.getElementById('feedback').className = 'feedback wrong';
+  document.getElementById('skip-btn').textContent = 'Next Question';
+
+  const allBtns = document.querySelectorAll('.choice-btn');
+  allBtns.forEach((b, i) => {
+    b.disabled = true;
+    if (currentChoices[i].title === correct.title) {
+      b.classList.add('correct-choice');
+    } else {
+      b.classList.add('dimmed');
+    }
+  });
+}
+
+// Init
+loadStats();
+newRound();
+</script>
+</body>
+</html>

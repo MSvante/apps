@@ -40,6 +40,8 @@ jobs:
           cp index.html _site/
           cp -r kalender _site/
           cp -r pokemon _site/
+          cp -r wikiblank _site/
+          cp -r emoji_films _site/
           cp -r lineup_guesser/dist/* _site/lineup_guesser/
 
       - uses: actions/configure-pages@v5
