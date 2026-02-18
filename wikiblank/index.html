@@ -82,16 +82,6 @@ h1 {
   padding: 0 2px;
 }
 
-.category-tag {
-  display: inline-block;
-  font-size: 0.75rem;
-  background: rgba(78, 205, 196, 0.15);
-  color: #4ECDC4;
-  padding: 3px 10px;
-  border-radius: 8px;
-  margin-bottom: 12px;
-}
-
 .spinner {
   width: 40px;
   height: 40px;
@@ -241,8 +231,6 @@ h1 {
   <h1>WikiBlank</h1>
   <p class="subtitle">Guess the Wikipedia subject from its article!</p>
 </header>
-
-<div id="category-tag" class="category-tag" style="display:none"></div>
 
 <div class="extract-container" id="extract-container">
   <div class="spinner" id="spinner"></div>
@@ -1248,25 +1236,6 @@ const ARTICLES = [
   { title: "Pokémon", display: "Pokemon", category: "games" },
 ];
 
-const CATEGORY_LABELS = {
-  scientists: "Scientists & Inventors",
-  historical: "Historical Figures",
-  landmarks: "Landmarks",
-  animals: "Animals",
-  countries: "Countries",
-  inventions: "Inventions & Technology",
-  artists: "Musicians, Artists & Writers",
-  space: "Space & Geography",
-  athletes: "Athletes & Sports",
-  cities: "Cities",
-  food: "Food & Drink",
-  events: "Historical Events",
-  mythology: "Mythology & Legends",
-  science: "Science Concepts",
-  artforms: "Art Forms & Instruments",
-  games: "Games, Sports & Leisure",
-};
-
 const NUM_CHOICES = 4;
 const API_BASE = 'https://en.wikipedia.org/api/rest_v1/page/summary/';
 
@@ -1327,11 +1296,27 @@ function getBlankPatterns(article) {
   return [...new Set(patterns)];
 }
 
-function blankOutText(text, article) {
+function blankOutText(text, article, description) {
   const patterns = getBlankPatterns(article);
-  let result = text;
 
-  for (const pattern of patterns) {
+  // Also blank out significant words from the Wikipedia description
+  // (e.g. "German-born theoretical physicist" for Einstein)
+  if (description) {
+    const descWords = description.split(/[\s,;:()\-\/]+/);
+    for (const word of descWords) {
+      const clean = word.replace(/[.,;:!?()]/g, '');
+      if (clean.length >= 4 && !['been', 'that', 'this', 'with', 'from', 'were', 'have', 'also', 'which', 'their', 'than', 'most', 'more', 'some', 'into', 'over', 'such', 'only', 'born', 'known'].includes(clean.toLowerCase())) {
+        patterns.push(clean);
+      }
+    }
+  }
+
+  // Re-sort and deduplicate after adding description words
+  patterns.sort((a, b) => b.length - a.length);
+  const unique = [...new Set(patterns.map(p => p.toLowerCase()))];
+
+  let result = text;
+  for (const pattern of unique) {
     const escaped = pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const regex = new RegExp(escaped, 'gi');
     result = result.replace(regex, '______');
@@ -1341,14 +1326,9 @@ function blankOutText(text, article) {
 }
 
 function buildChoices(article) {
-  const sameCategory = ARTICLES.filter(a => a.category === article.category && a.title !== article.title);
-  const distractors = shuffle([...sameCategory]).slice(0, NUM_CHOICES - 1);
-
-  // If not enough from same category, fill from others
-  if (distractors.length < NUM_CHOICES - 1) {
-    const others = ARTICLES.filter(a => a.title !== article.title && !distractors.includes(a));
-    distractors.push(...shuffle([...others]).slice(0, NUM_CHOICES - 1 - distractors.length));
-  }
+  // Mix distractors from different categories to make it harder
+  const others = ARTICLES.filter(a => a.title !== article.title);
+  const distractors = shuffle([...others]).slice(0, NUM_CHOICES - 1);
 
   const choices = [article, ...distractors];
   return shuffle(choices);
@@ -1373,7 +1353,6 @@ async function newRound() {
   document.getElementById('feedback').className = 'feedback';
   document.getElementById('choices').innerHTML = '';
   document.getElementById('skip-btn').textContent = 'Skip / Give Up';
-  document.getElementById('category-tag').style.display = 'none';
 
   // Show spinner, hide text
   document.getElementById('spinner').style.display = 'block';
@@ -1390,21 +1369,20 @@ async function newRound() {
     let extract = data.extract;
     if (!extract || extract.length < 20) throw new Error('Extract too short');
 
-    // Truncate very long extracts
-    if (extract.length > 500) {
-      const cutoff = extract.lastIndexOf('.', 500);
-      if (cutoff > 200) extract = extract.slice(0, cutoff + 1);
+    // Aggressively truncate to 2-3 sentences max (~300 chars)
+    if (extract.length > 300) {
+      const cutoff = extract.lastIndexOf('.', 300);
+      if (cutoff > 100) extract = extract.slice(0, cutoff + 1);
     }
 
-    const blanked = blankOutText(extract, currentArticle);
+    // Use the Wikipedia description field to blank out contextual giveaways
+    const description = data.description || '';
+    const blanked = blankOutText(extract, currentArticle, description);
 
     document.getElementById('spinner').style.display = 'none';
     const textEl = document.getElementById('extract-text');
     textEl.innerHTML = blanked.replace(/______/g, '<span class="blank">______</span>');
     textEl.style.display = 'block';
-
-    document.getElementById('category-tag').textContent = CATEGORY_LABELS[currentArticle.category] || currentArticle.category;
-    document.getElementById('category-tag').style.display = 'inline-block';
 
     renderChoices();
   } catch (err) {
