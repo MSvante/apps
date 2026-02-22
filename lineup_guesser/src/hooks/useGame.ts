@@ -178,35 +178,11 @@ function gameReducer(state: GameState, action: GameAction): GameState {
           return exactMatch(names) || fuzzyMatch(names);
         });
 
-        if (isDuplicate) {
-          return {
-            ...state,
-            lastGuessResult: "duplicate" as GuessResult,
-            lastGuessedSlotIndex: null,
-          };
-        }
-
-        // Check if it matches a player at a different position (wrong position feedback)
-        if (selectedPosition) {
-          const isWrongPosition = state.lineup.players.some((_, i) => {
-            if (state.slots[i].guessed || state.slots[i].givenUp) return false;
-            if (state.lineup.players[i].position === selectedPosition) return false;
-            const names = playerNames(i);
-            return exactMatch(names) || fuzzyMatch(names);
-          });
-
-          if (isWrongPosition) {
-            return {
-              ...state,
-              lastGuessResult: "wrong_position" as GuessResult,
-              lastGuessedSlotIndex: null,
-            };
-          }
-        }
-
         return {
           ...state,
-          lastGuessResult: "incorrect" as GuessResult,
+          lastGuessResult: isDuplicate
+            ? ("duplicate" as GuessResult)
+            : ("incorrect" as GuessResult),
           lastGuessedSlotIndex: null,
         };
       }
