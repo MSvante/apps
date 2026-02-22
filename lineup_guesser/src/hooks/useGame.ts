@@ -139,10 +139,22 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         });
       }
 
-      // Find matching unguessed player — exact first, then fuzzy
+      // Restrict matching to players of the same position as the selected slot
+      const selectedPosition =
+        state.selectedSlotIndex !== null
+          ? state.lineup.players[state.selectedSlotIndex].position
+          : null;
+
+      function isEligible(playerIndex: number): boolean {
+        if (state.slots[playerIndex].guessed || state.slots[playerIndex].givenUp) return false;
+        if (selectedPosition && state.lineup.players[playerIndex].position !== selectedPosition) return false;
+        return true;
+      }
+
+      // Find matching unguessed player of the same position — exact first, then fuzzy
       let matchedIndex = -1;
       for (let i = 0; i < state.lineup.players.length; i++) {
-        if (state.slots[i].guessed || state.slots[i].givenUp) continue;
+        if (!isEligible(i)) continue;
         if (exactMatch(playerNames(i))) {
           matchedIndex = i;
           break;
@@ -150,7 +162,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
       }
       if (matchedIndex === -1) {
         for (let i = 0; i < state.lineup.players.length; i++) {
-          if (state.slots[i].guessed || state.slots[i].givenUp) continue;
+          if (!isEligible(i)) continue;
           if (fuzzyMatch(playerNames(i))) {
             matchedIndex = i;
             break;
@@ -166,11 +178,35 @@ function gameReducer(state: GameState, action: GameAction): GameState {
           return exactMatch(names) || fuzzyMatch(names);
         });
 
+        if (isDuplicate) {
+          return {
+            ...state,
+            lastGuessResult: "duplicate" as GuessResult,
+            lastGuessedSlotIndex: null,
+          };
+        }
+
+        // Check if it matches a player at a different position (wrong position feedback)
+        if (selectedPosition) {
+          const isWrongPosition = state.lineup.players.some((_, i) => {
+            if (state.slots[i].guessed || state.slots[i].givenUp) return false;
+            if (state.lineup.players[i].position === selectedPosition) return false;
+            const names = playerNames(i);
+            return exactMatch(names) || fuzzyMatch(names);
+          });
+
+          if (isWrongPosition) {
+            return {
+              ...state,
+              lastGuessResult: "wrong_position" as GuessResult,
+              lastGuessedSlotIndex: null,
+            };
+          }
+        }
+
         return {
           ...state,
-          lastGuessResult: isDuplicate
-            ? ("duplicate" as GuessResult)
-            : ("incorrect" as GuessResult),
+          lastGuessResult: "incorrect" as GuessResult,
           lastGuessedSlotIndex: null,
         };
       }

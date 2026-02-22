@@ -36,7 +36,7 @@ export function GuessPopup({
     if (lastGuessResult === "correct") {
       setValue("");
       setFeedbackClass("animate-flash-correct");
-    } else if (lastGuessResult === "incorrect") {
+    } else if (lastGuessResult === "incorrect" || lastGuessResult === "wrong_position") {
       setValue("");
       setFeedbackClass("animate-shake");
     } else if (lastGuessResult === "duplicate") {
@@ -78,12 +78,16 @@ export function GuessPopup({
       ? "Correct!"
       : lastGuessResult === "incorrect"
         ? "Not in the lineup"
-        : lastGuessResult === "duplicate"
-          ? "Already guessed"
-          : null;
+        : lastGuessResult === "wrong_position"
+          ? "Right player, wrong position"
+          : lastGuessResult === "duplicate"
+            ? "Already guessed"
+            : null;
 
   const feedbackColor =
-    lastGuessResult === "correct" ? "text-green-400" : "text-red-400";
+    lastGuessResult === "correct" ? "text-green-400"
+      : lastGuessResult === "wrong_position" ? "text-yellow-400"
+        : "text-red-400";
 
   // If player is already guessed, show info only
   if (slot.guessed) {

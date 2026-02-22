@@ -2,7 +2,7 @@ import type { Match, Lineup } from "./match";
 
 export type GamePhase = "PLAYING" | "COMPLETE";
 export type HintLevel = 0 | 1 | 2;
-export type GuessResult = "correct" | "incorrect" | "duplicate" | null;
+export type GuessResult = "correct" | "incorrect" | "duplicate" | "wrong_position" | null;
 
 export interface SlotState {
   guessed: boolean;
