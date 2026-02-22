@@ -1,6 +1,6 @@
 import { useReducer, useCallback } from "react";
 import type { Match, Lineup } from "../types/match";
-import type { GameState, SlotState, HintLevel, GuessResult } from "../types/game";
+import type { GameState, SlotState, HintLevel, GuessResult, GuessEntry } from "../types/game";
 import { normalizeForComparison, levenshtein, fuzzyThreshold } from "../utils/normalize";
 import { calculateSlotScore, getNextHintCost } from "../utils/scoring";
 import { MAX_HINTS } from "../constants/scoring";
@@ -84,6 +84,7 @@ function createInitialState(teamFilter: string | null = null, minYear: number | 
     score: 0,
     lastGuessResult: null,
     lastGuessedSlotIndex: null,
+    guessHistory: [],
   };
 }
 
@@ -139,10 +140,22 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         });
       }
 
-      // Find matching unguessed player — exact first, then fuzzy
+      // Restrict matching to players of the same position as the selected slot
+      const selectedPosition =
+        state.selectedSlotIndex !== null
+          ? state.lineup.players[state.selectedSlotIndex].position
+          : null;
+
+      function isEligible(playerIndex: number): boolean {
+        if (state.slots[playerIndex].guessed || state.slots[playerIndex].givenUp) return false;
+        if (selectedPosition && state.lineup.players[playerIndex].position !== selectedPosition) return false;
+        return true;
+      }
+
+      // Find matching unguessed player of the same position — exact first, then fuzzy
       let matchedIndex = -1;
       for (let i = 0; i < state.lineup.players.length; i++) {
-        if (state.slots[i].guessed || state.slots[i].givenUp) continue;
+        if (!isEligible(i)) continue;
         if (exactMatch(playerNames(i))) {
           matchedIndex = i;
           break;
@@ -150,7 +163,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
       }
       if (matchedIndex === -1) {
         for (let i = 0; i < state.lineup.players.length; i++) {
-          if (state.slots[i].guessed || state.slots[i].givenUp) continue;
+          if (!isEligible(i)) continue;
           if (fuzzyMatch(playerNames(i))) {
             matchedIndex = i;
             break;
@@ -166,12 +179,14 @@ function gameReducer(state: GameState, action: GameAction): GameState {
           return exactMatch(names) || fuzzyMatch(names);
         });
 
+        const result = isDuplicate ? "duplicate" : "incorrect";
+        const entry: GuessEntry = { name: action.name, result };
+
         return {
           ...state,
-          lastGuessResult: isDuplicate
-            ? ("duplicate" as GuessResult)
-            : ("incorrect" as GuessResult),
+          lastGuessResult: result as GuessResult,
           lastGuessedSlotIndex: null,
+          guessHistory: [...state.guessHistory, entry],
         };
       }
 
@@ -186,6 +201,8 @@ function gameReducer(state: GameState, action: GameAction): GameState {
       const newScore = state.score + pointsEarned;
       const allDone = newSlots.every((s) => s.guessed || s.givenUp);
 
+      const correctEntry: GuessEntry = { name: action.name, result: "correct" };
+
       return {
         ...state,
         slots: newSlots,
@@ -197,6 +214,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
             ? null
             : state.selectedSlotIndex,
         phase: allDone ? "COMPLETE" : state.phase,
+        guessHistory: [...state.guessHistory, correctEntry],
       };
     }
 

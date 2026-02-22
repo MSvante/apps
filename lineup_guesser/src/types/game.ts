@@ -11,6 +11,11 @@ export interface SlotState {
   lettersRevealed: number;
 }
 
+export interface GuessEntry {
+  name: string;
+  result: "correct" | "incorrect" | "duplicate";
+}
+
 export interface GameState {
   phase: GamePhase;
   match: Match;
@@ -21,4 +26,5 @@ export interface GameState {
   score: number;
   lastGuessResult: GuessResult;
   lastGuessedSlotIndex: number | null;
+  guessHistory: GuessEntry[];
 }

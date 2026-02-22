@@ -6,6 +6,7 @@ import { ScoreBoard } from "./ScoreBoard";
 import { Pitch } from "./Pitch";
 import { GameSummary } from "./GameSummary";
 import { TeamFilter } from "./TeamFilter";
+import { GuessedList } from "./GuessedList";
 
 const TEAM_KEY = "lineup-guesser-team";
 const YEAR_KEY = "lineup-guesser-min-year";
@@ -109,6 +110,8 @@ export function GameContainer() {
       <MatchHeader match={state.match} team={state.team} />
 
       <ScoreBoard score={state.score} slots={state.slots} />
+
+      <GuessedList guessHistory={state.guessHistory} />
 
       <Pitch
         players={state.lineup.players}
