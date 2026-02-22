@@ -20,7 +20,9 @@ const RESULT_LABEL: Record<GuessEntry["result"], string> = {
 export function GuessedList({ guessHistory }: GuessHistoryProps) {
   const [open, setOpen] = useState(false);
 
-  if (guessHistory.length === 0) return null;
+  const filtered = guessHistory.filter((e) => e.result !== "duplicate");
+
+  if (filtered.length === 0) return null;
 
   return (
     <div className="bg-gray-800 rounded-lg overflow-hidden">
@@ -30,14 +32,14 @@ export function GuessedList({ guessHistory }: GuessHistoryProps) {
       >
         <span>
           Guess history{" "}
-          <span className="text-gray-500">({guessHistory.length})</span>
+          <span className="text-gray-500">({filtered.length})</span>
         </span>
         <span className="text-gray-500 text-xs">{open ? "▲" : "▼"}</span>
       </button>
 
       {open && (
         <div className="px-3 pb-2 space-y-1 max-h-40 overflow-y-auto">
-          {[...guessHistory].reverse().map((entry, i) => (
+          {[...filtered].reverse().map((entry, i) => (
             <div
               key={i}
               className="flex items-center justify-between text-xs"
