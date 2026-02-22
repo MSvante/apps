@@ -1,6 +1,6 @@
 import { useReducer, useCallback } from "react";
 import type { Match, Lineup } from "../types/match";
-import type { GameState, SlotState, HintLevel, GuessResult } from "../types/game";
+import type { GameState, SlotState, HintLevel, GuessResult, GuessEntry } from "../types/game";
 import { normalizeForComparison, levenshtein, fuzzyThreshold } from "../utils/normalize";
 import { calculateSlotScore, getNextHintCost } from "../utils/scoring";
 import { MAX_HINTS } from "../constants/scoring";
@@ -84,6 +84,7 @@ function createInitialState(teamFilter: string | null = null, minYear: number | 
     score: 0,
     lastGuessResult: null,
     lastGuessedSlotIndex: null,
+    guessHistory: [],
   };
 }
 
@@ -178,12 +179,14 @@ function gameReducer(state: GameState, action: GameAction): GameState {
           return exactMatch(names) || fuzzyMatch(names);
         });
 
+        const result = isDuplicate ? "duplicate" : "incorrect";
+        const entry: GuessEntry = { name: action.name, result };
+
         return {
           ...state,
-          lastGuessResult: isDuplicate
-            ? ("duplicate" as GuessResult)
-            : ("incorrect" as GuessResult),
+          lastGuessResult: result as GuessResult,
           lastGuessedSlotIndex: null,
+          guessHistory: [...state.guessHistory, entry],
         };
       }
 
@@ -198,6 +201,8 @@ function gameReducer(state: GameState, action: GameAction): GameState {
       const newScore = state.score + pointsEarned;
       const allDone = newSlots.every((s) => s.guessed || s.givenUp);
 
+      const correctEntry: GuessEntry = { name: action.name, result: "correct" };
+
       return {
         ...state,
         slots: newSlots,
@@ -209,6 +214,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
             ? null
             : state.selectedSlotIndex,
         phase: allDone ? "COMPLETE" : state.phase,
+        guessHistory: [...state.guessHistory, correctEntry],
       };
     }
 

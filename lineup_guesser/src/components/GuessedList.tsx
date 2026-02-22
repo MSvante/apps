@@ -1,26 +1,26 @@
 import { useState } from "react";
-import type { Player } from "../types/match";
-import type { SlotState } from "../types/game";
+import type { GuessEntry } from "../types/game";
 
-interface GuessedListProps {
-  players: Player[];
-  slots: SlotState[];
+interface GuessHistoryProps {
+  guessHistory: GuessEntry[];
 }
 
-const POSITION_ORDER = { GK: 0, DEF: 1, MID: 2, FWD: 3 } as const;
+const RESULT_STYLE: Record<GuessEntry["result"], string> = {
+  correct: "text-green-400",
+  incorrect: "text-red-400",
+  duplicate: "text-gray-500",
+};
 
-export function GuessedList({ players, slots }: GuessedListProps) {
+const RESULT_LABEL: Record<GuessEntry["result"], string> = {
+  correct: "Correct",
+  incorrect: "Wrong",
+  duplicate: "Duplicate",
+};
+
+export function GuessedList({ guessHistory }: GuessHistoryProps) {
   const [open, setOpen] = useState(false);
 
-  const guessedPlayers = players
-    .map((player, i) => ({ player, slot: slots[i] }))
-    .filter(({ slot }) => slot.guessed)
-    .sort(
-      (a, b) =>
-        POSITION_ORDER[a.player.position] - POSITION_ORDER[b.player.position]
-    );
-
-  if (guessedPlayers.length === 0) return null;
+  if (guessHistory.length === 0) return null;
 
   return (
     <div className="bg-gray-800 rounded-lg overflow-hidden">
@@ -29,21 +29,23 @@ export function GuessedList({ players, slots }: GuessedListProps) {
         className="w-full flex items-center justify-between px-3 py-2 text-sm text-gray-300 hover:text-white transition-colors"
       >
         <span>
-          Guessed players{" "}
-          <span className="text-gray-500">({guessedPlayers.length})</span>
+          Guess history{" "}
+          <span className="text-gray-500">({guessHistory.length})</span>
         </span>
         <span className="text-gray-500 text-xs">{open ? "▲" : "▼"}</span>
       </button>
 
       {open && (
-        <div className="px-3 pb-2 space-y-1">
-          {guessedPlayers.map(({ player }) => (
+        <div className="px-3 pb-2 space-y-1 max-h-40 overflow-y-auto">
+          {[...guessHistory].reverse().map((entry, i) => (
             <div
-              key={player.name}
+              key={i}
               className="flex items-center justify-between text-xs"
             >
-              <span className="text-green-300">{player.name}</span>
-              <span className="text-gray-500 uppercase">{player.position}</span>
+              <span className="text-white">{entry.name}</span>
+              <span className={RESULT_STYLE[entry.result]}>
+                {RESULT_LABEL[entry.result]}
+              </span>
             </div>
           ))}
         </div>

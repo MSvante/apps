@@ -111,7 +111,7 @@ export function GameContainer() {
 
       <ScoreBoard score={state.score} slots={state.slots} />
 
-      <GuessedList players={state.lineup.players} slots={state.slots} />
+      <GuessedList guessHistory={state.guessHistory} />
 
       <Pitch
         players={state.lineup.players}
