@@ -1,0 +1,214 @@
+[
+  {
+    "id": "1",
+    "date": "July 20, 1969",
+    "event": "Neil Armstrong became the first person to walk on the Moon during the Apollo 11 mission.",
+    "segments": [
+      { "type": "text", "value": "Neil " },
+      {
+        "type": "bracket",
+        "id": "b1",
+        "answer": "Armstrong",
+        "clue": [
+          { "type": "text", "value": "jazz legend " },
+          { "type": "bracket", "id": "b1a", "answer": "Louis", "clue": "french king's name" },
+          { "type": "text", "value": "'s surname" }
+        ]
+      },
+      { "type": "text", "value": " became the " },
+      { "type": "bracket", "id": "b2", "answer": "first", "clue": "opposite of last" },
+      { "type": "text", "value": " person to " },
+      { "type": "bracket", "id": "b3", "answer": "walk", "clue": "move on foot" },
+      { "type": "text", "value": " on the " },
+      {
+        "type": "bracket",
+        "id": "b4",
+        "answer": "Moon",
+        "clue": [
+          { "type": "text", "value": "what a " },
+          { "type": "bracket", "id": "b4a", "answer": "full", "clue": "opposite of empty" },
+          { "type": "text", "value": " ___ looks like a circle" }
+        ]
+      },
+      { "type": "text", "value": " during the " },
+      {
+        "type": "bracket",
+        "id": "b5",
+        "answer": "Apollo",
+        "clue": [
+          { "type": "text", "value": "Greek " },
+          { "type": "bracket", "id": "b5a", "answer": "sun", "clue": "closest star to Earth" },
+          { "type": "text", "value": " god" }
+        ]
+      },
+      { "type": "text", "value": " 11 mission." }
+    ]
+  },
+  {
+    "id": "2",
+    "date": "November 9, 1989",
+    "event": "The Berlin Wall fell, marking the beginning of German reunification.",
+    "segments": [
+      { "type": "text", "value": "The " },
+      {
+        "type": "bracket",
+        "id": "c1",
+        "answer": "Berlin",
+        "clue": [
+          { "type": "text", "value": "Irving " },
+          {
+            "type": "bracket",
+            "id": "c1a",
+            "answer": "Berlin",
+            "clue": [
+              { "type": "text", "value": "\"" },
+              { "type": "bracket", "id": "c1a1", "answer": "White", "clue": "color of snow" },
+              { "type": "text", "value": " Christmas\" songwriter's surname" }
+            ]
+          }
+        ]
+      },
+      { "type": "text", "value": " " },
+      {
+        "type": "bracket",
+        "id": "c2",
+        "answer": "Wall",
+        "clue": [
+          { "type": "text", "value": "" },
+          { "type": "bracket", "id": "c2a", "answer": "brick", "clue": "building block made of clay" },
+          { "type": "text", "value": " barrier" }
+        ]
+      },
+      { "type": "text", "value": " " },
+      { "type": "bracket", "id": "c3", "answer": "fell", "clue": "past tense of fall" },
+      { "type": "text", "value": ", marking the " },
+      { "type": "bracket", "id": "c4", "answer": "beginning", "clue": "the start" },
+      { "type": "text", "value": " of " },
+      { "type": "bracket", "id": "c5", "answer": "German", "clue": "language spoken in Munich" },
+      { "type": "text", "value": " reunification." }
+    ]
+  },
+  {
+    "id": "3",
+    "date": "April 15, 1912",
+    "event": "The Titanic sank after hitting an iceberg on its maiden voyage across the Atlantic.",
+    "segments": [
+      { "type": "text", "value": "The " },
+      {
+        "type": "bracket",
+        "id": "d1",
+        "answer": "Titanic",
+        "clue": [
+          { "type": "text", "value": "like the " },
+          { "type": "bracket", "id": "d1a", "answer": "Titans", "clue": "Greek gods before the Olympians" },
+          { "type": "text", "value": " — absolutely enormous" }
+        ]
+      },
+      { "type": "text", "value": " " },
+      { "type": "bracket", "id": "d2", "answer": "sank", "clue": "went under the water" },
+      { "type": "text", "value": " after hitting an " },
+      {
+        "type": "bracket",
+        "id": "d3",
+        "answer": "iceberg",
+        "clue": [
+          { "type": "text", "value": "floating " },
+          { "type": "bracket", "id": "d3a", "answer": "frozen", "clue": "turned to ice" },
+          { "type": "text", "value": " mountain at sea" }
+        ]
+      },
+      { "type": "text", "value": " on its " },
+      { "type": "bracket", "id": "d4", "answer": "maiden", "clue": "first, as in ___ voyage" },
+      { "type": "text", "value": " voyage across the " },
+      {
+        "type": "bracket",
+        "id": "d5",
+        "answer": "Atlantic",
+        "clue": [
+          { "type": "text", "value": "" },
+          { "type": "bracket", "id": "d5a", "answer": "ocean", "clue": "vast body of salt water" },
+          { "type": "text", "value": " between Europe and the Americas" }
+        ]
+      },
+      { "type": "text", "value": "." }
+    ]
+  },
+  {
+    "id": "4",
+    "date": "December 17, 1903",
+    "event": "The Wright brothers achieved the first powered flight at Kitty Hawk, North Carolina.",
+    "segments": [
+      { "type": "text", "value": "The " },
+      {
+        "type": "bracket",
+        "id": "e1",
+        "answer": "Wright",
+        "clue": [
+          { "type": "text", "value": "sounds like the " },
+          { "type": "bracket", "id": "e1a", "answer": "right", "clue": "opposite of wrong" },
+          { "type": "text", "value": " thing to do" }
+        ]
+      },
+      { "type": "text", "value": " brothers achieved the first " },
+      {
+        "type": "bracket",
+        "id": "e2",
+        "answer": "powered",
+        "clue": [
+          { "type": "text", "value": "driven by an " },
+          { "type": "bracket", "id": "e2a", "answer": "engine", "clue": "what makes a car go" },
+          { "type": "text", "value": "" }
+        ]
+      },
+      { "type": "text", "value": " " },
+      { "type": "bracket", "id": "e3", "answer": "flight", "clue": "trip through the air" },
+      { "type": "text", "value": " at " },
+      {
+        "type": "bracket",
+        "id": "e4",
+        "answer": "Kitty Hawk",
+        "clue": [
+          { "type": "text", "value": "baby " },
+          { "type": "bracket", "id": "e4a", "answer": "cat", "clue": "pet that purrs" },
+          { "type": "text", "value": " + bird of prey" }
+        ]
+      },
+      { "type": "text", "value": ", North Carolina." }
+    ]
+  },
+  {
+    "id": "5",
+    "date": "June 6, 1944",
+    "event": "Allied forces stormed the beaches of Normandy on D-Day during World War II.",
+    "segments": [
+      {
+        "type": "bracket",
+        "id": "f1",
+        "answer": "Allied",
+        "clue": [
+          { "type": "text", "value": "joined as " },
+          { "type": "bracket", "id": "f1a", "answer": "partners", "clue": "business co-owners" },
+          { "type": "text", "value": " in war" }
+        ]
+      },
+      { "type": "text", "value": " forces " },
+      { "type": "bracket", "id": "f2", "answer": "stormed", "clue": "attacked suddenly" },
+      { "type": "text", "value": " the " },
+      { "type": "bracket", "id": "f3", "answer": "beaches", "clue": "sandy shores" },
+      { "type": "text", "value": " of " },
+      {
+        "type": "bracket",
+        "id": "f4",
+        "answer": "Normandy",
+        "clue": [
+          { "type": "text", "value": "French region where William the " },
+          { "type": "bracket", "id": "f4a", "answer": "Conqueror", "clue": "one who conquers" },
+          { "type": "text", "value": " came from" }
+        ]
+      },
+      { "type": "text", "value": " on " },
+      { "type": "bracket", "id": "f5", "answer": "D-Day", "clue": "June 6, 1944 code name" },
+      { "type": "text", "value": " during World War II." }
+    ]
+  }
+]

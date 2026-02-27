@@ -1,0 +1,32 @@
+@import "tailwindcss";
+
+/* Subtle pulse for solvable brackets */
+@keyframes pulse-subtle {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.animate-pulse-subtle {
+  animation: pulse-subtle 2s ease-in-out infinite;
+}
+
+/* Shake on wrong answer */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
+  20%, 40%, 60%, 80% { transform: translateX(4px); }
+}
+
+.animate-shake {
+  animation: shake 0.5s ease-in-out;
+}
+
+/* Flash on solve */
+@keyframes solved-flash {
+  0% { background-color: rgba(52, 211, 153, 0.3); }
+  100% { background-color: transparent; }
+}
+
+.solved-flash {
+  animation: solved-flash 0.6s ease-out;
+}

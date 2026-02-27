@@ -24,9 +24,11 @@ jobs:
         with:
           node-version: 20
           cache: npm
-          cache-dependency-path: lineup_guesser/package-lock.json
+          cache-dependency-path: |
+            lineup_guesser/package-lock.json
+            bracket_city/package-lock.json
 
-      - name: Install dependencies
+      - name: Install lineup_guesser dependencies
         run: npm ci
         working-directory: lineup_guesser
 
@@ -34,13 +36,23 @@ jobs:
         run: npm run build
         working-directory: lineup_guesser
 
+      - name: Install bracket_city dependencies
+        run: npm ci
+        working-directory: bracket_city
+
+      - name: Build bracket_city
+        run: npm run build
+        working-directory: bracket_city
+
       - name: Assemble site
         run: |
           mkdir -p _site/lineup_guesser
+          mkdir -p _site/bracket_city
           cp index.html _site/
           cp -r kalender _site/
           cp -r pokemon _site/
           cp -r lineup_guesser/dist/* _site/lineup_guesser/
+          cp -r bracket_city/dist/* _site/bracket_city/
 
       - uses: actions/configure-pages@v5
 
