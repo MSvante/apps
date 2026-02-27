@@ -74,7 +74,7 @@ export default function BracketSegment({
   // Not solvable — render children recursively
   return (
     <span
-      className={`inline rounded border-2 border-dashed px-1 py-0.5 mx-0.5 ${colorClass} opacity-70`}
+      className="inline rounded border-2 border-dashed border-gray-600 px-1 py-0.5 mx-0.5 opacity-70"
     >
       {Array.isArray(segment.clue)
         ? segment.clue.map((child, i) =>
