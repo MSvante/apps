@@ -26,24 +26,30 @@ function addPlayedId(id: string) {
   localStorage.setItem(PLAYED_KEY, JSON.stringify(trimmed));
 }
 
-export function getTeams(minYear: number | null = null): string[] {
+export function getTeams(minYear: number | null = null, maxYear: number | null = null): string[] {
   const teams = new Set<string>();
   const minDate = minYear ? `${minYear}-01-01` : null;
+  const maxDate = maxYear ? `${maxYear}-12-31` : null;
   matches.forEach((m) => {
     if (minDate && m.date < minDate) return;
+    if (maxDate && m.date > maxDate) return;
     teams.add(m.homeTeam);
     teams.add(m.awayTeam);
   });
   return [...teams].sort();
 }
 
-function pickRandomMatch(teamFilter: string | null, minYear: number | null = null): Match {
+function pickRandomMatch(teamFilter: string | null, minYear: number | null = null, maxYear: number | null = null): Match {
   const played = getPlayedIds();
   let pool = matches;
 
   if (minYear) {
     const minDate = `${minYear}-01-01`;
     pool = pool.filter((m) => m.date >= minDate);
+  }
+  if (maxYear) {
+    const maxDate = `${maxYear}-12-31`;
+    pool = pool.filter((m) => m.date <= maxDate);
   }
 
   if (teamFilter) {
@@ -57,8 +63,8 @@ function pickRandomMatch(teamFilter: string | null, minYear: number | null = nul
   return finalPool[Math.floor(Math.random() * finalPool.length)];
 }
 
-function createInitialState(teamFilter: string | null = null, minYear: number | null = null): GameState {
-  const match = pickRandomMatch(teamFilter, minYear);
+function createInitialState(teamFilter: string | null = null, minYear: number | null = null, maxYear: number | null = null): GameState {
+  const match = pickRandomMatch(teamFilter, minYear, maxYear);
   let team: "home" | "away";
 
   if (teamFilter) {
@@ -89,7 +95,7 @@ function createInitialState(teamFilter: string | null = null, minYear: number | 
 }
 
 type GameAction =
-  | { type: "NEW_GAME"; teamFilter: string | null; minYear: number | null }
+  | { type: "NEW_GAME"; teamFilter: string | null; minYear: number | null; maxYear: number | null }
   | { type: "SELECT_SLOT"; index: number | null }
   | { type: "SUBMIT_GUESS"; name: string }
   | { type: "REQUEST_HINT" }
@@ -100,7 +106,7 @@ type GameAction =
 function gameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
     case "NEW_GAME":
-      return createInitialState(action.teamFilter, action.minYear);
+      return createInitialState(action.teamFilter, action.minYear, action.maxYear);
 
     case "SELECT_SLOT": {
       return {
@@ -291,16 +297,16 @@ function gameReducer(state: GameState, action: GameAction): GameState {
   }
 }
 
-export function useGame(teamFilter: string | null, minYear: number | null = null) {
+export function useGame(teamFilter: string | null, minYear: number | null = null, maxYear: number | null = null) {
   const [state, dispatch] = useReducer(
     gameReducer,
-    { teamFilter, minYear },
-    ({ teamFilter, minYear }) => createInitialState(teamFilter, minYear)
+    { teamFilter, minYear, maxYear },
+    ({ teamFilter, minYear, maxYear }) => createInitialState(teamFilter, minYear, maxYear)
   );
 
   const newGame = useCallback(
-    () => dispatch({ type: "NEW_GAME", teamFilter, minYear }),
-    [teamFilter, minYear]
+    () => dispatch({ type: "NEW_GAME", teamFilter, minYear, maxYear }),
+    [teamFilter, minYear, maxYear]
   );
   const selectSlot = useCallback(
     (index: number | null) => dispatch({ type: "SELECT_SLOT", index }),

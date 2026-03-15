@@ -9,7 +9,8 @@ import { TeamFilter } from "./TeamFilter";
 import { GuessedList } from "./GuessedList";
 
 const TEAM_KEY = "lineup-guesser-team";
-const YEAR_KEY = "lineup-guesser-min-year";
+const MIN_YEAR_KEY = "lineup-guesser-min-year";
+const MAX_YEAR_KEY = "lineup-guesser-max-year";
 
 function readStoredTeam(): string | null {
   try {
@@ -19,9 +20,9 @@ function readStoredTeam(): string | null {
   }
 }
 
-function readStoredYear(): number | null {
+function readStoredYear(key: string): number | null {
   try {
-    const val = localStorage.getItem(YEAR_KEY);
+    const val = localStorage.getItem(key);
     return val ? Number(val) : null;
   } catch {
     return null;
@@ -30,9 +31,10 @@ function readStoredYear(): number | null {
 
 export function GameContainer() {
   const [teamFilter, setTeamFilter] = useState<string | null>(readStoredTeam);
-  const [minYear, setMinYear] = useState<number | null>(readStoredYear);
+  const [minYear, setMinYear] = useState<number | null>(() => readStoredYear(MIN_YEAR_KEY));
+  const [maxYear, setMaxYear] = useState<number | null>(() => readStoredYear(MAX_YEAR_KEY));
 
-  const teams = useMemo(() => getTeams(minYear), [minYear]);
+  const teams = useMemo(() => getTeams(minYear, maxYear), [minYear, maxYear]);
 
   // If the selected team no longer exists in the filtered list, clear it
   useEffect(() => {
@@ -50,7 +52,7 @@ export function GameContainer() {
     giveUp,
     giveUpSlot,
     clearFeedback,
-  } = useGame(teamFilter, minYear);
+  } = useGame(teamFilter, minYear, maxYear);
 
   const isFirstRender = useRef(true);
   useEffect(() => {
@@ -59,7 +61,7 @@ export function GameContainer() {
       return;
     }
     newGame();
-  }, [teamFilter, minYear]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [teamFilter, minYear, maxYear]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleTeamChange = (team: string | null) => {
     setTeamFilter(team);
@@ -69,11 +71,14 @@ export function GameContainer() {
     } catch {}
   };
 
-  const handleYearChange = (year: number | null) => {
-    setMinYear(year);
+  const handleYearRangeChange = (min: number | null, max: number | null) => {
+    setMinYear(min);
+    setMaxYear(max);
     try {
-      if (year) localStorage.setItem(YEAR_KEY, String(year));
-      else localStorage.removeItem(YEAR_KEY);
+      if (min) localStorage.setItem(MIN_YEAR_KEY, String(min));
+      else localStorage.removeItem(MIN_YEAR_KEY);
+      if (max) localStorage.setItem(MAX_YEAR_KEY, String(max));
+      else localStorage.removeItem(MAX_YEAR_KEY);
     } catch {}
   };
 
@@ -104,7 +109,8 @@ export function GameContainer() {
         selected={teamFilter}
         onChange={handleTeamChange}
         minYear={minYear}
-        onMinYearChange={handleYearChange}
+        maxYear={maxYear}
+        onYearRangeChange={handleYearRangeChange}
       />
 
       <MatchHeader match={state.match} team={state.team} />
