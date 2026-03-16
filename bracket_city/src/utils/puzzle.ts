@@ -71,3 +71,76 @@ export function getClueText(
 export function allBracketsSolved(bracketStates: Record<string, BracketState>): boolean {
   return Object.values(bracketStates).every((b) => b.solved);
 }
+
+/**
+ * Find the deepest solvable bracket inside a given bracket.
+ * Returns the ID of the deepest solvable bracket, or null if none found.
+ */
+export function findDeepestSolvable(
+  segment: BracketSegment,
+  bracketStates: Record<string, BracketState>,
+): string | null {
+  if (bracketStates[segment.id]?.solved) return null;
+  if (isSolvable(segment, bracketStates)) return segment.id;
+
+  // Recurse into children
+  if (Array.isArray(segment.clue)) {
+    for (const child of segment.clue) {
+      if (child.type === "bracket") {
+        const found = findDeepestSolvable(child, bracketStates);
+        if (found) return found;
+      }
+    }
+  }
+  return null;
+}
+
+/**
+ * Build the solving chain from the deepest solvable bracket up to the given root bracket.
+ * Returns an array of bracket IDs from deepest to shallowest (root).
+ */
+export function buildSolvingChain(
+  root: BracketSegment,
+  targetId: string,
+  bracketStates: Record<string, BracketState>,
+): BracketSegment[] {
+  const chain: BracketSegment[] = [];
+
+  function walk(seg: BracketSegment): boolean {
+    if (bracketStates[seg.id]?.solved) return false;
+    if (seg.id === targetId) {
+      chain.push(seg);
+      return true;
+    }
+    if (Array.isArray(seg.clue)) {
+      for (const child of seg.clue) {
+        if (child.type === "bracket" && walk(child)) {
+          chain.push(seg);
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  walk(root);
+  return chain; // deepest first, root last
+}
+
+/**
+ * Count the nesting depth of a bracket.
+ */
+export function nestingDepth(
+  segment: BracketSegment,
+  bracketStates: Record<string, BracketState>,
+): number {
+  if (bracketStates[segment.id]?.solved) return 0;
+  if (typeof segment.clue === "string") return 1;
+  let maxChild = 0;
+  for (const child of segment.clue) {
+    if (child.type === "bracket" && !bracketStates[child.id]?.solved) {
+      maxChild = Math.max(maxChild, nestingDepth(child, bracketStates));
+    }
+  }
+  return 1 + maxChild;
+}

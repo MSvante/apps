@@ -5,4 +5,13 @@ import tailwindcss from '@tailwindcss/vite'
 export default defineConfig({
   base: '/apps/bracket_city/',
   plugins: [react(), tailwindcss()],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          puzzles: ['./src/data/puzzles.json'],
+        },
+      },
+    },
+  },
 })

@@ -1,14 +1,14 @@
-import { useState } from "react";
 import type { Puzzle, BracketSegment as BracketSegmentType } from "../types/puzzle.ts";
-import { useGame, pickPuzzle } from "../hooks/useGame.ts";
+import { useGame } from "../hooks/useGame.ts";
 import { collectBrackets } from "../utils/puzzle.ts";
+import { getDailyPuzzle, loadDailyState, puzzleNumber, formatDate } from "../utils/daily.ts";
 import PuzzleSentence from "./PuzzleSentence.tsx";
 import AnswerInput from "./AnswerInput.tsx";
 import ScoreBar from "./ScoreBar.tsx";
 import GameSummary from "./GameSummary.tsx";
 import puzzlesData from "../data/puzzles.json";
 
-const puzzles = puzzlesData as Puzzle[];
+const puzzleMap = puzzlesData as Record<string, Puzzle[]>;
 
 function findBracket(segments: Puzzle["segments"], id: string): BracketSegmentType | null {
   for (const seg of segments) {
@@ -24,9 +24,42 @@ function findBracket(segments: Puzzle["segments"], id: string): BracketSegmentTy
 }
 
 export default function GameContainer() {
-  const [currentPuzzle] = useState(() => pickPuzzle(puzzles)!);
-  const { state, selectBracket, guess, useHint, newPuzzle } = useGame(currentPuzzle);
-  const { phase, puzzle, brackets, activeBracketId, score } = state;
+  const today = new Date();
+  const puzzle = getDailyPuzzle(puzzleMap, today);
+  const savedState = loadDailyState();
+
+  if (!puzzle) {
+    return (
+      <div className="text-center py-12 space-y-3">
+        <p className="text-gray-400 text-lg">No puzzle available for today.</p>
+        <p className="text-gray-600 text-sm">Check back tomorrow!</p>
+      </div>
+    );
+  }
+
+  return (
+    <DailyGame
+      puzzle={puzzle}
+      savedState={savedState}
+      puzzleNum={puzzleNumber(today)}
+      dateStr={formatDate(today)}
+    />
+  );
+}
+
+function DailyGame({
+  puzzle,
+  savedState,
+  puzzleNum,
+  dateStr,
+}: {
+  puzzle: Puzzle;
+  savedState: ReturnType<typeof loadDailyState>;
+  puzzleNum: number;
+  dateStr: string;
+}) {
+  const { state, selectBracket, guess, useHint } = useGame(puzzle, savedState);
+  const { phase, brackets, activeBracketId, score } = state;
 
   const allBrackets = collectBrackets(puzzle.segments);
   const solvedCount = allBrackets.filter((b) => brackets[b.id]?.solved).length;
@@ -34,27 +67,31 @@ export default function GameContainer() {
     ? findBracket(puzzle.segments, activeBracketId)
     : null;
 
-  function handlePlayAgain() {
-    const next = pickPuzzle(puzzles);
-    if (next) newPuzzle(next);
-  }
-
   if (phase === "COMPLETE") {
     return (
       <GameSummary
         score={score}
+        totalBrackets={allBrackets.length}
         event={puzzle.event}
         date={puzzle.date}
-        onPlayAgain={handlePlayAgain}
+        puzzleNum={puzzleNum}
+        dateStr={dateStr}
       />
     );
   }
 
   return (
-    <div>
+    <div className="space-y-0">
+      <div className="flex items-center justify-between mb-1">
+        <span className="text-xs text-gray-500 font-medium uppercase tracking-wider">
+          #{puzzleNum}
+        </span>
+        <span className="text-xs text-gray-500">{dateStr}</span>
+      </div>
+
       <ScoreBar score={score} solvedCount={solvedCount} totalCount={allBrackets.length} />
 
-      <div className="bg-gray-800/30 rounded-xl p-5 md:p-8">
+      <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-5 md:p-8">
         <PuzzleSentence
           segments={puzzle.segments}
           bracketStates={brackets}
@@ -72,8 +109,8 @@ export default function GameContainer() {
         )}
 
         {!activeBracket && (
-          <p className="mt-6 text-gray-500 text-sm italic">
-            Click a highlighted bracket to start solving.
+          <p className="mt-6 text-center text-gray-600 text-sm">
+            Tap a colored bracket to start solving
           </p>
         )}
       </div>

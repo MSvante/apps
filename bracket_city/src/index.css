@@ -1,13 +1,17 @@
 @import "tailwindcss";
 
-/* Subtle pulse for solvable brackets */
-@keyframes pulse-subtle {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
+/* Bracket hover glow */
+.bracket-solvable {
+  transition: all 0.2s ease;
+}
+.bracket-solvable:hover {
+  filter: brightness(1.2);
+  box-shadow: 0 0 8px rgba(251, 191, 36, 0.3);
 }
 
-.animate-pulse-subtle {
-  animation: pulse-subtle 2s ease-in-out infinite;
+/* Active bracket glow */
+.bracket-active {
+  box-shadow: 0 0 12px rgba(251, 191, 36, 0.4);
 }
 
 /* Shake on wrong answer */
@@ -22,11 +26,53 @@
 }
 
 /* Flash on solve */
-@keyframes solved-flash {
-  0% { background-color: rgba(52, 211, 153, 0.3); }
-  100% { background-color: transparent; }
+@keyframes solved-pop {
+  0% { transform: scale(1); color: #fff; }
+  40% { transform: scale(1.15); color: #34d399; }
+  100% { transform: scale(1); color: #34d399; }
 }
 
-.solved-flash {
-  animation: solved-flash 0.6s ease-out;
+.solved-pop {
+  animation: solved-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  display: inline-block;
 }
+
+/* Slide-in for answer input */
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.25s ease-out;
+}
+
+/* Score change flash */
+@keyframes score-flash {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+.score-flash {
+  animation: score-flash 0.3s ease-out;
+}
+
+/* Progress bar shimmer */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.progress-bar-fill {
+  background: linear-gradient(90deg, #10b981 0%, #34d399 50%, #10b981 100%);
+  background-size: 200% 100%;
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+/* Rank badge colors */
+.rank-kingmaker { color: #fbbf24; text-shadow: 0 0 8px rgba(251, 191, 36, 0.5); }
+.rank-mayor { color: #a78bfa; }
+.rank-resident { color: #60a5fa; }
+.rank-local { color: #9ca3af; }
+.rank-commuter { color: #6b7280; }

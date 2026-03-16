@@ -1,14 +1,14 @@
-import { useReducer, useCallback } from "react";
+import { useReducer, useCallback, useEffect } from "react";
 import type { Puzzle, GameState } from "../types/puzzle.ts";
 import { INITIAL_SCORE, WRONG_GUESS_PENALTY, HINT_PENALTY } from "../constants/scoring.ts";
 import { initBracketStates, allBracketsSolved, getSolvableBracketIds } from "../utils/puzzle.ts";
 import { checkAnswer } from "../utils/normalize.ts";
+import { saveDailyState, saveStats, dateKey, type DailyState } from "../utils/daily.ts";
 
 type Action =
   | { type: "SELECT_BRACKET"; id: string }
   | { type: "GUESS"; answer: string }
-  | { type: "HINT" }
-  | { type: "NEW_PUZZLE"; puzzle: Puzzle };
+  | { type: "HINT" };
 
 function findBracketAnswer(puzzle: Puzzle, id: string): string {
   const search = (segments: Puzzle["segments"]): string | null => {
@@ -76,9 +76,6 @@ function reducer(state: GameState, action: Action): GameState {
       };
     }
 
-    case "NEW_PUZZLE":
-      return createInitialState(action.puzzle);
-
     default:
       return state;
   }
@@ -94,45 +91,43 @@ function createInitialState(puzzle: Puzzle): GameState {
   };
 }
 
-const PLAYED_KEY = "bracket_city_played";
-
-function getPlayedIds(): string[] {
-  try {
-    return JSON.parse(localStorage.getItem(PLAYED_KEY) ?? "[]");
-  } catch {
-    return [];
-  }
+function restoreFromDaily(puzzle: Puzzle, daily: DailyState): GameState {
+  return {
+    phase: daily.completed ? "COMPLETE" : "PLAYING",
+    puzzle,
+    brackets: daily.brackets,
+    activeBracketId: daily.activeBracketId,
+    score: daily.score,
+  };
 }
 
-function markPlayed(id: string) {
-  const played = getPlayedIds();
-  if (!played.includes(id)) {
-    played.push(id);
-    localStorage.setItem(PLAYED_KEY, JSON.stringify(played));
-  }
-}
+export function useGame(puzzle: Puzzle, savedState?: DailyState | null) {
+  const [state, dispatch] = useReducer(
+    reducer,
+    puzzle,
+    (p) => savedState ? restoreFromDaily(p, savedState) : createInitialState(p),
+  );
 
-export function pickPuzzle(puzzles: Puzzle[]): Puzzle | null {
-  const played = getPlayedIds();
-  const unplayed = puzzles.filter((p) => !played.includes(p.id));
-  if (unplayed.length > 0) {
-    return unplayed[Math.floor(Math.random() * unplayed.length)];
-  }
-  // All played — reset and pick random
-  localStorage.removeItem(PLAYED_KEY);
-  return puzzles[Math.floor(Math.random() * puzzles.length)] ?? null;
-}
+  // Save state to localStorage on every change
+  useEffect(() => {
+    const dailyState: DailyState = {
+      dateKey: dateKey(),
+      completed: state.phase === "COMPLETE",
+      score: state.score,
+      brackets: state.brackets,
+      activeBracketId: state.activeBracketId,
+    };
+    saveDailyState(dailyState);
 
-export function useGame(puzzle: Puzzle) {
-  const [state, dispatch] = useReducer(reducer, puzzle, createInitialState);
+    // Save stats when completing
+    if (state.phase === "COMPLETE") {
+      saveStats(state.score);
+    }
+  }, [state]);
 
   const selectBracket = useCallback((id: string) => dispatch({ type: "SELECT_BRACKET", id }), []);
   const guess = useCallback((answer: string) => dispatch({ type: "GUESS", answer }), []);
   const useHint = useCallback(() => dispatch({ type: "HINT" }), []);
-  const newPuzzle = useCallback((p: Puzzle) => {
-    markPlayed(p.id);
-    dispatch({ type: "NEW_PUZZLE", puzzle: p });
-  }, []);
 
-  return { state, selectBracket, guess, useHint, newPuzzle };
+  return { state, selectBracket, guess, useHint };
 }
