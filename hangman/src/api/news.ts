@@ -1,5 +1,5 @@
 import type { Headline } from "../types/game.ts"
-import { API_URL, MIN_HEADLINE_LETTERS, MAX_HEADLINE_LENGTH } from "../constants/config.ts"
+import { API_BASE, API_DOMAIN_BATCHES, MIN_HEADLINE_LETTERS, MAX_HEADLINE_LENGTH } from "../constants/config.ts"
 
 interface NewsDataArticle {
   title: string
@@ -12,8 +12,8 @@ interface NewsDataResponse {
   results: NewsDataArticle[] | null
 }
 
-export async function fetchHeadlines(): Promise<Headline[]> {
-  const response = await fetch(API_URL)
+async function fetchBatch(domains: string): Promise<NewsDataArticle[]> {
+  const response = await fetch(`${API_BASE}&domain=${domains}`)
 
   if (response.status === 429) {
     throw new Error("Daily API rate limit reached. Please try again tomorrow.")
@@ -30,12 +30,25 @@ export async function fetchHeadlines(): Promise<Headline[]> {
   const data: NewsDataResponse = await response.json()
 
   if (data.status !== "success" || !data.results) {
-    throw new Error("Unexpected API response format")
+    return []
   }
 
-  const headlines: Headline[] = data.results
+  return data.results
+}
+
+export async function fetchHeadlines(): Promise<Headline[]> {
+  const batches = await Promise.all(
+    API_DOMAIN_BATCHES.map(domains => fetchBatch(domains))
+  )
+
+  const allArticles = batches.flat()
+
+  const seen = new Set<string>()
+  const headlines: Headline[] = allArticles
     .filter(article => {
       if (!article.title) return false
+      if (seen.has(article.title)) return false
+      seen.add(article.title)
       const letterCount = (article.title.match(/[a-zA-Z]/g) || []).length
       return letterCount >= MIN_HEADLINE_LETTERS && article.title.length <= MAX_HEADLINE_LENGTH
     })
@@ -46,6 +59,12 @@ export async function fetchHeadlines(): Promise<Headline[]> {
 
   if (headlines.length === 0) {
     throw new Error("No suitable headlines found. Please try again later.")
+  }
+
+  // Shuffle to mix sources
+  for (let i = headlines.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [headlines[i], headlines[j]] = [headlines[j], headlines[i]]
   }
 
   return headlines
