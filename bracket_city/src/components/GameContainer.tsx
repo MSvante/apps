@@ -1,6 +1,6 @@
 import type { Puzzle, BracketSegment as BracketSegmentType } from "../types/puzzle.ts";
 import { useGame } from "../hooks/useGame.ts";
-import { collectBrackets } from "../utils/puzzle.ts";
+import { collectBrackets, buildSolvingChain } from "../utils/puzzle.ts";
 import { getDailyPuzzle, loadDailyState, puzzleNumber, formatDate } from "../utils/daily.ts";
 import PuzzleSentence from "./PuzzleSentence.tsx";
 import AnswerInput from "./AnswerInput.tsx";
@@ -17,6 +17,20 @@ function findBracket(segments: Puzzle["segments"], id: string): BracketSegmentTy
       if (Array.isArray(seg.clue)) {
         const found = findBracket(seg.clue, id);
         if (found) return found;
+      }
+    }
+  }
+  return null;
+}
+
+/** Find the top-level bracket that contains a given bracket ID. */
+function findRootBracket(segments: Puzzle["segments"], targetId: string): BracketSegmentType | null {
+  for (const seg of segments) {
+    if (seg.type === "bracket") {
+      if (seg.id === targetId) return seg;
+      if (Array.isArray(seg.clue)) {
+        const found = findBracket(seg.clue, targetId);
+        if (found) return seg;
       }
     }
   }
@@ -67,6 +81,16 @@ function DailyGame({
     ? findBracket(puzzle.segments, activeBracketId)
     : null;
 
+  // Build solving chain: find the root bracket containing the active bracket
+  // and trace the path from deepest to root
+  let solvingChain: BracketSegmentType[] = [];
+  if (activeBracket && activeBracketId) {
+    const root = findRootBracket(puzzle.segments, activeBracketId);
+    if (root && root.id !== activeBracketId) {
+      solvingChain = buildSolvingChain(root, activeBracketId, brackets);
+    }
+  }
+
   if (phase === "COMPLETE") {
     return (
       <GameSummary
@@ -103,6 +127,7 @@ function DailyGame({
           <AnswerInput
             bracket={activeBracket}
             bracketState={brackets[activeBracketId!]}
+            solvingChain={solvingChain}
             onGuess={guess}
             onHint={useHint}
           />
