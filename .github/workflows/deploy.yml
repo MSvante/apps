@@ -27,6 +27,7 @@ jobs:
           cache-dependency-path: |
             lineup_guesser/package-lock.json
             bracket_city/package-lock.json
+            hangman/package-lock.json
 
       - name: Install lineup_guesser dependencies
         run: npm ci
@@ -44,15 +45,25 @@ jobs:
         run: npm run build
         working-directory: bracket_city
 
+      - name: Install hangman dependencies
+        run: npm ci
+        working-directory: hangman
+
+      - name: Build hangman
+        run: npm run build
+        working-directory: hangman
+
       - name: Assemble site
         run: |
           mkdir -p _site/lineup_guesser
           mkdir -p _site/bracket_city
+          mkdir -p _site/hangman
           cp index.html _site/
           cp -r kalender _site/
           cp -r pokemon _site/
           cp -r lineup_guesser/dist/* _site/lineup_guesser/
           cp -r bracket_city/dist/* _site/bracket_city/
+          cp -r hangman/dist/* _site/hangman/
 
       - uses: actions/configure-pages@v5
 
