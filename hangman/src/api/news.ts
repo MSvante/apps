@@ -1,5 +1,5 @@
 import type { Headline } from "../types/game.ts"
-import { API_BASE, API_DOMAIN_BATCHES, MIN_HEADLINE_LETTERS, MAX_HEADLINE_LENGTH } from "../constants/config.ts"
+import { API_BASE, MIN_HEADLINE_LETTERS, MAX_HEADLINE_LENGTH } from "../constants/config.ts"
 
 interface NewsDataArticle {
   title: string
@@ -12,8 +12,8 @@ interface NewsDataResponse {
   results: NewsDataArticle[] | null
 }
 
-async function fetchBatch(domains: string): Promise<NewsDataArticle[]> {
-  const response = await fetch(`${API_BASE}&domain=${domains}`)
+export async function fetchHeadlines(): Promise<Headline[]> {
+  const response = await fetch(API_BASE)
 
   if (response.status === 429) {
     throw new Error("Daily API rate limit reached. Please try again tomorrow.")
@@ -29,19 +29,7 @@ async function fetchBatch(domains: string): Promise<NewsDataArticle[]> {
 
   const data: NewsDataResponse = await response.json()
 
-  if (data.status !== "success" || !data.results) {
-    return []
-  }
-
-  return data.results
-}
-
-export async function fetchHeadlines(): Promise<Headline[]> {
-  const batches = await Promise.all(
-    API_DOMAIN_BATCHES.map(domains => fetchBatch(domains))
-  )
-
-  const allArticles = batches.flat()
+  const allArticles = data.status === "success" && data.results ? data.results : []
 
   const seen = new Set<string>()
   const headlines: Headline[] = allArticles
