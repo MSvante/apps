@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Glossary — Apps</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: #1a1a2e;
+  color: #eee;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 20px;
+}
+
+a.back-link {
+  color: #e94560;
+  text-decoration: none;
+  font-size: 0.95rem;
+  margin-bottom: 24px;
+  align-self: center;
+}
+a.back-link:hover { text-decoration: underline; }
+
+h1 {
+  font-size: 2rem;
+  color: #e94560;
+  margin-bottom: 8px;
+}
+
+.subtitle {
+  color: #888;
+  font-size: 0.95rem;
+  margin-bottom: 32px;
+  text-align: center;
+  max-width: 520px;
+}
+
+.glossary {
+  max-width: 700px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.glossary-section h2 {
+  font-size: 1.1rem;
+  color: #e94560;
+  margin-bottom: 12px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #2a2a4e;
+}
+
+.term {
+  background: #162447;
+  border: 2px solid #1b2838;
+  border-radius: 10px;
+  padding: 18px 20px;
+}
+
+.term dt {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 6px;
+}
+
+.term dd {
+  font-size: 0.9rem;
+  color: #aaa;
+  line-height: 1.5;
+}
+
+.tag {
+  display: inline-block;
+  font-size: 0.7rem;
+  background: #2a2a4e;
+  color: #ccc;
+  padding: 2px 8px;
+  border-radius: 8px;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+</style>
+</head>
+<body>
+
+<a class="back-link" href="./">&larr; Back to Apps</a>
+
+<h1>Glossary</h1>
+<p class="subtitle">Key terms and concepts used across the apps on this site.</p>
+
+<div class="glossary">
+
+  <section class="glossary-section">
+    <h2>General</h2>
+
+    <dl class="term">
+      <dt>GitHub Pages</dt>
+      <dd>The free hosting service from GitHub that serves this site. Every push to the main branch triggers a deploy that builds and publishes all apps.</dd>
+    </dl>
+
+    <dl class="term">
+      <dt>Vite</dt>
+      <dd>A fast build tool used by the React-based apps (Lineup Guesser, Bracket City, Hangman). It bundles source code into optimized files for the browser.</dd>
+    </dl>
+
+    <dl class="term">
+      <dt>React</dt>
+      <dd>A JavaScript UI library. Most apps on this site are built with React and TypeScript, using components and hooks to manage game state.</dd>
+    </dl>
+
+    <dl class="term">
+      <dt>TypeScript</dt>
+      <dd>A typed superset of JavaScript. Adds type annotations to catch errors before the code runs. Used by the React-based apps.</dd>
+    </dl>
+
+    <dl class="term">
+      <dt>Tailwind CSS</dt>
+      <dd>A utility-first CSS framework that lets you style elements with short class names (e.g. <code>bg-blue-500</code>) directly in HTML. Used by some of the React apps.</dd>
+    </dl>
+
+    <dl class="term">
+      <dt>Static App</dt>
+      <dd>An app built with plain HTML, CSS, and JavaScript &mdash; no build step required. The Calendar Puzzle and Pok&eacute;mon games are static apps.</dd>
+    </dl>
+  </section>
+
+  <section class="glossary-section">
+    <h2>Game Concepts</h2>
+
+    <dl class="term">
+      <dt>Hint <span class="tag">all games</span></dt>
+      <dd>An optional clue you can request during a game. Hints make the puzzle easier but usually cost you points or reduce your score.</dd>
+    </dl>
+
+    <dl class="term">
+      <dt>Streak</dt>
+      <dd>A count of consecutive correct answers. Used in games like Who's That Pok&eacute;mon to track how many you get right in a row.</dd>
+    </dl>
+
+    <dl class="term">
+      <dt>Daily Puzzle</dt>
+      <dd>A puzzle that changes once per day so every player gets the same challenge. Used by the Calendar Puzzle and Bracket City.</dd>
+    </dl>
+
+    <dl class="term">
+      <dt>Fuzzy Matching</dt>
+      <dd>A forgiving way to check answers. Small typos and missing accents are tolerated using techniques like Levenshtein distance. Used in Lineup Guesser.</dd>
+    </dl>
+
+    <dl class="term">
+      <dt>Levenshtein Distance</dt>
+      <dd>A measure of how different two strings are, counting the minimum number of single-character edits needed to turn one into the other. Powers the fuzzy matching in Lineup Guesser.</dd>
+    </dl>
+  </section>
+
+  <section class="glossary-section">
+    <h2>App-Specific Terms</h2>
+
+    <dl class="term">
+      <dt>Formation <span class="tag">Lineup Guesser</span></dt>
+      <dd>The tactical arrangement of players on the pitch (e.g. 4-3-3, 3-5-2). Each match uses a real formation from the Premier League.</dd>
+    </dl>
+
+    <dl class="term">
+      <dt>Bracket / Nested Bracket <span class="tag">Bracket City</span></dt>
+      <dd>A clue wrapped in square brackets. Brackets can contain other brackets, and inner brackets must be solved before the outer one becomes solvable.</dd>
+    </dl>
+
+    <dl class="term">
+      <dt>Hidden Word <span class="tag">Hangman</span></dt>
+      <dd>The single word in a news headline that you need to guess letter by letter. The rest of the headline is shown in gray as context.</dd>
+    </dl>
+
+    <dl class="term">
+      <dt>Silhouette <span class="tag">Pok&eacute;mon</span></dt>
+      <dd>A blacked-out outline of a Pok&eacute;mon. Your job is to identify which Pok&eacute;mon it is from the shape alone.</dd>
+    </dl>
+
+    <dl class="term">
+      <dt>Pentomino Pieces <span class="tag">Calendar Puzzle</span></dt>
+      <dd>The shaped tiles you place on the board. Inspired by the DragonFjord A-Puzzle-A-Day, you must arrange them to leave only today's date uncovered.</dd>
+    </dl>
+  </section>
+
+</div>
+
+</body>
+</html>
