@@ -99,7 +99,71 @@ h1 {
 <div class="glossary">
 
   <section class="glossary-section">
-    <h2>General</h2>
+    <h2>How This Project Works</h2>
+
+    <dl class="term">
+      <dt>Repository (Repo)</dt>
+      <dd>A folder that contains all the project's files along with the full history of every change ever made. This site lives in a single Git repository hosted on GitHub.</dd>
+    </dl>
+
+    <dl class="term">
+      <dt>Git</dt>
+      <dd>A version-control system that tracks changes to files over time. It lets multiple people work on the same codebase without overwriting each other's work, and makes it easy to undo mistakes.</dd>
+    </dl>
+
+    <dl class="term">
+      <dt>Commit</dt>
+      <dd>A snapshot of the project at a specific point in time. Each commit has a message describing what changed and why. The full chain of commits forms the project's history.</dd>
+    </dl>
+
+    <dl class="term">
+      <dt>Branch</dt>
+      <dd>A parallel line of development. You create a branch to work on a feature or fix without affecting the main codebase. The default branch is usually called <code>main</code>.</dd>
+    </dl>
+
+    <dl class="term">
+      <dt>Pull Request (PR)</dt>
+      <dd>A proposal to merge changes from one branch into another. It shows exactly what changed and lets others review, comment, and approve before the code is merged. The main way contributions are reviewed on GitHub.</dd>
+    </dl>
+
+    <dl class="term">
+      <dt>Merge</dt>
+      <dd>The act of combining changes from one branch into another. After a pull request is approved, it gets merged — incorporating all its commits into the target branch.</dd>
+    </dl>
+
+    <dl class="term">
+      <dt>GitHub</dt>
+      <dd>A platform for hosting Git repositories online. It adds collaboration features like pull requests, issues, and actions on top of Git. This project is hosted on GitHub.</dd>
+    </dl>
+
+    <dl class="term">
+      <dt>GitHub Actions</dt>
+      <dd>An automation system built into GitHub. This project uses a GitHub Action that automatically builds and deploys the site every time code is pushed to the <code>main</code> branch.</dd>
+    </dl>
+
+    <dl class="term">
+      <dt>CI/CD (Continuous Integration / Continuous Deployment)</dt>
+      <dd>The practice of automatically building, testing, and deploying code whenever changes are made. The deploy workflow in this project is a CI/CD pipeline — push code, and the site updates itself.</dd>
+    </dl>
+
+    <dl class="term">
+      <dt>Deploy</dt>
+      <dd>Publishing a new version of the site so it's live on the internet. Here, deploying means building each app and uploading the result to GitHub Pages.</dd>
+    </dl>
+
+    <dl class="term">
+      <dt>Issue</dt>
+      <dd>A tracked task, bug report, or feature request on GitHub. Issues are used to discuss what needs to be done before any code is written.</dd>
+    </dl>
+
+    <dl class="term">
+      <dt>Build</dt>
+      <dd>The process of transforming source code (TypeScript, JSX, CSS) into optimized files a browser can run. The React apps go through a build step; the static apps do not.</dd>
+    </dl>
+  </section>
+
+  <section class="glossary-section">
+    <h2>General Tech</h2>
 
     <dl class="term">
       <dt>GitHub Pages</dt>
