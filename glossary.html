@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="da">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Glossary — Apps</title>
+<title>Ordliste — Apps</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -91,278 +91,278 @@ h1 {
 </head>
 <body>
 
-<a class="back-link" href="./">&larr; Back to Apps</a>
+<a class="back-link" href="./">&larr; Tilbage til Apps</a>
 
-<h1>Glossary</h1>
-<p class="subtitle">Key terms and concepts used across the apps on this site.</p>
+<h1>Ordliste</h1>
+<p class="subtitle">Vigtige begreber og koncepter, der bruges på tværs af apps på denne side.</p>
 
 <div class="glossary">
 
   <section class="glossary-section">
-    <h2>From Idea to Live Site &mdash; The Full Journey</h2>
+    <h2>Fra idé til live site &mdash; Den fulde rejse</h2>
     <p style="color:#888; font-size:0.88rem; line-height:1.5; margin-bottom:14px;">
-      This section walks through the entire lifecycle of a change &mdash; from giving a direction to seeing it live on the internet. Every term below is part of the real process used to build and maintain this site.
+      Denne sektion gennemgår hele livscyklussen for en ændring &mdash; fra at give en retning til at se den live på internettet. Hvert begreb herunder er en del af den faktiske proces, der bruges til at bygge og vedligeholde denne side.
     </p>
 
     <dl class="term">
-      <dt>1. The Idea</dt>
-      <dd>Everything starts with a person deciding what to build or change. In this project the user describes what they want in plain language to an AI coding assistant called <strong>Claude Code</strong>. The request could be anything: "add a glossary page," "fix the scoring bug," or "build a new game."</dd>
+      <dt>1. Idéen</dt>
+      <dd>Alt starter med, at en person beslutter, hvad der skal bygges eller ændres. I dette projekt beskriver brugeren, hvad de ønsker, i dagligdags sprog til en AI-kodningsassistent kaldet <strong>Claude Code</strong>. Forespørgslen kan være hvad som helst: "tilføj en ordlisteside," "ret scoring-fejlen," eller "byg et nyt spil."</dd>
     </dl>
 
     <dl class="term">
       <dt>Claude Code</dt>
-      <dd>An AI assistant that reads, writes, and modifies code based on natural-language instructions. It works directly inside the project's repository &mdash; reading files, creating new ones, running commands, and committing changes. It is the primary developer of this site.</dd>
+      <dd>En AI-assistent, der læser, skriver og ændrer kode baseret på instruktioner i naturligt sprog. Den arbejder direkte i projektets repository &mdash; læser filer, opretter nye, kører kommandoer og committer ændringer. Den er den primære udvikler af denne side.</dd>
     </dl>
 
     <dl class="term">
-      <dt>2. The Repository (Repo)</dt>
-      <dd>A folder that contains every file in the project together with the complete history of every change ever made. This site lives in a single Git repository hosted on GitHub. The repo is the single source of truth &mdash; if it's not in the repo, it doesn't exist.</dd>
+      <dt>2. Repository (Repo)</dt>
+      <dd>En mappe, der indeholder alle filer i projektet sammen med den komplette historik over alle ændringer, der nogensinde er lavet. Denne side lever i et enkelt Git-repository hostet på GitHub. Repoet er den eneste kilde til sandhed &mdash; hvis det ikke er i repoet, eksisterer det ikke.</dd>
     </dl>
 
     <dl class="term">
       <dt>Git</dt>
-      <dd>The version-control system that powers the repository. Git tracks every change as a series of snapshots, lets multiple lines of work happen in parallel, and makes it trivial to undo mistakes. It runs locally on the developer's machine (or in Claude Code's environment) and syncs with GitHub.</dd>
+      <dd>Versionsstyringssystemet, der driver repositoryet. Git sporer hver ændring som en serie af øjebliksbilleder, lader flere arbejdslinjer køre parallelt og gør det nemt at fortryde fejl. Det kører lokalt på udviklerens maskine (eller i Claude Codes miljø) og synkroniserer med GitHub.</dd>
     </dl>
 
     <dl class="term">
       <dt>Source Code</dt>
-      <dd>The human-readable (and AI-readable) files that make up the apps: TypeScript, HTML, CSS, JSON data files, configuration, and more. Source code is what gets edited; it later gets transformed into the files the browser actually runs.</dd>
+      <dd>De menneskelæsbare (og AI-læsbare) filer, der udgør apps: TypeScript, HTML, CSS, JSON-datafiler, konfiguration og mere. Source code er det, der redigeres; det bliver senere omdannet til de filer, browseren faktisk kører.</dd>
     </dl>
 
     <dl class="term">
-      <dt>3. Working on a Branch</dt>
-      <dd>Before making changes, a new <strong>branch</strong> is created &mdash; a parallel copy of the codebase. This keeps work-in-progress isolated from the stable <code>main</code> branch. Branches are cheap and disposable; you can have many at once. The naming often hints at the purpose, e.g. <code>claude/add-glossary-page</code>.</dd>
+      <dt>3. Arbejde på en branch</dt>
+      <dd>Før der laves ændringer, oprettes en ny <strong>branch</strong> &mdash; en parallel kopi af kodebasen. Det holder igangværende arbejde adskilt fra den stabile <code>main</code>-branch. Branches er billige og til engangsbrug; du kan have mange på én gang. Navngivningen antyder ofte formålet, f.eks. <code>claude/add-glossary-page</code>.</dd>
     </dl>
 
     <dl class="term">
-      <dt>4. Writing &amp; Editing Code</dt>
-      <dd>Claude Code (or a human developer) creates and modifies files in the repository. This can mean writing new components, editing HTML, updating configuration, or adding data files. The developer can see what changed at any time using <strong>git diff</strong>, which highlights every added, removed, or modified line.</dd>
+      <dt>4. Skrive &amp; redigere kode</dt>
+      <dd>Claude Code (eller en menneskelig udvikler) opretter og ændrer filer i repositoryet. Det kan betyde at skrive nye komponenter, redigere HTML, opdatere konfiguration eller tilføje datafiler. Udvikleren kan til enhver tid se, hvad der er ændret, ved hjælp af <strong>git diff</strong>, som fremhæver hver tilføjet, fjernet eller ændret linje.</dd>
     </dl>
 
     <dl class="term">
-      <dt>5. Committing Changes</dt>
-      <dd>A <strong>commit</strong> is a saved snapshot of the project at a moment in time. Each commit bundles a set of related changes with a message explaining <em>what</em> changed and <em>why</em>. Commits are permanent and form the project's history &mdash; you can always go back to any previous commit.</dd>
+      <dt>5. Committe ændringer</dt>
+      <dd>Et <strong>commit</strong> er et gemt øjebliksbillede af projektet på et bestemt tidspunkt. Hvert commit samler et sæt relaterede ændringer med en besked, der forklarer, <em>hvad</em> der blev ændret og <em>hvorfor</em>. Commits er permanente og udgør projektets historik &mdash; du kan altid gå tilbage til ethvert tidligere commit.</dd>
     </dl>
 
     <dl class="term">
       <dt>Staging (git add)</dt>
-      <dd>Before committing, you choose exactly which changed files to include. This is called <strong>staging</strong>. It lets you make a clean, focused commit even if you've changed many files &mdash; you only stage the ones relevant to the current task.</dd>
+      <dd>Før du committer, vælger du præcis, hvilke ændrede filer der skal inkluderes. Dette kaldes <strong>staging</strong>. Det giver dig mulighed for at lave et rent, fokuseret commit, selv hvis du har ændret mange filer &mdash; du stager kun dem, der er relevante for den aktuelle opgave.</dd>
     </dl>
 
     <dl class="term">
-      <dt>6. Pushing to GitHub</dt>
-      <dd><strong>Pushing</strong> uploads your local commits to the remote repository on GitHub so others (and automation) can see them. Until you push, your work only exists on your machine. Pushing makes the branch and its commits available to the whole project.</dd>
+      <dt>6. Pushe til GitHub</dt>
+      <dd><strong>Pushing</strong> uploader dine lokale commits til det fjerne repository på GitHub, så andre (og automatisering) kan se dem. Indtil du pusher, eksisterer dit arbejde kun på din maskine. At pushe gør branchen og dens commits tilgængelige for hele projektet.</dd>
     </dl>
 
     <dl class="term">
       <dt>GitHub</dt>
-      <dd>A platform for hosting Git repositories online. It layers collaboration features &mdash; pull requests, issues, code review, actions &mdash; on top of Git. Think of it as the project's home base on the internet.</dd>
+      <dd>En platform til at hoste Git-repositories online. Den tilføjer samarbejdsfunktioner &mdash; pull requests, issues, code review, actions &mdash; oven på Git. Tænk på det som projektets hjemmebase på internettet.</dd>
     </dl>
 
     <dl class="term">
-      <dt>7. Opening a Pull Request (PR)</dt>
-      <dd>A <strong>pull request</strong> is a formal proposal to merge your branch into <code>main</code>. It shows every change side-by-side (the "diff"), lets reviewers leave comments on specific lines, and serves as a record of <em>why</em> the change was made. PRs are the checkpoint between "work done" and "work shipped."</dd>
+      <dt>7. Åbne en Pull Request (PR)</dt>
+      <dd>En <strong>pull request</strong> er et formelt forslag om at merge din branch ind i <code>main</code>. Den viser hver ændring side om side ("diff"), lader reviewere skrive kommentarer på specifikke linjer og fungerer som en registrering af, <em>hvorfor</em> ændringen blev lavet. PR'er er checkpointet mellem "arbejde udført" og "arbejde leveret."</dd>
     </dl>
 
     <dl class="term">
       <dt>Code Review</dt>
-      <dd>The process of examining someone's proposed changes before they go live. Reviewers can approve, request changes, or ask questions directly on the pull request. It catches bugs, improves quality, and shares knowledge. In this project the user reviews what Claude Code wrote.</dd>
+      <dd>Processen med at gennemgå en persons foreslåede ændringer, før de går live. Reviewere kan godkende, anmode om ændringer eller stille spørgsmål direkte på pull requesten. Det fanger fejl, forbedrer kvaliteten og deler viden. I dette projekt gennemgår brugeren, hvad Claude Code har skrevet.</dd>
     </dl>
 
     <dl class="term">
       <dt>Diff</dt>
-      <dd>A line-by-line comparison showing exactly what was added (green), removed (red), or changed in a set of commits. Diffs are the core visual of pull requests and code review &mdash; they answer the question "what's different?"</dd>
+      <dd>En linje-for-linje sammenligning, der viser præcis, hvad der blev tilføjet (grøn), fjernet (rød) eller ændret i et sæt commits. Diffs er det centrale visuelle element i pull requests og code review &mdash; de besvarer spørgsmålet "hvad er anderledes?"</dd>
     </dl>
 
     <dl class="term">
       <dt>8. Merging</dt>
-      <dd>Once a pull request is approved, it gets <strong>merged</strong> &mdash; its commits are folded into the <code>main</code> branch. After merging, the feature branch is typically deleted since its work now lives in <code>main</code>.</dd>
+      <dd>Når en pull request er godkendt, bliver den <strong>merget</strong> &mdash; dens commits bliver foldet ind i <code>main</code>-branchen. Efter merging bliver feature-branchen typisk slettet, da dens arbejde nu lever i <code>main</code>.</dd>
     </dl>
 
     <dl class="term">
       <dt>Merge Conflict</dt>
-      <dd>When two branches change the same lines in different ways, Git can't automatically combine them. This is a <strong>merge conflict</strong>. A human (or Claude Code) has to manually decide which version to keep. Conflicts are normal and usually easy to resolve.</dd>
+      <dd>Når to branches ændrer de samme linjer på forskellige måder, kan Git ikke automatisk kombinere dem. Dette er en <strong>merge conflict</strong>. Et menneske (eller Claude Code) skal manuelt beslutte, hvilken version der skal beholdes. Konflikter er normale og som regel nemme at løse.</dd>
     </dl>
 
     <dl class="term">
-      <dt>9. Automated Build &amp; Deploy (CI/CD)</dt>
-      <dd>The moment code lands on <code>main</code>, <strong>GitHub Actions</strong> kicks in automatically. A <strong>workflow</strong> file (stored in the repo at <code>.github/workflows/deploy.yml</code>) defines the steps: install dependencies, build each React app, assemble the full site, and deploy it. No human intervention needed.</dd>
+      <dt>9. Automatiseret Build &amp; Deploy (CI/CD)</dt>
+      <dd>I det øjeblik kode lander på <code>main</code>, starter <strong>GitHub Actions</strong> automatisk. En <strong>workflow</strong>-fil (gemt i repoet som <code>.github/workflows/deploy.yml</code>) definerer trinnene: installér dependencies, byg hver React-app, saml hele sitet og deploy det. Ingen menneskelig indgriben nødvendig.</dd>
     </dl>
 
     <dl class="term">
       <dt>GitHub Actions</dt>
-      <dd>GitHub's built-in automation system. It runs workflows in response to events (like a push to <code>main</code>). Each workflow is a series of steps that run in a fresh virtual machine. This project's action builds three React apps and assembles them alongside the static apps.</dd>
+      <dd>GitHubs indbyggede automatiseringssystem. Det kører workflows som reaktion på hændelser (som et push til <code>main</code>). Hvert workflow er en serie af trin, der kører i en ny virtuel maskine. Dette projekts action bygger tre React-apps og samler dem sammen med de statiske apps.</dd>
     </dl>
 
     <dl class="term">
       <dt>Workflow</dt>
-      <dd>A YAML configuration file that tells GitHub Actions what to do. This project's workflow installs Node.js, runs <code>npm ci</code> and <code>npm run build</code> for each React app, copies the static apps, and uploads the result as a deployable artifact.</dd>
+      <dd>En YAML-konfigurationsfil, der fortæller GitHub Actions, hvad den skal gøre. Dette projekts workflow installerer Node.js, kører <code>npm ci</code> og <code>npm run build</code> for hver React-app, kopierer de statiske apps og uploader resultatet som en deploybar artifact.</dd>
     </dl>
 
     <dl class="term">
       <dt>Build</dt>
-      <dd>The process of transforming source code into optimized files a browser can run. Vite compiles TypeScript, bundles JavaScript modules, processes CSS, and outputs a <code>dist/</code> folder. The static apps (Calendar Puzzle, Pok&eacute;mon) skip this step &mdash; they're already browser-ready.</dd>
+      <dd>Processen med at omdanne source code til optimerede filer, som en browser kan køre. Vite kompilerer TypeScript, bundler JavaScript-moduler, behandler CSS og producerer en <code>dist/</code>-mappe. De statiske apps (Calendar Puzzle, Pok&eacute;mon) springer dette trin over &mdash; de er allerede browserklar.</dd>
     </dl>
 
     <dl class="term">
       <dt>npm (Node Package Manager)</dt>
-      <dd>The tool that installs third-party libraries (React, Vite, Tailwind, etc.) that the apps depend on. <code>npm ci</code> installs exact versions from a lock file; <code>npm run build</code> triggers the build process.</dd>
+      <dd>Værktøjet, der installerer tredjepartsbiblioteker (React, Vite, Tailwind osv.), som apps afhænger af. <code>npm ci</code> installerer præcise versioner fra en lock-fil; <code>npm run build</code> starter build-processen.</dd>
     </dl>
 
     <dl class="term">
       <dt>Dependencies</dt>
-      <dd>External libraries the project relies on. Listed in each app's <code>package.json</code> file with exact versions locked in <code>package-lock.json</code>. Examples: React for UI rendering, Vite for building, Tailwind for styling.</dd>
+      <dd>Eksterne biblioteker, som projektet er afhængigt af. Listet i hver apps <code>package.json</code>-fil med præcise versioner låst i <code>package-lock.json</code>. Eksempler: React til UI-rendering, Vite til building, Tailwind til styling.</dd>
     </dl>
 
     <dl class="term">
       <dt>Artifact</dt>
-      <dd>The final output of the build step &mdash; a bundle of files ready to be served. The deploy workflow assembles all apps into a single <code>_site/</code> folder, which becomes the artifact uploaded to GitHub Pages.</dd>
+      <dd>Det endelige output fra build-trinnet &mdash; en samling filer klar til at blive serveret. Deploy-workflowet samler alle apps i en enkelt <code>_site/</code>-mappe, som bliver den artifact, der uploades til GitHub Pages.</dd>
     </dl>
 
     <dl class="term">
-      <dt>10. Live on GitHub Pages</dt>
-      <dd><strong>GitHub Pages</strong> serves the artifact as a real website at <code>msvante.github.io/apps/</code>. Within minutes of merging a PR, the changes are live and anyone with the URL can see them. The cycle is complete: idea &rarr; code &rarr; review &rarr; merge &rarr; build &rarr; deploy &rarr; live.</dd>
+      <dt>10. Live på GitHub Pages</dt>
+      <dd><strong>GitHub Pages</strong> serverer artefakten som en rigtig hjemmeside på <code>msvante.github.io/apps/</code>. Inden for få minutter efter merging af en PR er ændringerne live, og alle med URL'en kan se dem. Cyklussen er komplet: idé &rarr; kode &rarr; review &rarr; merge &rarr; build &rarr; deploy &rarr; live.</dd>
     </dl>
 
     <dl class="term">
       <dt>Deploy</dt>
-      <dd>The final step: publishing the built site so it's accessible on the internet. In this project, GitHub Actions uploads the <code>_site/</code> folder to GitHub Pages, which serves it as a static website. No servers to manage &mdash; it just works.</dd>
+      <dd>Det sidste trin: at publicere det byggede site, så det er tilgængeligt på internettet. I dette projekt uploader GitHub Actions <code>_site/</code>-mappen til GitHub Pages, som serverer det som en statisk hjemmeside. Ingen servere at administrere &mdash; det bare virker.</dd>
     </dl>
   </section>
 
   <section class="glossary-section">
-    <h2>Other Useful Terms</h2>
+    <h2>Andre nyttige begreber</h2>
 
     <dl class="term">
       <dt>Issue</dt>
-      <dd>A tracked task, bug report, or feature request on GitHub. Issues are how work gets planned and discussed before any code is written. They can be referenced from commits and pull requests to link the "why" to the "what."</dd>
+      <dd>En sporet opgave, fejlrapport eller funktionsanmodning på GitHub. Issues er måden, arbejde bliver planlagt og diskuteret, før der skrives kode. De kan refereres fra commits og pull requests for at koble "hvorfor" til "hvad."</dd>
     </dl>
 
     <dl class="term">
       <dt>Clone</dt>
-      <dd>Downloading a full copy of a repository (including its entire history) to your local machine. This is the first step when starting to work on a project. Claude Code operates on a cloned copy of this repo.</dd>
+      <dd>At downloade en fuld kopi af et repository (inklusiv hele dets historik) til din lokale maskine. Dette er det første trin, når man begynder at arbejde på et projekt. Claude Code arbejder på en clonet kopi af dette repo.</dd>
     </dl>
 
     <dl class="term">
       <dt>Fork</dt>
-      <dd>A personal copy of someone else's repository on GitHub. Forks let you experiment freely without affecting the original project. Changes can be proposed back via pull request.</dd>
+      <dd>En personlig kopi af en andens repository på GitHub. Forks lader dig eksperimentere frit uden at påvirke det originale projekt. Ændringer kan foreslås tilbage via pull request.</dd>
     </dl>
 
     <dl class="term">
       <dt>Main Branch</dt>
-      <dd>The primary branch of the repository, called <code>main</code>. It represents the current "official" state of the project. Code only reaches <code>main</code> through reviewed and merged pull requests. Pushes to <code>main</code> trigger the deploy.</dd>
+      <dd>Den primære branch i repositoryet, kaldet <code>main</code>. Den repræsenterer projektets aktuelle "officielle" tilstand. Kode når kun <code>main</code> gennem reviewede og mergede pull requests. Pushes til <code>main</code> udløser deployet.</dd>
     </dl>
 
     <dl class="term">
       <dt>Remote / Origin</dt>
-      <dd>The version of the repository that lives on GitHub's servers (as opposed to your local copy). By convention it's called <code>origin</code>. Pushing sends your commits to the remote; pulling fetches changes from it.</dd>
+      <dd>Den version af repositoryet, der lever på GitHubs servere (i modsætning til din lokale kopi). Af konvention kaldes det <code>origin</code>. At pushe sender dine commits til remote; at pulle henter ændringer derfra.</dd>
     </dl>
 
     <dl class="term">
       <dt>CLAUDE.md</dt>
-      <dd>A special markdown file in the repository that gives instructions to Claude Code. It describes the project structure, conventions, and rules the AI should follow. Think of it as a briefing document for the AI developer.</dd>
+      <dd>En speciel markdown-fil i repositoryet, der giver instruktioner til Claude Code. Den beskriver projektets struktur, konventioner og regler, som AI'en skal følge. Tænk på det som et briefingdokument til AI-udvikleren.</dd>
     </dl>
 
     <dl class="term">
       <dt>CI/CD (Continuous Integration / Continuous Deployment)</dt>
-      <dd>The overall practice of automating the path from code change to live site. "Continuous Integration" means changes are automatically built and tested. "Continuous Deployment" means they're automatically published. This project does both via GitHub Actions.</dd>
+      <dd>Den overordnede praksis med at automatisere vejen fra kodeændring til live site. "Continuous Integration" betyder, at ændringer automatisk bygges og testes. "Continuous Deployment" betyder, at de automatisk publiceres. Dette projekt gør begge dele via GitHub Actions.</dd>
     </dl>
 
     <dl class="term">
       <dt>Environment</dt>
-      <dd>The context in which code runs. The <em>development</em> environment is where code is written and tested. The <em>production</em> environment is the live site users visit. GitHub Actions provides the <em>build</em> environment &mdash; a temporary machine that compiles the code.</dd>
+      <dd>Den kontekst, hvori kode kører. <em>Development</em>-miljøet er der, hvor kode skrives og testes. <em>Production</em>-miljøet er det live site, som brugere besøger. GitHub Actions leverer <em>build</em>-miljøet &mdash; en midlertidig maskine, der kompilerer koden.</dd>
     </dl>
   </section>
 
   <section class="glossary-section">
-    <h2>General Tech</h2>
+    <h2>Generel teknologi</h2>
 
     <dl class="term">
       <dt>GitHub Pages</dt>
-      <dd>The free hosting service from GitHub that serves this site. Every push to the main branch triggers a deploy that builds and publishes all apps.</dd>
+      <dd>Den gratis hostingtjeneste fra GitHub, der serverer denne side. Hvert push til main-branchen udløser et deploy, der bygger og publicerer alle apps.</dd>
     </dl>
 
     <dl class="term">
       <dt>Vite</dt>
-      <dd>A fast build tool used by the React-based apps (Lineup Guesser, Bracket City, Hangman). It bundles source code into optimized files for the browser.</dd>
+      <dd>Et hurtigt build-værktøj, der bruges af de React-baserede apps (Lineup Guesser, Bracket City, Hangman). Det bundler source code til optimerede filer til browseren.</dd>
     </dl>
 
     <dl class="term">
       <dt>React</dt>
-      <dd>A JavaScript UI library. Most apps on this site are built with React and TypeScript, using components and hooks to manage game state.</dd>
+      <dd>Et JavaScript UI-bibliotek. De fleste apps på denne side er bygget med React og TypeScript ved hjælp af components og hooks til at håndtere spiltilstand.</dd>
     </dl>
 
     <dl class="term">
       <dt>TypeScript</dt>
-      <dd>A typed superset of JavaScript. Adds type annotations to catch errors before the code runs. Used by the React-based apps.</dd>
+      <dd>Et typet superset af JavaScript. Tilføjer type-annotationer for at fange fejl, før koden kører. Bruges af de React-baserede apps.</dd>
     </dl>
 
     <dl class="term">
       <dt>Tailwind CSS</dt>
-      <dd>A utility-first CSS framework that lets you style elements with short class names (e.g. <code>bg-blue-500</code>) directly in HTML. Used by some of the React apps.</dd>
+      <dd>Et utility-first CSS-framework, der lader dig style elementer med korte klassenavne (f.eks. <code>bg-blue-500</code>) direkte i HTML. Bruges af nogle af React-apps.</dd>
     </dl>
 
     <dl class="term">
       <dt>Static App</dt>
-      <dd>An app built with plain HTML, CSS, and JavaScript &mdash; no build step required. The Calendar Puzzle and Pok&eacute;mon games are static apps.</dd>
+      <dd>En app bygget med ren HTML, CSS og JavaScript &mdash; intet build-trin påkrævet. Calendar Puzzle og Pok&eacute;mon-spillene er statiske apps.</dd>
     </dl>
   </section>
 
   <section class="glossary-section">
-    <h2>Game Concepts</h2>
+    <h2>Spilkoncepter</h2>
 
     <dl class="term">
-      <dt>Hint <span class="tag">all games</span></dt>
-      <dd>An optional clue you can request during a game. Hints make the puzzle easier but usually cost you points or reduce your score.</dd>
+      <dt>Hint <span class="tag">alle spil</span></dt>
+      <dd>Et valgfrit fingerpeg, du kan bede om under et spil. Hints gør puslespillet lettere, men koster normalt point eller reducerer din score.</dd>
     </dl>
 
     <dl class="term">
       <dt>Streak</dt>
-      <dd>A count of consecutive correct answers. Used in games like Who's That Pok&eacute;mon to track how many you get right in a row.</dd>
+      <dd>En tælling af fortløbende rigtige svar. Bruges i spil som Who's That Pok&eacute;mon til at holde styr på, hvor mange du får rigtigt i træk.</dd>
     </dl>
 
     <dl class="term">
       <dt>Daily Puzzle</dt>
-      <dd>A puzzle that changes once per day so every player gets the same challenge. Used by the Calendar Puzzle and Bracket City.</dd>
+      <dd>Et puslespil, der skifter én gang om dagen, så alle spillere får den samme udfordring. Bruges af Calendar Puzzle og Bracket City.</dd>
     </dl>
 
     <dl class="term">
       <dt>Fuzzy Matching</dt>
-      <dd>A forgiving way to check answers. Small typos and missing accents are tolerated using techniques like Levenshtein distance. Used in Lineup Guesser.</dd>
+      <dd>En tilgivende måde at tjekke svar på. Små tastefejl og manglende accenter tolereres ved hjælp af teknikker som Levenshtein distance. Bruges i Lineup Guesser.</dd>
     </dl>
 
     <dl class="term">
       <dt>Levenshtein Distance</dt>
-      <dd>A measure of how different two strings are, counting the minimum number of single-character edits needed to turn one into the other. Powers the fuzzy matching in Lineup Guesser.</dd>
+      <dd>Et mål for, hvor forskellige to strenge er, ved at tælle det mindste antal enkelttegnsredigeringer, der skal til for at omdanne den ene til den anden. Driver fuzzy matching i Lineup Guesser.</dd>
     </dl>
   </section>
 
   <section class="glossary-section">
-    <h2>App-Specific Terms</h2>
+    <h2>App-specifikke begreber</h2>
 
     <dl class="term">
       <dt>Formation <span class="tag">Lineup Guesser</span></dt>
-      <dd>The tactical arrangement of players on the pitch (e.g. 4-3-3, 3-5-2). Each match uses a real formation from the Premier League.</dd>
+      <dd>Den taktiske opstilling af spillere på banen (f.eks. 4-3-3, 3-5-2). Hver kamp bruger en rigtig formation fra Premier League.</dd>
     </dl>
 
     <dl class="term">
       <dt>Bracket / Nested Bracket <span class="tag">Bracket City</span></dt>
-      <dd>A clue wrapped in square brackets. Brackets can contain other brackets, and inner brackets must be solved before the outer one becomes solvable.</dd>
+      <dd>En ledetråd pakket ind i firkantede parenteser. Brackets kan indeholde andre brackets, og indre brackets skal løses, før den ydre kan løses.</dd>
     </dl>
 
     <dl class="term">
       <dt>Hidden Word <span class="tag">Hangman</span></dt>
-      <dd>The single word in a news headline that you need to guess letter by letter. The rest of the headline is shown in gray as context.</dd>
+      <dd>Det enkelte ord i en nyhedsoverskrift, som du skal gætte bogstav for bogstav. Resten af overskriften vises i gråt som kontekst.</dd>
     </dl>
 
     <dl class="term">
       <dt>Silhouette <span class="tag">Pok&eacute;mon</span></dt>
-      <dd>A blacked-out outline of a Pok&eacute;mon. Your job is to identify which Pok&eacute;mon it is from the shape alone.</dd>
+      <dd>En sortfarvet omrids af en Pok&eacute;mon. Din opgave er at identificere, hvilken Pok&eacute;mon det er, udelukkende ud fra formen.</dd>
     </dl>
 
     <dl class="term">
       <dt>Pentomino Pieces <span class="tag">Calendar Puzzle</span></dt>
-      <dd>The shaped tiles you place on the board. Inspired by the DragonFjord A-Puzzle-A-Day, you must arrange them to leave only today's date uncovered.</dd>
+      <dd>De formede brikker, du placerer på brættet. Inspireret af DragonFjord A-Puzzle-A-Day skal du arrangere dem, så kun dagens dato er utildækket.</dd>
     </dl>
   </section>
 
