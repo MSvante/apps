@@ -99,66 +99,178 @@ h1 {
 <div class="glossary">
 
   <section class="glossary-section">
-    <h2>How This Project Works</h2>
+    <h2>From Idea to Live Site &mdash; The Full Journey</h2>
+    <p style="color:#888; font-size:0.88rem; line-height:1.5; margin-bottom:14px;">
+      This section walks through the entire lifecycle of a change &mdash; from giving a direction to seeing it live on the internet. Every term below is part of the real process used to build and maintain this site.
+    </p>
 
     <dl class="term">
-      <dt>Repository (Repo)</dt>
-      <dd>A folder that contains all the project's files along with the full history of every change ever made. This site lives in a single Git repository hosted on GitHub.</dd>
+      <dt>1. The Idea</dt>
+      <dd>Everything starts with a person deciding what to build or change. In this project the user describes what they want in plain language to an AI coding assistant called <strong>Claude Code</strong>. The request could be anything: "add a glossary page," "fix the scoring bug," or "build a new game."</dd>
+    </dl>
+
+    <dl class="term">
+      <dt>Claude Code</dt>
+      <dd>An AI assistant that reads, writes, and modifies code based on natural-language instructions. It works directly inside the project's repository &mdash; reading files, creating new ones, running commands, and committing changes. It is the primary developer of this site.</dd>
+    </dl>
+
+    <dl class="term">
+      <dt>2. The Repository (Repo)</dt>
+      <dd>A folder that contains every file in the project together with the complete history of every change ever made. This site lives in a single Git repository hosted on GitHub. The repo is the single source of truth &mdash; if it's not in the repo, it doesn't exist.</dd>
     </dl>
 
     <dl class="term">
       <dt>Git</dt>
-      <dd>A version-control system that tracks changes to files over time. It lets multiple people work on the same codebase without overwriting each other's work, and makes it easy to undo mistakes.</dd>
+      <dd>The version-control system that powers the repository. Git tracks every change as a series of snapshots, lets multiple lines of work happen in parallel, and makes it trivial to undo mistakes. It runs locally on the developer's machine (or in Claude Code's environment) and syncs with GitHub.</dd>
     </dl>
 
     <dl class="term">
-      <dt>Commit</dt>
-      <dd>A snapshot of the project at a specific point in time. Each commit has a message describing what changed and why. The full chain of commits forms the project's history.</dd>
+      <dt>Source Code</dt>
+      <dd>The human-readable (and AI-readable) files that make up the apps: TypeScript, HTML, CSS, JSON data files, configuration, and more. Source code is what gets edited; it later gets transformed into the files the browser actually runs.</dd>
     </dl>
 
     <dl class="term">
-      <dt>Branch</dt>
-      <dd>A parallel line of development. You create a branch to work on a feature or fix without affecting the main codebase. The default branch is usually called <code>main</code>.</dd>
+      <dt>3. Working on a Branch</dt>
+      <dd>Before making changes, a new <strong>branch</strong> is created &mdash; a parallel copy of the codebase. This keeps work-in-progress isolated from the stable <code>main</code> branch. Branches are cheap and disposable; you can have many at once. The naming often hints at the purpose, e.g. <code>claude/add-glossary-page</code>.</dd>
     </dl>
 
     <dl class="term">
-      <dt>Pull Request (PR)</dt>
-      <dd>A proposal to merge changes from one branch into another. It shows exactly what changed and lets others review, comment, and approve before the code is merged. The main way contributions are reviewed on GitHub.</dd>
+      <dt>4. Writing &amp; Editing Code</dt>
+      <dd>Claude Code (or a human developer) creates and modifies files in the repository. This can mean writing new components, editing HTML, updating configuration, or adding data files. The developer can see what changed at any time using <strong>git diff</strong>, which highlights every added, removed, or modified line.</dd>
     </dl>
 
     <dl class="term">
-      <dt>Merge</dt>
-      <dd>The act of combining changes from one branch into another. After a pull request is approved, it gets merged — incorporating all its commits into the target branch.</dd>
+      <dt>5. Committing Changes</dt>
+      <dd>A <strong>commit</strong> is a saved snapshot of the project at a moment in time. Each commit bundles a set of related changes with a message explaining <em>what</em> changed and <em>why</em>. Commits are permanent and form the project's history &mdash; you can always go back to any previous commit.</dd>
+    </dl>
+
+    <dl class="term">
+      <dt>Staging (git add)</dt>
+      <dd>Before committing, you choose exactly which changed files to include. This is called <strong>staging</strong>. It lets you make a clean, focused commit even if you've changed many files &mdash; you only stage the ones relevant to the current task.</dd>
+    </dl>
+
+    <dl class="term">
+      <dt>6. Pushing to GitHub</dt>
+      <dd><strong>Pushing</strong> uploads your local commits to the remote repository on GitHub so others (and automation) can see them. Until you push, your work only exists on your machine. Pushing makes the branch and its commits available to the whole project.</dd>
     </dl>
 
     <dl class="term">
       <dt>GitHub</dt>
-      <dd>A platform for hosting Git repositories online. It adds collaboration features like pull requests, issues, and actions on top of Git. This project is hosted on GitHub.</dd>
+      <dd>A platform for hosting Git repositories online. It layers collaboration features &mdash; pull requests, issues, code review, actions &mdash; on top of Git. Think of it as the project's home base on the internet.</dd>
+    </dl>
+
+    <dl class="term">
+      <dt>7. Opening a Pull Request (PR)</dt>
+      <dd>A <strong>pull request</strong> is a formal proposal to merge your branch into <code>main</code>. It shows every change side-by-side (the "diff"), lets reviewers leave comments on specific lines, and serves as a record of <em>why</em> the change was made. PRs are the checkpoint between "work done" and "work shipped."</dd>
+    </dl>
+
+    <dl class="term">
+      <dt>Code Review</dt>
+      <dd>The process of examining someone's proposed changes before they go live. Reviewers can approve, request changes, or ask questions directly on the pull request. It catches bugs, improves quality, and shares knowledge. In this project the user reviews what Claude Code wrote.</dd>
+    </dl>
+
+    <dl class="term">
+      <dt>Diff</dt>
+      <dd>A line-by-line comparison showing exactly what was added (green), removed (red), or changed in a set of commits. Diffs are the core visual of pull requests and code review &mdash; they answer the question "what's different?"</dd>
+    </dl>
+
+    <dl class="term">
+      <dt>8. Merging</dt>
+      <dd>Once a pull request is approved, it gets <strong>merged</strong> &mdash; its commits are folded into the <code>main</code> branch. After merging, the feature branch is typically deleted since its work now lives in <code>main</code>.</dd>
+    </dl>
+
+    <dl class="term">
+      <dt>Merge Conflict</dt>
+      <dd>When two branches change the same lines in different ways, Git can't automatically combine them. This is a <strong>merge conflict</strong>. A human (or Claude Code) has to manually decide which version to keep. Conflicts are normal and usually easy to resolve.</dd>
+    </dl>
+
+    <dl class="term">
+      <dt>9. Automated Build &amp; Deploy (CI/CD)</dt>
+      <dd>The moment code lands on <code>main</code>, <strong>GitHub Actions</strong> kicks in automatically. A <strong>workflow</strong> file (stored in the repo at <code>.github/workflows/deploy.yml</code>) defines the steps: install dependencies, build each React app, assemble the full site, and deploy it. No human intervention needed.</dd>
     </dl>
 
     <dl class="term">
       <dt>GitHub Actions</dt>
-      <dd>An automation system built into GitHub. This project uses a GitHub Action that automatically builds and deploys the site every time code is pushed to the <code>main</code> branch.</dd>
+      <dd>GitHub's built-in automation system. It runs workflows in response to events (like a push to <code>main</code>). Each workflow is a series of steps that run in a fresh virtual machine. This project's action builds three React apps and assembles them alongside the static apps.</dd>
     </dl>
 
     <dl class="term">
-      <dt>CI/CD (Continuous Integration / Continuous Deployment)</dt>
-      <dd>The practice of automatically building, testing, and deploying code whenever changes are made. The deploy workflow in this project is a CI/CD pipeline — push code, and the site updates itself.</dd>
-    </dl>
-
-    <dl class="term">
-      <dt>Deploy</dt>
-      <dd>Publishing a new version of the site so it's live on the internet. Here, deploying means building each app and uploading the result to GitHub Pages.</dd>
-    </dl>
-
-    <dl class="term">
-      <dt>Issue</dt>
-      <dd>A tracked task, bug report, or feature request on GitHub. Issues are used to discuss what needs to be done before any code is written.</dd>
+      <dt>Workflow</dt>
+      <dd>A YAML configuration file that tells GitHub Actions what to do. This project's workflow installs Node.js, runs <code>npm ci</code> and <code>npm run build</code> for each React app, copies the static apps, and uploads the result as a deployable artifact.</dd>
     </dl>
 
     <dl class="term">
       <dt>Build</dt>
-      <dd>The process of transforming source code (TypeScript, JSX, CSS) into optimized files a browser can run. The React apps go through a build step; the static apps do not.</dd>
+      <dd>The process of transforming source code into optimized files a browser can run. Vite compiles TypeScript, bundles JavaScript modules, processes CSS, and outputs a <code>dist/</code> folder. The static apps (Calendar Puzzle, Pok&eacute;mon) skip this step &mdash; they're already browser-ready.</dd>
+    </dl>
+
+    <dl class="term">
+      <dt>npm (Node Package Manager)</dt>
+      <dd>The tool that installs third-party libraries (React, Vite, Tailwind, etc.) that the apps depend on. <code>npm ci</code> installs exact versions from a lock file; <code>npm run build</code> triggers the build process.</dd>
+    </dl>
+
+    <dl class="term">
+      <dt>Dependencies</dt>
+      <dd>External libraries the project relies on. Listed in each app's <code>package.json</code> file with exact versions locked in <code>package-lock.json</code>. Examples: React for UI rendering, Vite for building, Tailwind for styling.</dd>
+    </dl>
+
+    <dl class="term">
+      <dt>Artifact</dt>
+      <dd>The final output of the build step &mdash; a bundle of files ready to be served. The deploy workflow assembles all apps into a single <code>_site/</code> folder, which becomes the artifact uploaded to GitHub Pages.</dd>
+    </dl>
+
+    <dl class="term">
+      <dt>10. Live on GitHub Pages</dt>
+      <dd><strong>GitHub Pages</strong> serves the artifact as a real website at <code>msvante.github.io/apps/</code>. Within minutes of merging a PR, the changes are live and anyone with the URL can see them. The cycle is complete: idea &rarr; code &rarr; review &rarr; merge &rarr; build &rarr; deploy &rarr; live.</dd>
+    </dl>
+
+    <dl class="term">
+      <dt>Deploy</dt>
+      <dd>The final step: publishing the built site so it's accessible on the internet. In this project, GitHub Actions uploads the <code>_site/</code> folder to GitHub Pages, which serves it as a static website. No servers to manage &mdash; it just works.</dd>
+    </dl>
+  </section>
+
+  <section class="glossary-section">
+    <h2>Other Useful Terms</h2>
+
+    <dl class="term">
+      <dt>Issue</dt>
+      <dd>A tracked task, bug report, or feature request on GitHub. Issues are how work gets planned and discussed before any code is written. They can be referenced from commits and pull requests to link the "why" to the "what."</dd>
+    </dl>
+
+    <dl class="term">
+      <dt>Clone</dt>
+      <dd>Downloading a full copy of a repository (including its entire history) to your local machine. This is the first step when starting to work on a project. Claude Code operates on a cloned copy of this repo.</dd>
+    </dl>
+
+    <dl class="term">
+      <dt>Fork</dt>
+      <dd>A personal copy of someone else's repository on GitHub. Forks let you experiment freely without affecting the original project. Changes can be proposed back via pull request.</dd>
+    </dl>
+
+    <dl class="term">
+      <dt>Main Branch</dt>
+      <dd>The primary branch of the repository, called <code>main</code>. It represents the current "official" state of the project. Code only reaches <code>main</code> through reviewed and merged pull requests. Pushes to <code>main</code> trigger the deploy.</dd>
+    </dl>
+
+    <dl class="term">
+      <dt>Remote / Origin</dt>
+      <dd>The version of the repository that lives on GitHub's servers (as opposed to your local copy). By convention it's called <code>origin</code>. Pushing sends your commits to the remote; pulling fetches changes from it.</dd>
+    </dl>
+
+    <dl class="term">
+      <dt>CLAUDE.md</dt>
+      <dd>A special markdown file in the repository that gives instructions to Claude Code. It describes the project structure, conventions, and rules the AI should follow. Think of it as a briefing document for the AI developer.</dd>
+    </dl>
+
+    <dl class="term">
+      <dt>CI/CD (Continuous Integration / Continuous Deployment)</dt>
+      <dd>The overall practice of automating the path from code change to live site. "Continuous Integration" means changes are automatically built and tested. "Continuous Deployment" means they're automatically published. This project does both via GitHub Actions.</dd>
+    </dl>
+
+    <dl class="term">
+      <dt>Environment</dt>
+      <dd>The context in which code runs. The <em>development</em> environment is where code is written and tested. The <em>production</em> environment is the live site users visit. GitHub Actions provides the <em>build</em> environment &mdash; a temporary machine that compiles the code.</dd>
     </dl>
   </section>
 
