@@ -23,6 +23,8 @@ SINGLE_NAME_OVERRIDES: dict[str, dict] = {
     "Richarlison": {"lastName": "Richarlison", "alternateNames": []},
     "Allan": {"lastName": "Allan", "alternateNames": []},
     "Alisson": {"lastName": "Alisson", "alternateNames": []},
+    "Alisson Becker": {"lastName": "Alisson", "alternateNames": ["Becker"]},
+    "Willian José": {"lastName": "Willian José", "alternateNames": ["Willian", "Jose"]},
     "Ederson": {"lastName": "Ederson", "alternateNames": []},
     "Nani": {"lastName": "Nani", "alternateNames": []},
     "Ramires": {"lastName": "Ramires", "alternateNames": []},
@@ -83,9 +85,11 @@ def extract_last_name(full_name: str) -> tuple[str, list[str]]:
     Extract last name and alternate names from a full name.
     Returns (lastName, alternateNames).
     """
-    # Check overrides first
+    # Check overrides first (exact match on normalized full name to avoid
+    # substring collisions like "Fred" matching "Wilfred Ndidi").
+    normalized_full = normalize_name(full_name)
     for key, override in SINGLE_NAME_OVERRIDES.items():
-        if key.lower() in full_name.lower():
+        if normalize_name(key) == normalized_full:
             return override["lastName"], override["alternateNames"]
 
     parts = full_name.strip().split()
