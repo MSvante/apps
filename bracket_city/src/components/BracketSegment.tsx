@@ -1,5 +1,6 @@
 import type { BracketSegment as BracketSegmentType, BracketState } from "../types/puzzle.ts";
 import { isSolvable, findDeepestSolvable, nestingDepth } from "../utils/puzzle.ts";
+import InlineAnswerInput from "./InlineAnswerInput.tsx";
 
 const DEPTH_COLORS = [
   { border: "border-amber-400/70", bg: "bg-amber-400/8", text: "text-amber-300" },
@@ -13,6 +14,7 @@ interface Props {
   bracketStates: Record<string, BracketState>;
   activeBracketId: string | null;
   onSelect: (id: string) => void;
+  onGuess: (answer: string) => void;
   depth?: number;
 }
 
@@ -21,6 +23,7 @@ export default function BracketSegment({
   bracketStates,
   activeBracketId,
   onSelect,
+  onGuess,
   depth = 0,
 }: Props) {
   const state = bracketStates[segment.id];
@@ -28,7 +31,7 @@ export default function BracketSegment({
 
   if (state.solved) {
     return (
-      <span className="font-bold text-emerald-400 solved-pop">
+      <span className={`font-bold solved-pop fill-in ${state.revealed ? "text-amber-300/80" : "text-emerald-400"}`}>
         {segment.answer}
       </span>
     );
@@ -39,6 +42,28 @@ export default function BracketSegment({
   const color = DEPTH_COLORS[depth % DEPTH_COLORS.length];
 
   if (solvable) {
+    // Active bracket: the inline input takes its place so the sentence is the
+    // typing surface and visibly fills in on a correct answer.
+    if (isActive) {
+      return (
+        <span
+          className={`
+            inline-flex items-baseline rounded-md border-b-2 px-1.5 py-0.5 mx-0.5
+            ${color.border} ${color.bg} bracket-active ring-1 ring-amber-400/50 ${color.text}
+          `}
+        >
+          [
+          <InlineAnswerInput
+            key={segment.id}
+            bracket={segment}
+            bracketState={state}
+            onGuess={onGuess}
+          />
+          ]
+        </span>
+      );
+    }
+
     const clueText =
       typeof segment.clue === "string"
         ? segment.clue
@@ -59,10 +84,7 @@ export default function BracketSegment({
         className={`
           inline cursor-pointer rounded-md border-b-2 px-1.5 py-0.5 mx-0.5
           ${color.border} ${color.bg}
-          ${isActive
-            ? `bracket-active ring-1 ring-amber-400/50 ${color.text} font-medium`
-            : `bracket-solvable text-gray-300 hover:text-white`
-          }
+          bracket-solvable text-gray-300 hover:text-white
         `}
       >
         [{clueText}]

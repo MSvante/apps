@@ -1,14 +1,17 @@
 import { useState } from "react";
-import { getRank } from "../utils/scoring.ts";
-import { INITIAL_SCORE } from "../constants/scoring.ts";
+import { INITIAL_SCORE, type Rank, type Performance } from "../constants/scoring.ts";
+import { DIFFICULTY_EMOJI, type Difficulty } from "../utils/puzzle.ts";
 import { loadStats } from "../utils/daily.ts";
+
+const APP_URL = "https://msvante.github.io/apps/bracket_city/";
 
 interface Props {
   score: number;
-  totalBrackets: number;
+  rank: Rank;
+  perf: Performance;
+  difficulty: Difficulty;
   event: string;
   date: string;
-  puzzleNum: number;
   dateStr: string;
 }
 
@@ -16,43 +19,41 @@ function rankColor(rank: string): string {
   switch (rank) {
     case "Kingmaker": return "text-amber-400";
     case "Mayor": return "text-violet-400";
-    case "Resident": return "text-blue-400";
-    case "Local": return "text-gray-400";
-    default: return "text-gray-500";
+    default: return "text-gray-400";
   }
 }
 
-function scoreMessage(score: number): string {
-  if (score >= 100) return "Flawless!";
-  if (score >= 80) return "Excellent work!";
-  if (score >= 50) return "Well played!";
-  if (score >= 20) return "Not bad!";
-  return "Better luck next time!";
+function scoreMessage(rank: string): string {
+  switch (rank) {
+    case "Kingmaker": return "Flawless — a perfect solve!";
+    case "Mayor": return "Well played!";
+    default: return "Puzzle cracked!";
+  }
 }
 
-function scoreEmoji(score: number): string {
-  if (score >= 100) return "🟩🟩🟩🟩🟩";
-  if (score >= 80) return "🟩🟩🟩🟩⬛";
-  if (score >= 60) return "🟩🟩🟩⬛⬛";
-  if (score >= 40) return "🟩🟩⬛⬛⬛";
-  if (score >= 20) return "🟩⬛⬛⬛⬛";
-  return "⬛⬛⬛⬛⬛";
+/** 10-square grid filled in proportion to the final score. */
+function scoreGrid(score: number): string {
+  const filled = Math.round(Math.max(0, Math.min(100, score)) / 10);
+  return "🟩".repeat(filled) + "⬜".repeat(10 - filled);
 }
 
-export default function GameSummary({ score, totalBrackets, event, date, puzzleNum, dateStr }: Props) {
-  const rank = getRank(score);
+export default function GameSummary({ score, rank, perf, difficulty, event, date, dateStr }: Props) {
   const pct = Math.round((score / INITIAL_SCORE) * 100);
   const stats = loadStats();
   const [copied, setCopied] = useState(false);
 
   function handleShare() {
-    const text = [
-      `Bracket City #${puzzleNum}`,
-      scoreEmoji(score),
-      `Score: ${score}/${INITIAL_SCORE} — ${rank}`,
-    ].join("\n");
+    const lines = [
+      `[Bracket City] ${dateStr} ${DIFFICULTY_EMOJI[difficulty]} (${difficulty})`,
+      APP_URL,
+      `Rank: ${rank.emoji} (${rank.name})`,
+      `❌ Wrong guesses: ${perf.wrongGuesses}`,
+      `👀 Peeks: ${perf.peeks}`,
+    ];
+    if (perf.reveals > 0) lines.push(`💡 Reveals: ${perf.reveals}`);
+    lines.push(`Total Score: ${score}`, scoreGrid(score));
 
-    navigator.clipboard.writeText(text).then(() => {
+    navigator.clipboard.writeText(lines.join("\n")).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     });
@@ -62,7 +63,7 @@ export default function GameSummary({ score, totalBrackets, event, date, puzzleN
     <div className="text-center space-y-8 py-6 animate-slide-up">
       <div>
         <h2 className="text-2xl font-bold text-gray-300 mb-1">Puzzle Complete</h2>
-        <p className="text-gray-500">{scoreMessage(score)}</p>
+        <p className="text-gray-500">{scoreMessage(rank.name)}</p>
       </div>
 
       {/* Score ring */}
@@ -91,10 +92,13 @@ export default function GameSummary({ score, totalBrackets, event, date, puzzleN
       </div>
 
       <div>
-        <span className={`text-lg font-bold uppercase tracking-wider ${rankColor(rank)}`}>
-          {rank}
+        <span className={`text-lg font-bold uppercase tracking-wider ${rankColor(rank.name)}`}>
+          {rank.emoji} {rank.name}
         </span>
-        <p className="text-xs text-gray-600 mt-1">{totalBrackets} brackets solved</p>
+        <p className="text-xs text-gray-600 mt-1">
+          {DIFFICULTY_EMOJI[difficulty]} {difficulty} · ❌ {perf.wrongGuesses} · 👀 {perf.peeks}
+          {perf.reveals > 0 && ` · 💡 ${perf.reveals}`}
+        </p>
       </div>
 
       {/* Stats */}
