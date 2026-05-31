@@ -37,6 +37,16 @@
   display: inline-block;
 }
 
+/* Solved answer settling into the sentence */
+@keyframes fill-in {
+  from { background-color: rgba(52, 211, 153, 0.25); border-radius: 4px; }
+  to { background-color: transparent; }
+}
+
+.fill-in {
+  animation: fill-in 0.6s ease-out;
+}
+
 /* Slide-in for answer input */
 @keyframes slide-up {
   from { opacity: 0; transform: translateY(8px); }

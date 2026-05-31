@@ -1,4 +1,4 @@
-import type { Puzzle } from "../types/puzzle.ts";
+import type { Puzzle, BracketState } from "../types/puzzle.ts";
 
 /** Format a Date as "MM-DD" key for puzzle lookup. */
 export function dateKey(date: Date = new Date()): string {
@@ -47,7 +47,7 @@ export interface DailyState {
   dateKey: string;
   completed: boolean;
   score: number;
-  brackets: Record<string, { solved: boolean; hintUsed: boolean; wrongGuesses: number }>;
+  brackets: Record<string, BracketState>;
   activeBracketId: string | null;
 }
 

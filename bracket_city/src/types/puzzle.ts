@@ -21,7 +21,10 @@ export interface Puzzle {
 
 export interface BracketState {
   solved: boolean;
-  hintUsed: boolean;
+  /** Player peeked at the first letter of this bracket. */
+  peeked: boolean;
+  /** Answer was revealed (auto-solved) rather than guessed. */
+  revealed: boolean;
   wrongGuesses: number;
 }
 

@@ -33,21 +33,25 @@ export default function App() {
         {showHelp && (
           <div className="bg-gray-800/60 border border-gray-700 rounded-xl p-4 mb-6 text-sm text-gray-300 space-y-2 animate-slide-up">
             <p>
-              <strong className="text-white">Goal:</strong> Fill in every
-              bracket to reveal the hidden historical event.
+              <strong className="text-white">Goal:</strong> Solve every bracket
+              from the inside out and watch the sentence decode itself into the
+              hidden historical event.
             </p>
             <p>
               <strong className="text-amber-400">Colored brackets</strong> are
-              ready to solve — tap one to see its clue.
+              ready to solve — tap one and type your answer right in the
+              sentence, then press <kbd className="text-gray-300">Enter</kbd>.
             </p>
             <p>
               <strong className="text-gray-400">Gray brackets</strong> contain
               unsolved inner brackets — solve those first.
             </p>
             <p>
-              Wrong guesses cost <strong className="text-red-400">-10 pts</strong>.
-              Hints cost <strong className="text-red-400">-15 pts</strong>.
-              Try to keep your score at 100!
+              Stuck? <strong className="text-amber-300">👀 Peek</strong> reveals
+              the first letter (<strong className="text-red-400">-10 pts</strong>),
+              and <strong className="text-amber-300">💡 Reveal</strong> gives the
+              whole answer (<strong className="text-red-400">-25 pts</strong>).
+              Solve it clean to rank <strong className="text-amber-400">Kingmaker</strong>!
             </p>
             <button
               onClick={() => setShowHelp(false)}

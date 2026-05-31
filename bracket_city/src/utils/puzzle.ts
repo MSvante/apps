@@ -19,7 +19,7 @@ export function initBracketStates(segments: PuzzleSegment[]): Record<string, Bra
   const brackets = collectBrackets(segments);
   const states: Record<string, BracketState> = {};
   for (const b of brackets) {
-    states[b.id] = { solved: false, hintUsed: false, wrongGuesses: 0 };
+    states[b.id] = { solved: false, peeked: false, revealed: false, wrongGuesses: 0 };
   }
   return states;
 }
@@ -125,6 +125,34 @@ export function buildSolvingChain(
 
   walk(root);
   return chain; // deepest first, root last
+}
+
+export type Difficulty = "Easy" | "Medium" | "Tough";
+
+export const DIFFICULTY_EMOJI: Record<Difficulty, string> = {
+  Easy: "🟢",
+  Medium: "🟡",
+  Tough: "🔴",
+};
+
+/**
+ * Derive a puzzle's difficulty deterministically from its shape.
+ * puzzles.json has no difficulty field, so we combine the total number of
+ * brackets with the deepest nesting (against an all-unsolved state).
+ */
+export function puzzleDifficulty(segments: PuzzleSegment[]): Difficulty {
+  const total = collectBrackets(segments).length;
+  let maxDepth = 0;
+  for (const seg of segments) {
+    if (seg.type === "bracket") {
+      maxDepth = Math.max(maxDepth, nestingDepth(seg, {}));
+    }
+  }
+  // Weight depth more heavily — deep nesting is what makes a puzzle hard.
+  const complexity = total + maxDepth * 2;
+  if (complexity <= 12) return "Easy";
+  if (complexity <= 20) return "Medium";
+  return "Tough";
 }
 
 /**

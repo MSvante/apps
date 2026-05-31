@@ -20,16 +20,17 @@ Game state lives entirely in `src/hooks/useGame.ts` (useReducer). Components are
 src/
 ├── hooks/useGame.ts        # All game state and logic; auto-saves to localStorage
 ├── components/
-│   ├── GameContainer.tsx   # Orchestrates daily puzzle loading and game phases
-│   ├── PuzzleSentence.tsx  # Renders the full sentence with brackets
-│   ├── BracketSegment.tsx  # Individual bracket; color-coded by nesting depth
-│   └── AnswerInput.tsx     # Input with clue, solving chain breadcrumb, hint button
+│   ├── GameContainer.tsx     # Orchestrates daily puzzle loading and game phases
+│   ├── PuzzleSentence.tsx    # Renders the full sentence with brackets
+│   ├── BracketSegment.tsx    # Individual bracket; color-coded by nesting depth
+│   ├── InlineAnswerInput.tsx # The answer field rendered inline, in place of the active bracket
+│   └── ClueBar.tsx           # Slim bar under the sentence: clue, solving chain, Peek/Reveal
 ├── utils/
-│   ├── puzzle.ts           # Tree traversal: solvability, deepest bracket, solving chain
-│   ├── scoring.ts          # Score → rank (Kingmaker, Mayor, Resident, Local, Commuter)
+│   ├── puzzle.ts           # Tree traversal: solvability, deepest bracket, solving chain, puzzleDifficulty
+│   ├── scoring.ts          # Performance → rank (Kingmaker, Mayor, Commuter)
 │   ├── normalize.ts        # trim().toLowerCase() only — no diacritics handling
 │   └── daily.ts            # Daily puzzle selection, localStorage persistence, stats
-├── constants/scoring.ts    # INITIAL_SCORE=100, WRONG_PENALTY=10, HINT_PENALTY=15, rank thresholds
+├── constants/scoring.ts    # INITIAL_SCORE=100, WRONG/PEEK_PENALTY=10, REVEAL_PENALTY=25, rank tiers
 ├── types/puzzle.ts         # Puzzle, Bracket, Segment, GameState types
 └── data/puzzles.json       # All puzzles keyed by MM-DD date
 ```
@@ -42,11 +43,17 @@ src/
 
 **Locked bracket behaviour:** Clicking a locked bracket drills down to its deepest solvable child rather than selecting the parent.
 
-**Solving chain:** `buildSolvingChain()` traces the ancestor path from the active bracket to the root, displayed as a breadcrumb in `AnswerInput` so the player sees context.
+**Solving chain:** `buildSolvingChain()` traces the ancestor path from the active bracket to the root, displayed as a breadcrumb in `ClueBar` so the player sees context.
 
-**Scoring:** Starts at 100. Each wrong guess −10, each hint −15. Minimum 0. Rank updates live.
+**Inline answer entry:** The active bracket renders an inline `<input>` (`InlineAnswerInput`) in place of its clue, so the sentence is the typing surface and visibly assembles as brackets are solved. The clue and assist buttons live in the slim `ClueBar` beneath the sentence.
 
-**Hints:** Reveals the first letter of the answer. One hint per bracket; costs 15 points.
+**Scoring:** Starts at 100. Each wrong guess −10, each peek −10, each reveal −25. Minimum 0. Rank updates live.
+
+**Peek vs. Reveal:** `Peek` reveals the answer's first letter (−10, once per bracket). `Reveal` fills in the full answer and auto-advances (−25), flagging the bracket as `revealed`.
+
+**Ranks:** Mirror the real Bracket City tiers (`utils/scoring.ts`, `getRank`): **Kingmaker** (flawless — no wrong guesses, peeks, or reveals), **Mayor** (no reveals and score ≥ 70), **Commuter** (everything else).
+
+**Difficulty:** `puzzleDifficulty()` derives Easy/Medium/Tough from total bracket count + max nesting depth (puzzles.json has no difficulty field). Shown as 🟢/🟡/🔴 and in the share string.
 
 **Answer matching:** `normalize.ts` does `trim().toLowerCase()` only — no fuzzy matching, no diacritics stripping.
 

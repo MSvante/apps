@@ -1,9 +1,24 @@
-import { RANKS } from "../constants/scoring.ts";
+import {
+  KINGMAKER,
+  MAYOR,
+  COMMUTER,
+  MAYOR_MIN_SCORE,
+  type Performance,
+  type Rank,
+} from "../constants/scoring.ts";
 
-export function getRank(score: number): string {
-  const clamped = Math.max(0, score);
-  for (const rank of RANKS) {
-    if (clamped >= rank.minScore) return rank.name;
+/**
+ * Determine rank from performance, not just raw score:
+ * - Kingmaker: flawless — no wrong guesses, peeks, or reveals.
+ * - Mayor: clean — no reveals and a high score.
+ * - Commuter: completed with heavier help (reveals / many mistakes).
+ */
+export function getRank(perf: Performance): Rank {
+  if (perf.wrongGuesses === 0 && perf.peeks === 0 && perf.reveals === 0) {
+    return KINGMAKER;
   }
-  return RANKS[RANKS.length - 1].name;
+  if (perf.reveals === 0 && perf.score >= MAYOR_MIN_SCORE) {
+    return MAYOR;
+  }
+  return COMMUTER;
 }

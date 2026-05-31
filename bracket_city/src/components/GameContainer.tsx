@@ -1,9 +1,11 @@
 import type { Puzzle, BracketSegment as BracketSegmentType } from "../types/puzzle.ts";
+import type { Performance } from "../constants/scoring.ts";
 import { useGame } from "../hooks/useGame.ts";
-import { collectBrackets, buildSolvingChain } from "../utils/puzzle.ts";
+import { collectBrackets, buildSolvingChain, puzzleDifficulty } from "../utils/puzzle.ts";
+import { getRank } from "../utils/scoring.ts";
 import { getDailyPuzzle, loadDailyState, puzzleNumber, formatDate } from "../utils/daily.ts";
 import PuzzleSentence from "./PuzzleSentence.tsx";
-import AnswerInput from "./AnswerInput.tsx";
+import ClueBar from "./ClueBar.tsx";
 import ScoreBar from "./ScoreBar.tsx";
 import GameSummary from "./GameSummary.tsx";
 import puzzlesData from "../data/puzzles.json";
@@ -72,7 +74,7 @@ function DailyGame({
   puzzleNum: number;
   dateStr: string;
 }) {
-  const { state, selectBracket, guess, useHint } = useGame(puzzle, savedState);
+  const { state, selectBracket, guess, peek, reveal } = useGame(puzzle, savedState);
   const { phase, brackets, activeBracketId, score } = state;
 
   const allBrackets = collectBrackets(puzzle.segments);
@@ -80,6 +82,15 @@ function DailyGame({
   const activeBracket = activeBracketId
     ? findBracket(puzzle.segments, activeBracketId)
     : null;
+
+  const difficulty = puzzleDifficulty(puzzle.segments);
+  const perf: Performance = {
+    score,
+    wrongGuesses: allBrackets.reduce((n, b) => n + (brackets[b.id]?.wrongGuesses ?? 0), 0),
+    peeks: allBrackets.filter((b) => brackets[b.id]?.peeked).length,
+    reveals: allBrackets.filter((b) => brackets[b.id]?.revealed).length,
+  };
+  const rank = getRank(perf);
 
   // Build solving chain: find the root bracket containing the active bracket
   // and trace the path from deepest to root
@@ -95,10 +106,11 @@ function DailyGame({
     return (
       <GameSummary
         score={score}
-        totalBrackets={allBrackets.length}
+        rank={rank}
+        perf={perf}
+        difficulty={difficulty}
         event={puzzle.event}
         date={puzzle.date}
-        puzzleNum={puzzleNum}
         dateStr={dateStr}
       />
     );
@@ -113,23 +125,30 @@ function DailyGame({
         <span className="text-xs text-gray-500">{dateStr}</span>
       </div>
 
-      <ScoreBar score={score} solvedCount={solvedCount} totalCount={allBrackets.length} />
+      <ScoreBar
+        score={score}
+        rank={rank}
+        difficulty={difficulty}
+        solvedCount={solvedCount}
+        totalCount={allBrackets.length}
+      />
 
-      <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-5 md:p-8">
+      <div className="bg-gray-900/40 rounded-xl p-5 md:p-8">
         <PuzzleSentence
           segments={puzzle.segments}
           bracketStates={brackets}
           activeBracketId={activeBracketId}
           onSelect={selectBracket}
+          onGuess={guess}
         />
 
         {activeBracket && (
-          <AnswerInput
+          <ClueBar
             bracket={activeBracket}
             bracketState={brackets[activeBracketId!]}
             solvingChain={solvingChain}
-            onGuess={guess}
-            onHint={useHint}
+            onPeek={peek}
+            onReveal={reveal}
           />
         )}
 

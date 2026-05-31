@@ -7,6 +7,7 @@ interface Props {
   bracketStates: Record<string, BracketState>;
   activeBracketId: string | null;
   onSelect: (id: string) => void;
+  onGuess: (answer: string) => void;
 }
 
 export default function PuzzleSentence({
@@ -14,6 +15,7 @@ export default function PuzzleSentence({
   bracketStates,
   activeBracketId,
   onSelect,
+  onGuess,
 }: Props) {
   return (
     <p className="text-lg md:text-xl leading-relaxed">
@@ -27,6 +29,7 @@ export default function PuzzleSentence({
             bracketStates={bracketStates}
             activeBracketId={activeBracketId}
             onSelect={onSelect}
+            onGuess={onGuess}
           />
         ),
       )}
