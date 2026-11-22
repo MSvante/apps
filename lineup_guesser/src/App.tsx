@@ -6,6 +6,12 @@ function App() {
       <header className="relative pt-2 sm:pt-4 pb-1 sm:pb-2">
         <a
           href="../"
+          onClick={(e) => {
+            if (window.parent !== window) {
+              e.preventDefault();
+              window.parent.postMessage({ type: "spilplatform:exit" }, "*");
+            }
+          }}
           className="absolute left-2 sm:left-4 top-2 sm:top-4 px-2 py-1 text-xs font-medium text-gray-500 border border-gray-700 rounded hover:text-gray-300 hover:border-gray-500 transition-colors"
         >
           &#8592; Menu

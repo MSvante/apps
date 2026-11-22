@@ -1,5 +1,12 @@
 import type { Match } from "../types/match";
 
+/** Premier League seasons start in August: 2010-01-20 -> "2009/10". */
+function seasonFromDate(date: string): string {
+  const year = Number(date.slice(0, 4));
+  const start = Number(date.slice(5, 7)) >= 8 ? year : year - 1;
+  return `${start}/${String((start + 1) % 100).padStart(2, "0")}`;
+}
+
 interface MatchHeaderProps {
   match: Match;
   team: "home" | "away";
@@ -11,7 +18,7 @@ export function MatchHeader({ match, team }: MatchHeaderProps) {
   return (
     <div className="text-center mb-2 sm:mb-4">
       <div className="text-xs sm:text-sm text-gray-400 mb-1">
-        {match.season} &middot; {match.date}
+        {match.season || seasonFromDate(match.date)} &middot; {match.date}
       </div>
       <div className="flex items-center justify-center gap-2 sm:gap-3 text-sm sm:text-lg">
         <span

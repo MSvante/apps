@@ -9,14 +9,20 @@ interface NewsDataArticle {
 
 interface NewsDataResponse {
   status: string
-  results: NewsDataArticle[] | null
+  results: NewsDataArticle[] | { code?: string; message?: string } | null
 }
+
+/** Shown when the free plan's daily request quota (200/day) is used up. */
+export const RATE_LIMIT_MESSAGE =
+  "Today's headline limit for the news API has been reached. Come back tomorrow for new headlines."
+
+const RATE_LIMIT_CODES = ["RateLimitExceeded", "ApiLimitExceeded", "TooManyRequests"]
 
 export async function fetchHeadlines(): Promise<Headline[]> {
   const response = await fetch(API_BASE)
 
   if (response.status === 429) {
-    throw new Error("Daily API rate limit reached. Please try again tomorrow.")
+    throw new Error(RATE_LIMIT_MESSAGE)
   }
 
   if (response.status === 401 || response.status === 403) {
@@ -24,12 +30,22 @@ export async function fetchHeadlines(): Promise<Headline[]> {
   }
 
   if (!response.ok) {
+    // newsdata.io can also report the quota in the JSON body of an error response
+    const body = await response.json().catch(() => null) as NewsDataResponse | null
+    const code = body && body.results && !Array.isArray(body.results) ? body.results.code : undefined
+    if (code && RATE_LIMIT_CODES.includes(code)) throw new Error(RATE_LIMIT_MESSAGE)
+
     throw new Error(`Failed to fetch headlines (HTTP ${response.status})`)
   }
 
   const data: NewsDataResponse = await response.json()
 
-  const allArticles = data.status === "success" && data.results ? data.results : []
+  if (data.status !== "success" && data.results && !Array.isArray(data.results)) {
+    const code = data.results.code
+    if (code && RATE_LIMIT_CODES.includes(code)) throw new Error(RATE_LIMIT_MESSAGE)
+  }
+
+  const allArticles = data.status === "success" && Array.isArray(data.results) ? data.results : []
 
   const seen = new Set<string>()
   const headlines: Headline[] = allArticles

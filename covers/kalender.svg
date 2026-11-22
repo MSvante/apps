@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720">
+<rect width="1280" height="720" fill="#1a1a2e"/>
+<rect x="94" y="79" width="550" height="550" rx="18" fill="#0d1b2a"/>
+<rect x="112" y="97" width="70" height="70" rx="8" fill="#FF6B6B"/>
+<rect x="186" y="97" width="70" height="70" rx="8" fill="#FF6B6B"/>
+<rect x="260" y="97" width="70" height="70" rx="8" fill="#FF6B6B"/>
+<rect x="334" y="97" width="70" height="70" rx="8" fill="#4ECDC4"/>
+<rect x="408" y="97" width="70" height="70" rx="8" fill="#4ECDC4"/>
+<rect x="482" y="97" width="70" height="70" rx="8" fill="#4ECDC4"/>
+<rect x="112" y="171" width="70" height="70" rx="8" fill="#FF6B6B"/>
+<rect x="186" y="171" width="70" height="70" rx="8" fill="#45B7D1"/>
+<rect x="260" y="171" width="70" height="70" rx="8" fill="#45B7D1"/>
+<rect x="334" y="171" width="70" height="70" rx="8" fill="#4ECDC4"/>
+<rect x="409" y="172" width="68" height="68" rx="10" fill="#e94560"/>
+<text x="443.0" y="216.0" text-anchor="middle" font-size="28" font-weight="800" fill="#fff" font-family="'Segoe UI', system-ui, -apple-system, sans-serif">NOV</text>
+<rect x="482" y="171" width="70" height="70" rx="8" fill="#DDA0DD"/>
+<rect x="112" y="245" width="70" height="70" rx="8" fill="#96CEB4"/>
+<rect x="186" y="245" width="70" height="70" rx="8" fill="#45B7D1"/>
+<rect x="260" y="245" width="70" height="70" rx="8" fill="#45B7D1"/>
+<rect x="334" y="245" width="70" height="70" rx="8" fill="#DDA0DD"/>
+<rect x="408" y="245" width="70" height="70" rx="8" fill="#DDA0DD"/>
+<rect x="482" y="245" width="70" height="70" rx="8" fill="#F7DC6F"/>
+<rect x="556" y="245" width="70" height="70" rx="8" fill="#F7DC6F"/>
+<rect x="112" y="319" width="70" height="70" rx="8" fill="#96CEB4"/>
+<rect x="186" y="319" width="70" height="70" rx="8" fill="#96CEB4"/>
+<rect x="260" y="319" width="70" height="70" rx="8" fill="#F0A500"/>
+<rect x="334" y="319" width="70" height="70" rx="8" fill="#F0A500"/>
+<rect x="408" y="319" width="70" height="70" rx="8" fill="#BB86FC"/>
+<rect x="482" y="319" width="70" height="70" rx="8" fill="#F7DC6F"/>
+<rect x="556" y="319" width="70" height="70" rx="8" fill="#F7DC6F"/>
+<rect x="112" y="393" width="70" height="70" rx="8" fill="#96CEB4"/>
+<rect x="186" y="393" width="70" height="70" rx="8" fill="#F0A500"/>
+<rect x="260" y="393" width="70" height="70" rx="8" fill="#F0A500"/>
+<rect x="334" y="393" width="70" height="70" rx="8" fill="#BB86FC"/>
+<rect x="408" y="393" width="70" height="70" rx="8" fill="#BB86FC"/>
+<rect x="482" y="393" width="70" height="70" rx="8" fill="#FF6B6B"/>
+<rect x="556" y="393" width="70" height="70" rx="8" fill="#FF6B6B"/>
+<rect x="113" y="468" width="68" height="68" rx="10" fill="#e94560"/>
+<text x="147.0" y="512.0" text-anchor="middle" font-size="28" font-weight="800" fill="#fff" font-family="'Segoe UI', system-ui, -apple-system, sans-serif">22</text>
+<rect x="186" y="467" width="70" height="70" rx="8" fill="#4ECDC4"/>
+<rect x="260" y="467" width="70" height="70" rx="8" fill="#4ECDC4"/>
+<rect x="334" y="467" width="70" height="70" rx="8" fill="#4ECDC4"/>
+<rect x="408" y="467" width="70" height="70" rx="8" fill="#BB86FC"/>
+<rect x="482" y="467" width="70" height="70" rx="8" fill="#FF6B6B"/>
+<rect x="556" y="467" width="70" height="70" rx="8" fill="#FF6B6B"/>
+<rect x="112" y="541" width="70" height="70" rx="8" fill="#4ECDC4"/>
+<rect x="186" y="541" width="70" height="70" rx="8" fill="#45B7D1"/>
+<rect x="260" y="541" width="70" height="70" rx="8" fill="#45B7D1"/>
+<text x="740" y="300" font-size="40" font-weight="600" fill="#9ca3af" font-family="'Segoe UI', system-ui, -apple-system, sans-serif">A NEW PUZZLE</text>
+<text x="740" y="350" font-size="40" font-weight="600" fill="#9ca3af" font-family="'Segoe UI', system-ui, -apple-system, sans-serif">EVERY DAY</text>
+<text x="740" y="450" font-size="84" font-weight="800" fill="#fff" font-family="'Segoe UI', system-ui, -apple-system, sans-serif">Calendar</text>
+<text x="740" y="540" font-size="84" font-weight="800" fill="#e94560" font-family="'Segoe UI', system-ui, -apple-system, sans-serif">Puzzle</text>
+</svg>

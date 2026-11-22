@@ -5,7 +5,13 @@ export default function App() {
     <div className="min-h-[100dvh] flex flex-col font-[Nunito,sans-serif]">
       <header className="px-4 pt-4 pb-2">
         <a
-          href="/apps/"
+          href="../"
+          onClick={(e) => {
+            if (window.parent !== window) {
+              e.preventDefault();
+              window.parent.postMessage({ type: "spilplatform:exit" }, "*");
+            }
+          }}
           className="inline-flex items-center gap-1.5 text-sm text-gray-400 hover:text-gray-600 transition-colors"
         >
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
