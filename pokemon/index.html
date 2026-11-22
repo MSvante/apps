@@ -313,7 +313,7 @@ h1 {
 </head>
 <body>
 
-<a class="back-link" href="../">&#8592; Menu</a>
+<a class="back-link" href="../" onclick="if (window.parent !== window) { event.preventDefault(); window.parent.postMessage({ type: 'spilplatform:exit' }, '*'); }">&#8592; Menu</a>
 
 <header>
   <h1>Who's That Pok&eacute;mon?</h1>

@@ -18,4 +18,8 @@ A collection of interactive web games hosted at https://msvante.github.io/apps/.
 
 The GitHub Actions workflow (`.github/workflows/deploy.yml`) builds each React app independently, then assembles the full site under `_site/` alongside the static apps before deploying to GitHub Pages.
 
-Each Vite config sets a base path matching its subpath (e.g. `/apps/lineup_guesser/`). When adding a new React app, update both `vite.config.ts` and the deploy workflow.
+Each Vite config uses a relative base (`base: './'`), so a build works under any subpath. When adding a new React app, set that base and add the app to the deploy workflow.
+
+## Spilplatform
+
+The games are also listed on the colleague game platform (see `SPILPLATFORM.md`). The platform shows each game in a sandboxed iframe. Every game's back link must post `{ type: "spilplatform:exit" }` to `window.parent` when it runs inside a frame, and navigate to `../` otherwise.

@@ -8,7 +8,13 @@ export default function App() {
     <div className="min-h-screen flex flex-col bg-gray-950">
       <header className="px-4 pt-4 pb-2 flex items-center justify-between max-w-2xl w-full mx-auto">
         <a
-          href="/apps/"
+          href="../"
+          onClick={(e) => {
+            if (window.parent !== window) {
+              e.preventDefault();
+              window.parent.postMessage({ type: "spilplatform:exit" }, "*");
+            }
+          }}
           className="text-sm text-gray-500 hover:text-gray-300 transition-colors"
         >
           &larr; Back
