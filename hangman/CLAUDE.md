@@ -19,7 +19,7 @@ Game state lives entirely in `src/hooks/useGame.ts` (useReducer). Components are
 ```
 src/
 ├── hooks/useGame.ts        # All game state; phases, guesses, hints, results
-├── api/news.ts             # Fetches headlines from newsdata.io in parallel batches
+├── api/news.ts             # Fetches headlines from newsdata.io (one request)
 ├── components/
 │   ├── GameContainer.tsx   # Orchestrates fetch, phases, error/loading states
 │   ├── HeadlineDisplay.tsx # Renders headline; hides target word as underscores
@@ -28,7 +28,7 @@ src/
 │   ├── ScoreBar.tsx        # Dot indicators per headline (solved/failed/current)
 │   └── GameSummary.tsx     # End-of-session summary with all headlines
 ├── utils/headline.ts       # Display char logic, smart hidden-word picker
-├── constants/config.ts     # API key, domain batches, MAX_WRONG_GUESSES=5, HINT_MAX=3
+├── constants/config.ts     # API key, MAX_WRONG_GUESSES=5, HINT_MAX=3
 └── types/game.ts           # Headline, GameState, GamePhase, GameAction types
 ```
 
@@ -52,8 +52,8 @@ src/
 
 ## API & Headline Fetching (`src/api/news.ts`)
 
-Fetches from newsdata.io in 3 parallel batches (5 domains each, 15 domains total). Filters: title must be ≥10 letters and ≤120 characters. Results are deduplicated by title and shuffled.
+Fetches the latest English headlines from newsdata.io in one request per session. Filters: title must be ≥10 letters and ≤120 characters. Results are deduplicated by title and shuffled.
 
-API key and domain list are in `src/constants/config.ts`. Error codes handled: 429 (rate limit), 401/403 (bad key).
+The API key is in `src/constants/config.ts`. Error codes handled: 429 or a `RateLimitExceeded`/`ApiLimitExceeded` body code (daily quota, 200 requests on the free plan: shows `RATE_LIMIT_MESSAGE` with no retry button), 401/403 (bad key).
 
 The API key is committed to the repo — it is a free-tier public key with rate limits, not a secret.

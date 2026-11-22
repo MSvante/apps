@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720">
+<rect width="1280" height="720" fill="#fffbeb"/>
+<g transform="rotate(-4 380 380)">
+<rect x="120" y="120" width="520" height="500" rx="6" fill="#fff" stroke="#e5e7eb" stroke-width="3"/>
+<text x="380" y="190" text-anchor="middle" font-size="44" font-weight="700" fill="#1f2937" font-family="Georgia, 'Times New Roman', serif">The Daily Word</text>
+<line x1="150" y1="210" x2="610" y2="210" stroke="#1f2937" stroke-width="3"/><line x1="150" y1="218" x2="610" y2="218" stroke="#1f2937" stroke-width="1"/>
+<text x="150" y="285" font-size="38" font-weight="700" fill="#1f2937" font-family="Georgia, 'Times New Roman', serif">Scientists find</text>
+<line x1="150" y1="340" x2="184" y2="340" stroke="#1f2937" stroke-width="4"/>
+<line x1="196" y1="340" x2="230" y2="340" stroke="#1f2937" stroke-width="4"/>
+<text x="213" y="332" text-anchor="middle" font-size="38" font-weight="700" fill="#d97706" font-family="Georgia, 'Times New Roman', serif">A</text>
+<line x1="242" y1="340" x2="276" y2="340" stroke="#1f2937" stroke-width="4"/>
+<line x1="288" y1="340" x2="322" y2="340" stroke="#1f2937" stroke-width="4"/>
+<line x1="334" y1="340" x2="368" y2="340" stroke="#1f2937" stroke-width="4"/>
+<text x="351" y="332" text-anchor="middle" font-size="38" font-weight="700" fill="#d97706" font-family="Georgia, 'Times New Roman', serif">E</text>
+<line x1="380" y1="340" x2="414" y2="340" stroke="#1f2937" stroke-width="4"/>
+<text x="440" y="337" font-size="38" font-weight="700" fill="#1f2937" font-family="Georgia, 'Times New Roman', serif">on Mars</text>
+<rect x="150" y="390" width="460" height="10" rx="5" fill="#e5e7eb"/>
+<rect x="150" y="420" width="460" height="10" rx="5" fill="#e5e7eb"/>
+<rect x="150" y="450" width="300" height="10" rx="5" fill="#e5e7eb"/>
+<rect x="150" y="480" width="460" height="10" rx="5" fill="#e5e7eb"/>
+<rect x="150" y="510" width="460" height="10" rx="5" fill="#e5e7eb"/>
+<rect x="150" y="540" width="300" height="10" rx="5" fill="#e5e7eb"/>
+<rect x="150" y="570" width="460" height="10" rx="5" fill="#e5e7eb"/>
+</g>
+<path d="M780 600 H1000 M840 600 V170 H990 V230 M840 240 L900 170" stroke="#78350f" stroke-width="12" stroke-linecap="round" fill="none"/>
+<circle cx="990" cy="270" r="40" stroke="#1f2937" stroke-width="8" stroke-linecap="round" fill="none"/><path d="M990 310 V430 M990 345 L940 395 M990 345 L1040 395" stroke="#1f2937" stroke-width="8" stroke-linecap="round" fill="none"/>
+<text x="890" y="680" text-anchor="middle" font-size="56" font-weight="800" fill="#1f2937" font-family="Nunito, 'Segoe UI', system-ui, sans-serif">Headline <tspan fill="#d97706">Hangman</tspan></text>
+</svg>

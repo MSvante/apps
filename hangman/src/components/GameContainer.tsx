@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react"
 import { useGame } from "../hooks/useGame.ts"
-import { fetchHeadlines } from "../api/news.ts"
+import { fetchHeadlines, RATE_LIMIT_MESSAGE } from "../api/news.ts"
 import { MAX_WRONG_GUESSES, HINT_MAX } from "../constants/config.ts"
 import HangmanDrawing from "./HangmanDrawing.tsx"
 import HeadlineDisplay from "./HeadlineDisplay.tsx"
@@ -34,6 +34,16 @@ export default function GameContainer() {
           ))}
         </div>
         <p className="text-gray-400 text-sm">Loading today's headlines...</p>
+      </div>
+    )
+  }
+
+  if (state.phase === "ERROR" && state.errorMessage === RATE_LIMIT_MESSAGE) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-3 py-16 animate-fade-slide-up">
+        <p className="text-4xl" aria-hidden="true">📰</p>
+        <p className="text-lg font-bold text-gray-800 text-center">No more headlines today</p>
+        <p className="text-gray-500 text-center max-w-xs">{RATE_LIMIT_MESSAGE}</p>
       </div>
     )
   }
